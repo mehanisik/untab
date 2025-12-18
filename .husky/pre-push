@@ -1,0 +1,20 @@
+#!/bin/sh
+set -e
+
+echo "🔍 Running pre-push checks..."
+
+echo "🧹 Linting..."
+bun run lint
+
+echo "✨ Formatting check..."
+# biome format returns 0 if no changes needed or if it wrote successfully. 
+# We use --check to fail if not formatted.
+bun biome format --check .
+
+echo "⌨️ Type checking..."
+bun run typecheck
+
+echo "🏗 Building..."
+bun run build
+
+echo "✅ All checks passed! Pushing to remote..."

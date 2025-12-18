@@ -13,7 +13,8 @@
 		"format": "biome format --write .",
 		"lighthouse": "bunx @unlighthouse/cli --site http://localhost:3000",
 		"typecheck": "tsc --noEmit --incremental false",
-		"analyze": "cross-env ANALYZE=true next build"
+		"analyze": "cross-env ANALYZE=true next build",
+		"prepare": "husky"
 	},
 	"dependencies": {
 		"@base-ui/react": "^1.0.0",
@@ -59,6 +60,7 @@
 		"@types/uuid": "^11.0.0",
 		"babel-plugin-react-compiler": "^1.0.0",
 		"cross-env": "^10.1.0",
+		"husky": "^9.1.7",
 		"tailwindcss": "^4.1.18",
 		"typescript": "^5.9.3",
 		"uuid": "^13.0.0"
