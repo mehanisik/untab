@@ -1,0 +1,134 @@
+{
+	"$schema": "https://biomejs.dev/schemas/2.3.9/schema.json",
+	"vcs": {
+		"enabled": true,
+		"clientKind": "git",
+		"useIgnoreFile": true
+	},
+	"files": {
+		"ignoreUnknown": false,
+		"includes": [
+			"**",
+			"!node_modules",
+			"!**/.next",
+			"!**/dist",
+			"!**/public",
+			"!.github",
+			"!.vercel",
+			"!pnpm-lock.yaml",
+			"!bun.lock",
+			"!**/*.md",
+			"!**/*.mdx",
+			"!**/globals.css",
+			"!**/ui"
+		]
+	},
+	"formatter": {
+		"enabled": true,
+		"indentStyle": "tab"
+	},
+	"linter": {
+		"enabled": true,
+		"domains": {
+			"next": "recommended",
+			"react": "recommended",
+			"project": "recommended"
+		},
+		"rules": {
+			"recommended": true,
+			"correctness": {
+				"noUnusedImports": "error",
+				"noUnusedVariables": "warn",
+				"useExhaustiveDependencies": "warn",
+				"noUnknownMediaFeatureName": "off",
+				"noInvalidUseBeforeDeclaration": "error",
+				"noUnusedFunctionParameters": "warn",
+				"noUndeclaredVariables": "off"
+			},
+			"style": {
+				"noNonNullAssertion": "off",
+				"noUnusedTemplateLiteral": "off",
+				"noParameterAssign": "error",
+				"useAsConstAssertion": "error",
+				"useDefaultParameterLast": "error",
+				"useEnumInitializers": "error",
+				"useSelfClosingElements": "error",
+				"useSingleVarDeclarator": "error",
+				"useNumberNamespace": "error",
+				"noInferrableTypes": "error",
+				"noUselessElse": "error",
+				"useConsistentArrayType": "error",
+				"useForOf": "warn",
+				"useShorthandAssign": "error",
+				"useTemplate": "warn",
+				"useCollapsedElseIf": "warn",
+				"useExponentiationOperator": "error",
+				"useConsistentBuiltinInstantiation": "error",
+				"useFilenamingConvention": {
+					"level": "warn",
+					"options": {
+						"filenameCases": ["kebab-case", "camelCase"],
+						"strictCase": false
+					}
+				},
+				"noNestedTernary": "error"
+			},
+			"suspicious": {
+				"noExplicitAny": "warn",
+				"noEmptyBlockStatements": "warn",
+				"noDoubleEquals": "error",
+				"noDebugger": "warn",
+				"noGlobalIsFinite": "error",
+				"noGlobalIsNan": "error",
+				"noMisleadingCharacterClass": "error",
+				"noPrototypeBuiltins": "warn",
+				"noSelfCompare": "error",
+				"noSparseArray": "error",
+				"useAwait": "off"
+			},
+			"complexity": {
+				"noForEach": "off",
+				"useSimplifiedLogicExpression": "warn",
+				"useFlatMap": "warn"
+			},
+			"security": {
+				"noGlobalEval": "error",
+				"noDangerouslySetInnerHtml": "warn",
+				"noDangerouslySetInnerHtmlWithChildren": "error"
+			},
+			"a11y": {
+				"useKeyWithClickEvents": "warn",
+				"useValidAnchor": "warn",
+				"useAltText": "error",
+				"useButtonType": "error",
+				"useValidAriaProps": "error",
+				"useValidAriaRole": "error",
+				"useValidAriaValues": "error",
+				"noAriaUnsupportedElements": "error",
+				"noAutofocus": "warn",
+				"noDistractingElements": "error",
+				"noRedundantAlt": "error",
+				"useSemanticElements": "warn"
+			},
+			"performance": {
+				"noImgElement": "error"
+			},
+			"nursery": {
+				"useSortedClasses": "off"
+			}
+		}
+	},
+	"javascript": {
+		"formatter": {
+			"quoteStyle": "double"
+		}
+	},
+	"assist": {
+		"enabled": true,
+		"actions": {
+			"source": {
+				"organizeImports": "on"
+			}
+		}
+	}
+}
