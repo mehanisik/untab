@@ -150,10 +150,10 @@ export function Hero() {
 					>
 						<source src="/hero.mp4" type="video/mp4" />
 					</video>
-					
+
 					{/* Overlay for better text readability and depth */}
 					<div className="absolute inset-0 z-20 bg-linear-to-t from-background via-transparent to-transparent opacity-60" />
-					
+
 					{/* Subtle glow effect */}
 					<div className="absolute -bottom-1/2 left-1/2 -z-10 size-[800px] -translate-x-1/2 rounded-full bg-primary/10 blur-[120px]" />
 				</div>

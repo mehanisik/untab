@@ -106,7 +106,10 @@ export function BlogView({ posts }: BlogViewProps) {
 							)}
 						</Link>
 
-						<Link href={`/blog/${featuredPost.slug}`} className="relative block aspect-4/5 bg-muted rounded-[3rem] overflow-hidden group shadow-2xl transition-transform hover:scale-[1.02] duration-500">
+						<Link
+							href={`/blog/${featuredPost.slug}`}
+							className="relative block aspect-4/5 bg-muted rounded-[3rem] overflow-hidden group shadow-2xl transition-transform hover:scale-[1.02] duration-500"
+						>
 							<div className="absolute inset-0 bg-primary/10 group-hover:bg-primary/20 transition-colors" />
 							<div className="absolute inset-x-8 bottom-8 flex justify-between items-end">
 								<div className="size-20 rounded-full bg-background flex items-center justify-center p-6 shadow-2xl group-hover:scale-110 transition-transform">

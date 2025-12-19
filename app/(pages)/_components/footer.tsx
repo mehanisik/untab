@@ -57,7 +57,6 @@ const companyInfo = {
 	capital: "5.000,00 PLN",
 };
 
-
 function FooterColumn({
 	children,
 	index,

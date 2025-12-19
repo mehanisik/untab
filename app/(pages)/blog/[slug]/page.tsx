@@ -18,7 +18,9 @@ export default async function BlogPostPage({ params }: PageProps) {
 }
 
 export async function generateStaticParams() {
-	const posts = await client.fetch(`*[_type == "post"]{ "slug": slug.current }`);
+	const posts = await client.fetch(
+		`*[_type == "post"]{ "slug": slug.current }`,
+	);
 	return posts.map((post: { slug: string }) => ({
 		slug: post.slug,
 	}));

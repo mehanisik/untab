@@ -61,8 +61,8 @@ export default function NotFound() {
 
 					<div className="not-found-fade mt-16 flex flex-col items-center gap-8">
 						<p className="text-xl md:text-2xl font-light text-muted-foreground leading-relaxed max-w-md italic">
-							The page you seek has drifted into the digital ether. It either never
-							existed or has been reclaimed by the void.
+							The page you seek has drifted into the digital ether. It either
+							never existed or has been reclaimed by the void.
 						</p>
 
 						<Link
