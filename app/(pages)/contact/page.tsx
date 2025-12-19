@@ -80,93 +80,102 @@ export default function ContactPage() {
 							'url("https://grainy-gradients.vercel.app/noise.svg")',
 					}}
 				/>
-				<div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 size-[600px] bg-primary/5 dark:bg-primary/10 blur-[120px] rounded-full pointer-events-none" />
+				<div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 size-[800px] bg-primary/5 dark:bg-primary/10 blur-[150px] rounded-full pointer-events-none" />
 
-				<Container className="flex-1 flex flex-col justify-center py-32 lg:py-64 relative z-10">
-					<div className="max-w-6xl w-full">
-						<div className="contact-fade mb-8 text-[10px] font-bold uppercase tracking-[0.5em] text-primary">
-							Available for new projects
-						</div>
+				<Container className="flex-1 flex flex-col pt-32 pb-16 lg:pt-48 relative z-10">
+					<div className="grid lg:grid-cols-2 gap-16 lg:gap-32 flex-1">
+						{/* Left Column: Info & Branding */}
+						<div className="flex flex-col justify-between">
+							<div className="space-y-12">
+								<div className="contact-fade flex items-center gap-4 text-[10px] font-bold uppercase tracking-[0.4em] text-primary">
+									<span className="h-0.5 w-8 bg-primary" />
+									Available for new projects
+								</div>
 
-						<h1
-							ref={titleRef}
-							className="contact-fade text-[clamp(4rem,18vw,15rem)] font-black leading-[0.8] tracking-tighter uppercase italic perspective-1000"
-						>
-							Let&apos;s <br />
-							<span className="text-primary hover:text-foreground transition-colors cursor-none">
-								Talk.
-							</span>
-						</h1>
+								<div className="relative">
+									<h1
+										ref={titleRef}
+										className="contact-fade text-[clamp(4.5rem,14vw,12rem)] font-black leading-[0.85] tracking-tighter uppercase italic perspective-1000"
+									>
+										Let&apos;s <br />
+										<span className="text-primary hover:text-foreground transition-all duration-500 cursor-none inline-block">
+											Talk.
+										</span>
+									</h1>
+									<div className="contact-fade absolute -bottom-4 left-0 text-[10px] font-bold uppercase tracking-[0.2em] opacity-40">
+										Shoot the signal — Establish connection
+									</div>
+								</div>
 
-						<div className="contact-fade mt-24 grid lg:grid-cols-[1.5fr_1fr] gap-24 items-start">
-							<div className="flex flex-col gap-20">
-								<ContactForm />
+								<p className="contact-fade max-w-md text-lg md:text-xl font-light text-muted-foreground leading-relaxed">
+									Whether you have a fully-formed idea or just the start of a
+									vision, we are here to help you build what&apos;s next. Our
+									studio is built on the foundation of radical transparency and
+									exceptional craft.
+								</p>
 							</div>
 
-							<div className="flex flex-col gap-16 lg:sticky lg:top-32">
-								<div className="flex flex-col gap-6">
-									<p className="text-xl md:text-2xl font-light text-muted-foreground leading-relaxed">
-										Whether you have a fully-formed idea or just the start of a
-										vision, we are here to help you build what&apos;s next.
-									</p>
-									<div className="flex flex-col gap-2 mt-4">
-										<span className="text-[10px] uppercase tracking-widest text-muted-foreground/60 font-bold">
-											Email us
-										</span>
-										<a
-											href="mailto:hello@untab.studio"
-											className="text-xl md:text-2xl font-medium text-foreground hover:text-primary transition-colors underline decoration-primary/20 hover:decoration-primary w-fit"
-										>
-											hello@untab.studio
-										</a>
+							<div className="contact-fade mt-16 grid grid-cols-2 gap-8 border-t border-border pt-12">
+								<div className="flex flex-col gap-3">
+									<span className="text-[9px] uppercase tracking-widest text-muted-foreground font-black">
+										Inquiries
+									</span>
+									<a
+										href="mailto:hello@untab.studio"
+										className="group text-sm font-bold uppercase tracking-widest text-foreground hover:text-primary transition-colors flex items-center gap-2"
+									>
+										hello@untab.studio
+										<span className="h-px w-0 bg-primary group-hover:w-4 transition-all duration-300" />
+									</a>
+								</div>
+								<div className="flex flex-col gap-3">
+									<span className="text-[9px] uppercase tracking-widest text-muted-foreground font-black">
+										Location
+									</span>
+									<span className="text-sm font-bold uppercase tracking-widest text-foreground">
+										Warsaw (GMT+1)
+									</span>
+								</div>
+								<div className="flex flex-col gap-3">
+									<span className="text-[9px] uppercase tracking-widest text-muted-foreground font-black">
+										Social
+									</span>
+									<div className="flex gap-4">
+										{["TW", "IG", "LN"].map((social) => (
+											<Link
+												key={social}
+												href="#"
+												className="text-[10px] font-black hover:text-primary transition-all"
+											>
+												{social}
+											</Link>
+										))}
 									</div>
 								</div>
+							</div>
+						</div>
 
-								<div className="flex flex-col gap-12">
-									<div className="flex flex-col gap-4">
-										<span className="text-[10px] uppercase tracking-widest text-muted-foreground/60 font-bold">
-											Follow
-										</span>
-										<div className="flex flex-wrap gap-x-8 gap-y-4 text-[10px] font-bold uppercase tracking-[0.2em]">
-											<Link
-												href="#"
-												className="hover:text-primary transition-colors"
-											>
-												Twitter
-											</Link>
-											<Link
-												href="#"
-												className="hover:text-primary transition-colors"
-											>
-												Instagram
-											</Link>
-											<Link
-												href="#"
-												className="hover:text-primary transition-colors"
-											>
-												LinkedIn
-											</Link>
-										</div>
-									</div>
-									<div className="flex flex-col gap-4 border-t border-border pt-8">
-										<span className="text-[10px] uppercase tracking-widest text-muted-foreground/60 font-bold">
-											Location
-										</span>
-										<span className="text-sm font-medium leading-relaxed">
-											Warsaw — Poland <br /> Available Globally
-										</span>
-									</div>
-								</div>
+						{/* Right Column: Conversational Form */}
+						<div className="flex flex-col justify-center min-h-[500px]">
+							<div className="contact-fade bg-zinc-950/20 dark:bg-zinc-900/10 backdrop-blur-3xl border border-white/5 p-8 md:p-12 rounded-3xl relative overflow-hidden group">
+								<div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 blur-3xl rounded-full" />
+								<ContactForm />
 							</div>
 						</div>
 					</div>
 				</Container>
 
-				<div className="contact-fade h-32 border-t border-white/5 flex items-center mt-auto">
+				<div className="contact-fade h-24 border-t border-white/5 flex items-center bg-zinc-950/30 backdrop-blur-md">
 					<Container>
-						<div className="flex justify-between items-center text-[10px] uppercase tracking-widest font-bold text-zinc-700">
-							<span>Untab Studio / Contact / 2025</span>
-							<span>(GMT+1)</span>
+						<div className="flex justify-between items-center text-[9px] uppercase tracking-[0.3em] font-black text-muted-foreground/60">
+							<div className="flex items-center gap-6">
+								<span>Untab Studio © 2025</span>
+								<span className="hidden md:inline">Built with React 19 & Tailwind 4</span>
+							</div>
+							<div className="flex items-center gap-6">
+								<span>Global Service</span>
+								<span className="h-2 w-2 bg-green-500 rounded-full animate-pulse" />
+							</div>
 						</div>
 					</Container>
 				</div>
@@ -175,3 +184,4 @@ export default function ContactPage() {
 		</Wrapper>
 	);
 }
+

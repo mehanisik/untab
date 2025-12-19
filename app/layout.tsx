@@ -12,6 +12,7 @@ import { ThemeProvider } from "~/components/theme-provider";
 import { Orchestra } from "~/orchestra";
 import { VisualEditingWrapper } from "~/components/visual-editing";
 import { Analytics } from "~/components/analytics";
+import { Toaster } from "sonner";
 
 const satoshi = localFont({
 	src: [
@@ -75,6 +76,7 @@ export default function RootLayout({
 					<Orchestra />
 					<VisualEditingWrapper />
 					<Analytics />
+					<Toaster closeButton position="bottom-right" />
 					<script
 						type="application/ld+json"
 						// biome-ignore lint/security/noDangerouslySetInnerHtml: injecting static SEO schema
