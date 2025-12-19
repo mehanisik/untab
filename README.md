@@ -1,36 +1,71 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# UNTAB STUDIO
 
-## Getting Started
+A high-fidelity digital studio platform engineered for visual precision and technological endurance. Architected with the modern web frontier to deliver high-performance, immersive interfaces.
 
-First, run the development server:
+### CORE INFRASTRUCTURE
+
+| Domain | Technology | Implementation Details |
+| :--- | :--- | :--- |
+| Framework | Next.js 16 | App Router, Turbopack, Cache Components |
+| Foundation | React 19 | React Compiler, Activity, useEffectEvent |
+| Styling | Tailwind 4 | Modern CSS-first architecture |
+| Motion | GSAP | High-fidelity animations & micro-interactions |
+| Content | Sanity.io | Headless content orchestration |
+| Management | Bun | Performance-oriented package & script execution |
+
+### SYSTEM ARCHITECTURE
+
+- **app/**
+  The primary routing and layout layer. Utilizes Next.js 16 Cache Components to maintain high-efficiency state preservation across server-side transitions.
+- **components/**
+  Modular interface construction. Atomic components reside within `ui/`, strictly adhering to the studio's geometric standards.
+- **integrations/**
+  Abstraction layer for third-party service connectivity and state orchestration logic.
+- **libs/**
+  Domain-specific logic, utility modules, and TypeScript environment definitions.
+- **public/**
+  High-performance static asset hosting, including Satoshi Variable fonts and optimized media.
+
+### OPERATIONAL LIFECYCLE
+
+**Installation**
+Initialize the environment by installing dependencies via the Bun runtime:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+bun install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+**Development**
+Launch the local orchestration server:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+bun run dev
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+**Verification**
+Validate code integrity through automated linting and static type analysis:
 
-## Learn More
+```bash
+bun run lint
+bun run typecheck
+```
 
-To learn more about Next.js, take a look at the following resources:
+**Build**
+Execute the production compilation pipeline:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+bun run build
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### DESIGN & PERFORMANCE PRINCIPLES
 
-## Deploy on Vercel
+- **Typography Standards**
+  Strict utilization of the Satoshi Variable font family to ensure precise geometric presence and legibility across all viewport dimensions.
+- **Motion Orchestration**
+  Animations are executed via GSAP and coupled with React 19 native features (Activity) to optimize rendering and power consumption.
+- **Aesthetic Core**
+  Minimalist, high-contrast interfaces characterized by sophisticated grain textures and purposeful micro-interactions.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+---
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Property of Untab Studio. Unauthorized reproduction prohibited.
