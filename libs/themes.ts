@@ -28,4 +28,4 @@ export const THEME_REGISTRY: Record<string, ThemeTokens> = {
 	},
 };
 
-export const DEFAULT_THEME: ThemeTokens = THEME_REGISTRY["ai"];
+export const DEFAULT_THEME: ThemeTokens = THEME_REGISTRY.ai;

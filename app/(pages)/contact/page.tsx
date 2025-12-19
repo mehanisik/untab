@@ -170,7 +170,9 @@ export default function ContactPage() {
 						<div className="flex justify-between items-center text-[9px] uppercase tracking-[0.3em] font-black text-muted-foreground/60">
 							<div className="flex items-center gap-6">
 								<span>Untab Studio © 2025</span>
-								<span className="hidden md:inline">Built with React 19 & Tailwind 4</span>
+								<span className="hidden md:inline">
+									Built with React 19 & Tailwind 4
+								</span>
 							</div>
 							<div className="flex items-center gap-6">
 								<span>Global Service</span>
@@ -184,4 +186,3 @@ export default function ContactPage() {
 		</Wrapper>
 	);
 }
-

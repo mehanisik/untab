@@ -32,7 +32,8 @@ export async function sendContactEmail(formData: FormData) {
 
 	if (userLimit.count >= LIMIT) {
 		return {
-			error: "Whoa there, eager beaver! You've sent enough messages for now. Try again in an hour!",
+			error:
+				"Whoa there, eager beaver! You've sent enough messages for now. Try again in an hour!",
 		};
 	}
 

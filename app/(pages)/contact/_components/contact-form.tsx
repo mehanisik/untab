@@ -22,7 +22,11 @@ function Typewriter({
 	text,
 	className,
 	onComplete,
-}: { text: string; className?: string; onComplete?: () => void }) {
+}: {
+	text: string;
+	className?: string;
+	onComplete?: () => void;
+}) {
 	const [displayText, setDisplayText] = useState("");
 	const [index, setIndex] = useState(0);
 
@@ -114,7 +118,8 @@ export function ContactForm() {
 					High Five! ✋
 				</h3>
 				<p className="text-muted-foreground max-w-sm mx-auto">
-					Your message is currently being decoded by our top-secret team of experts.
+					Your message is currently being decoded by our top-secret team of
+					experts.
 				</p>
 				<Button
 					variant="link"
@@ -177,7 +182,9 @@ export function ContactForm() {
 									onChange={(e) =>
 										setFormData((prev) => ({ ...prev, name: e.target.value }))
 									}
-									onKeyDown={(e) => e.key === "Enter" && formData.name && nextStep()}
+									onKeyDown={(e) =>
+										e.key === "Enter" && formData.name && nextStep()
+									}
 									className="text-2xl md:text-4xl bg-transparent border-0 border-b-2 border-primary focus:ring-0 px-0 h-auto font-bold placeholder:opacity-20 transition-all"
 								/>
 								<div className="flex justify-between items-center">
@@ -318,7 +325,10 @@ export function ContactForm() {
 									placeholder="Tell us everything. The goals, the dreams, the budget..."
 									value={formData.message}
 									onChange={(e) =>
-										setFormData((prev) => ({ ...prev, message: e.target.value }))
+										setFormData((prev) => ({
+											...prev,
+											message: e.target.value,
+										}))
 									}
 									className="text-xl bg-transparent border-0 border-b-2 border-primary focus:ring-0 px-0 min-h-[150px] font-medium placeholder:opacity-20 resize-none transition-all"
 								/>
@@ -339,7 +349,9 @@ export function ContactForm() {
 										className="group relative border border-primary px-8 py-4 text-xs font-black uppercase tracking-[0.3em] bg-transparent text-foreground hover:text-black transition-all"
 									>
 										<span className="relative z-10">
-											{status === "submitting" ? "Transmitting..." : "Send Signal"}
+											{status === "submitting"
+												? "Transmitting..."
+												: "Send Signal"}
 										</span>
 										<div className="absolute inset-0 z-0 bg-primary translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-in-out" />
 									</Button>
