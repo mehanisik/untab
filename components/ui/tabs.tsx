@@ -69,13 +69,19 @@ function TabsTrigger({ className, ...props }: TabsPrimitive.Tab.Props) {
   )
 }
 
-function TabsContent({ className, ...props }: TabsPrimitive.Panel.Props) {
+import { Activity } from "react"
+
+function TabsContent({ className, children, ...props }: TabsPrimitive.Panel.Props) {
   return (
     <TabsPrimitive.Panel
       data-slot="tabs-content"
       className={cn("text-xs/relaxed flex-1 outline-none", className)}
       {...props}
-    />
+    >
+      <Activity mode="visible">
+        {children}
+      </Activity>
+    </TabsPrimitive.Panel>
   )
 }
 

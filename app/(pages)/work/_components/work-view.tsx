@@ -158,7 +158,7 @@ function ProjectSection({
 		>
 			<Link
 				href={project.href}
-				className="relative block flex-1 aspect-16/10 overflow-hidden rounded-[2.5rem] bg-muted/20"
+				className="relative block flex-1 aspect-16/10 overflow-hidden rounded bg-muted/20"
 			>
 				<div className="relative size-full">
 					<Image

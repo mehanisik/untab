@@ -42,6 +42,9 @@ function DrawerOverlay({
   )
 }
 
+// @ts-ignore - Activity might not be in the current @types/react but is in the runtime
+import { Activity } from "react"
+
 function DrawerContent({
   className,
   children,
@@ -58,8 +61,10 @@ function DrawerContent({
         )}
         {...props}
       >
-        <div className="bg-muted mx-auto mt-4 hidden h-1 w-[100px] shrink-0 rounded-none group-data-[vaul-drawer-direction=bottom]/drawer-content:block bg-muted mx-auto hidden shrink-0 group-data-[vaul-drawer-direction=bottom]/drawer-content:block" />
-        {children}
+        <Activity mode="visible">
+          <div className="bg-muted mx-auto mt-4 hidden h-1 w-[100px] shrink-0 rounded-none group-data-[vaul-drawer-direction=bottom]/drawer-content:block" />
+          {children}
+        </Activity>
       </DrawerPrimitive.Content>
     </DrawerPortal>
   )

@@ -9,7 +9,7 @@ import {
 	UserGroupIcon,
 } from "@hugeicons/core-free-icons";
 import { useFadeInOnScroll } from "~/hooks/use-scroll-animation";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useEffectEvent, useRef, useState } from "react";
 
 const features = [
 	{
@@ -49,14 +49,17 @@ function FeatureCard({
 }) {
 	const cardRef = useRef<HTMLDivElement>(null);
 	const [isActive, setIsActive] = useState(false);
+	const onIntersect = useEffectEvent((isIntersecting: boolean) => {
+		setIsActive(isIntersecting);
+		if (isIntersecting) {
+			onVisible(index);
+		}
+	});
 
 	useEffect(() => {
 		const observer = new IntersectionObserver(
 			([entry]) => {
-				setIsActive(entry.isIntersecting);
-				if (entry.isIntersecting) {
-					onVisible(index);
-				}
+				onIntersect(entry.isIntersecting);
 			},
 			{
 				threshold: 0.6,
@@ -66,21 +69,22 @@ function FeatureCard({
 
 		if (cardRef.current) observer.observe(cardRef.current);
 		return () => observer.disconnect();
-	}, [index, onVisible]);
+	}, []);
 
 	return (
 		<div
 			ref={cardRef}
 			className={cn(
 				"group relative transition-all duration-700",
-				isActive ? "opacity-100" : "opacity-30",
+				isActive ? "opacity-100" : "opacity-100",
 			)}
 		>
 			<div className="flex gap-8 items-start">
 				<span
+					aria-hidden="true"
 					className={cn(
 						"text-7xl font-light tabular-nums transition-colors duration-500 md:text-8xl lg:text-9xl",
-						isActive ? "text-foreground" : "text-muted-foreground/20",
+						isActive ? "text-foreground" : "text-zinc-500",
 					)}
 				>
 					{String(index + 1).padStart(2, "0")}
@@ -104,7 +108,8 @@ function FeatureCard({
 						</div>
 						<h3
 							className={cn(
-								"text-2xl font-medium tracking-tight text-foreground md:text-3xl",
+								"text-2xl font-medium tracking-tight text-foreground md:text-3xl transition-opacity duration-500",
+								isActive ? "opacity-100" : "opacity-70",
 							)}
 						>
 							{feature.title}
@@ -113,7 +118,7 @@ function FeatureCard({
 					<p
 						className={cn(
 							"text-muted-foreground leading-relaxed text-base font-light max-w-lg transition-all duration-500",
-							isActive ? "opacity-100" : "opacity-60",
+							isActive ? "opacity-100" : "opacity-80",
 						)}
 					>
 						{feature.description}
@@ -156,7 +161,10 @@ export function Features() {
 									<span className="text-sm text-muted-foreground tabular-nums">
 										{String(activeIndex + 1).padStart(2, "0")}
 									</span>
-									<div className="h-px flex-1 max-w-32 bg-border overflow-hidden">
+									<div
+										className="h-px flex-1 max-w-32 bg-border overflow-hidden"
+										aria-hidden="true"
+									>
 										<div
 											className="h-full bg-foreground transition-all duration-500"
 											style={{
@@ -164,7 +172,7 @@ export function Features() {
 											}}
 										/>
 									</div>
-									<span className="text-sm text-muted-foreground/50 tabular-nums">
+									<span className="text-sm text-muted-foreground tabular-nums">
 										{String(features.length).padStart(2, "0")}
 									</span>
 								</div>

@@ -8,6 +8,11 @@ import Script from "next/script";
 import { GSAPRuntime } from "~/components/gsap/runtime";
 import AppData from "~/package.json";
 
+import { ThemeProvider } from "~/components/theme-provider";
+import { Orchestra } from "~/orchestra";
+import { VisualEditingWrapper } from "~/components/visual-editing";
+import { Analytics } from "~/components/analytics";
+
 const satoshi = localFont({
 	src: [
 		{
@@ -33,13 +38,13 @@ const geistMono = Geist_Mono({
 	subsets: ["latin"],
 });
 
-import { ThemeProvider } from "~/components/theme-provider";
+import { generatePageMetadata } from "~/libs/metadata";
 
-export const metadata: Metadata = {
-	title: "Untab Studio - Digital Product Studio",
+export const metadata: Metadata = generatePageMetadata({
+	title: "Untab Studio - Digital Product Studio Warsaw",
 	description:
-		"The best digital studio you can partner with. We deliver digital products, webapps, mobile apps, brands and marketing websites you'll be excited to put in front of your customers.",
-};
+		"Untab Studio is a passionate digital agency in Warsaw specializing in premium design and Next.js development. We build high-performance webapps, mobile apps, and brands for global success.",
+});
 
 export const viewport: Viewport = {
 	themeColor: [
@@ -67,6 +72,34 @@ export default function RootLayout({
 				>
 					<GSAPRuntime />
 					{children}
+					<Orchestra />
+					<VisualEditingWrapper />
+					<Analytics />
+					<script
+						type="application/ld+json"
+						// biome-ignore lint/security/noDangerouslySetInnerHtml: injecting static SEO schema
+						dangerouslySetInnerHTML={{
+							__html: JSON.stringify({
+								"@context": "https://schema.org",
+								"@type": "Organization",
+								name: "Untab Studio",
+								url: "https://untab.studio",
+								logo: "https://untab.studio/logo.png",
+								address: {
+									"@type": "PostalAddress",
+									addressLocality: "Warsaw",
+									addressCountry: "PL",
+								},
+								description:
+									"A passionate digital agency based in Warsaw specializing in high-end design and development.",
+								sameAs: [
+									"https://twitter.com/untab_studio",
+									"https://instagram.com/untab_studio",
+									"https://linkedin.com/company/untab-studio",
+								],
+							}),
+						}}
+					/>
 				</ThemeProvider>
 			</body>
 		</html>

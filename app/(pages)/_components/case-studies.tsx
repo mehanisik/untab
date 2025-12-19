@@ -134,7 +134,7 @@ function ProjectCard({
 				}
 			}}
 			href={project.href || "#"}
-			className="group relative block overflow-hidden rounded-[2.5rem] h-full bg-zinc-950 border border-white/5"
+			className="group relative block overflow-hidden  h-full bg-zinc-950 border border-white/5"
 			onMouseEnter={() => {
 				setIsHovered(true);
 				onHover?.();
