@@ -16,13 +16,17 @@ export async function generateAIMetadata(input: GenerateMetadataInput) {
 
 	if (!apiKey) {
 		// Mocked response for development/testing without keys
-		console.warn("AI Content Engine: OPENAI_API_KEY not found. Using mock data.");
-		
-		await new Promise(resolve => setTimeout(resolve, 1500)); // Simulate latency
+		console.warn(
+			"AI Content Engine: OPENAI_API_KEY not found. Using mock data.",
+		);
+
+		await new Promise((resolve) => setTimeout(resolve, 1500)); // Simulate latency
 
 		return {
 			seoTitle: `${input.title} | Untab Studio Insight`,
-			seoDescription: input.excerpt || `Deep dive into ${input.title}. Explore how Untab Studio approaches modern digital product design and performance.`,
+			seoDescription:
+				input.excerpt ||
+				`Deep dive into ${input.title}. Explore how Untab Studio approaches modern digital product design and performance.`,
 			keywords: ["digital studio", "product design", "next.js", "react 19"],
 		};
 	}

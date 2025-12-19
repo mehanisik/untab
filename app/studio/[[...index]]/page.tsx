@@ -2,7 +2,7 @@ import { Studio } from "./studio";
 
 /**
  * Sanity Studio Server Page
- * This server component allows for generateStaticParams and metadata 
+ * This server component allows for generateStaticParams and metadata
  * without conflicting with the client-side NextStudio component.
  */
 
