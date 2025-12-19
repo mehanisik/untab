@@ -140,118 +140,22 @@ export function Hero() {
 					</div>
 				</div>
 
-				<div className="hero-image-container relative mt-16 mb-0 overflow-hidden rounded-t-3xl bg-linear-to-br from-violet-100 to-purple-100 dark:from-violet-950/30 dark:to-purple-950/30 lg:mt-20">
-					<div className="flex items-end justify-center pt-12 pb-0 gap-4 md:gap-8">
-						<div className="relative w-[140px] md:w-[180px] lg:w-[220px] translate-y-8 -rotate-6 opacity-60">
-							<div className="relative overflow-hidden rounded-[1.5rem] border-4 border-zinc-800 bg-zinc-800 shadow-2xl transition-transform duration-500 hover:scale-105 hover:-translate-y-2">
-								<div className="relative aspect-[9/19.5] w-full overflow-hidden bg-linear-to-br from-amber-400 via-orange-500 to-red-500">
-									<div className="absolute inset-0 flex items-center justify-center">
-										<svg
-											viewBox="0 0 24 24"
-											fill="none"
-											className="size-12 text-white/80"
-											aria-hidden="true"
-										>
-											<path
-												d="M17 8h1a2 2 0 012 2v1a2 2 0 01-2 2h-1"
-												stroke="currentColor"
-												strokeWidth="1.5"
-											/>
-											<path
-												d="M5 8h12v8a4 4 0 01-4 4H9a4 4 0 01-4-4V8z"
-												stroke="currentColor"
-												strokeWidth="1.5"
-											/>
-										</svg>
-									</div>
-								</div>
-							</div>
-						</div>
-
-						<div className="relative w-[200px] md:w-[260px] lg:w-[320px] z-10">
-							<div className="group relative overflow-hidden rounded-[2rem] border-[6px] border-zinc-800 bg-zinc-800 shadow-2xl transition-transform duration-500 hover:scale-[1.02]">
-								<div className="relative aspect-[9/19.5] w-full overflow-hidden bg-linear-to-br from-emerald-400 via-teal-500 to-cyan-600">
-									<div className="absolute top-0 left-0 right-0 flex items-center justify-between px-6 py-3 text-xs text-white">
-										<span className="font-medium">9:41</span>
-										<div className="flex items-center gap-1">
-											<div className="flex gap-0.5">
-												<div className="h-2 w-1 rounded-sm bg-white/80" />
-												<div className="h-2 w-1 rounded-sm bg-white/80" />
-												<div className="h-2 w-1 rounded-sm bg-white/60" />
-												<div className="h-2 w-1 rounded-sm bg-white/40" />
-											</div>
-											<div className="h-3 w-5 rounded-sm bg-white/80 ml-1" />
-										</div>
-									</div>
-
-									<div className="absolute inset-0 flex flex-col items-center justify-center px-6">
-										<div className="mb-4 size-16 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center transition-transform duration-500 group-hover:scale-110">
-											<svg
-												viewBox="0 0 24 24"
-												fill="none"
-												className="size-8 text-white"
-												aria-hidden="true"
-											>
-												<path
-													d="M9 12l2 2 4-4"
-													stroke="currentColor"
-													strokeWidth="2"
-													strokeLinecap="round"
-													strokeLinejoin="round"
-												/>
-												<circle
-													cx="12"
-													cy="12"
-													r="9"
-													stroke="currentColor"
-													strokeWidth="2"
-												/>
-											</svg>
-										</div>
-										<div className="text-center text-white">
-											<p className="text-lg font-semibold mb-1">
-												Today&apos;s Progress
-											</p>
-											<p className="text-3xl font-bold">87%</p>
-										</div>
-										<div className="mt-6 w-full max-w-[140px] h-2 rounded-full bg-white/20 overflow-hidden">
-											<div className="h-full w-[87%] rounded-full bg-white" />
-										</div>
-									</div>
-
-									<div className="absolute bottom-2 left-1/2 h-1 w-24 -translate-x-1/2 rounded-full bg-white/50" />
-								</div>
-							</div>
-						</div>
-
-						<div className="relative w-[140px] md:w-[180px] lg:w-[220px] translate-y-8 rotate-6 opacity-60">
-							<div className="relative overflow-hidden rounded-[1.5rem] border-4 border-zinc-800 bg-zinc-800 shadow-2xl transition-transform duration-500 hover:scale-105 hover:-translate-y-2">
-								<div className="relative aspect-[9/19.5] w-full overflow-hidden bg-linear-to-br from-blue-400 via-indigo-500 to-purple-600">
-									<div className="absolute inset-0 flex items-center justify-center">
-										<svg
-											viewBox="0 0 24 24"
-											fill="none"
-											className="size-12 text-white/80"
-											aria-hidden="true"
-										>
-											<path
-												d="M12 2L2 7l10 5 10-5-10-5z"
-												stroke="currentColor"
-												strokeWidth="1.5"
-												strokeLinejoin="round"
-											/>
-											<path
-												d="M2 17l10 5 10-5M2 12l10 5 10-5"
-												stroke="currentColor"
-												strokeWidth="1.5"
-												strokeLinejoin="round"
-											/>
-										</svg>
-									</div>
-								</div>
-							</div>
-						</div>
-					</div>
+				<div className="hero-image-container relative mt-16 mb-0 aspect-video overflow-hidden rounded-t-3xl bg-zinc-950/50 lg:mt-20">
+					<video
+						autoPlay
+						loop
+						muted
+						playsInline
+						className="relative z-10 size-full object-cover"
+					>
+						<source src="/hero.mp4" type="video/mp4" />
+					</video>
+					
+					{/* Overlay for better text readability and depth */}
+					<div className="absolute inset-0 z-20 bg-linear-to-t from-background via-transparent to-transparent opacity-60" />
+					
+					{/* Subtle glow effect */}
+					<div className="absolute -bottom-1/2 left-1/2 -z-10 size-[800px] -translate-x-1/2 rounded-full bg-primary/10 blur-[120px]" />
 				</div>
 			</div>
 		</section>

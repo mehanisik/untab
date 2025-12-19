@@ -66,7 +66,7 @@ export function BlogView({ posts }: BlogViewProps) {
 
 				<section className="blog-hero py-24 lg:py-48">
 					<Container className="grid lg:grid-cols-2 gap-20 items-end">
-						<div>
+						<Link href={`/blog/${featuredPost.slug}`} className="group block">
 							{featuredPost && (
 								<>
 									<div className="mb-6 flex items-center gap-4">
@@ -75,7 +75,7 @@ export function BlogView({ posts }: BlogViewProps) {
 										</span>
 										<div className="h-px w-12 bg-primary/20" />
 									</div>
-									<h1 className="text-5xl md:text-7xl lg:text-8xl font-black tracking-tighter leading-[0.9] text-foreground mb-8">
+									<h1 className="text-5xl md:text-7xl lg:text-8xl font-black tracking-tighter leading-[0.9] text-foreground mb-8 group-hover:text-primary transition-colors">
 										{featuredPost.title}
 									</h1>
 									<p className="text-xl text-muted-foreground/80 font-light leading-relaxed max-w-xl mb-12">
@@ -104,12 +104,12 @@ export function BlogView({ posts }: BlogViewProps) {
 									</div>
 								</>
 							)}
-						</div>
+						</Link>
 
-						<div className="relative aspect-4/5 bg-muted rounded-[3rem] overflow-hidden group">
+						<Link href={`/blog/${featuredPost.slug}`} className="relative block aspect-4/5 bg-muted rounded-[3rem] overflow-hidden group shadow-2xl transition-transform hover:scale-[1.02] duration-500">
 							<div className="absolute inset-0 bg-primary/10 group-hover:bg-primary/20 transition-colors" />
 							<div className="absolute inset-x-8 bottom-8 flex justify-between items-end">
-								<div className="size-20 rounded-full bg-background flex items-center justify-center p-6 shadow-2xl">
+								<div className="size-20 rounded-full bg-background flex items-center justify-center p-6 shadow-2xl group-hover:scale-110 transition-transform">
 									<svg
 										viewBox="0 0 24 24"
 										fill="none"
@@ -130,7 +130,7 @@ export function BlogView({ posts }: BlogViewProps) {
 										new Date(featuredPost.publishedAt).toLocaleDateString()}
 								</span>
 							</div>
-						</div>
+						</Link>
 					</Container>
 				</section>
 

@@ -7,6 +7,7 @@ import { Container } from "~/components/container";
 import { Link } from "~/components/ui/link";
 import { Wrapper } from "~/components/wrapper";
 import { Footer, Navbar } from "../_components";
+import { ContactForm } from "./_components/contact-form";
 
 export default function ContactPage() {
 	const containerRef = useRef<HTMLDivElement>(null);
@@ -97,58 +98,64 @@ export default function ContactPage() {
 							</span>
 						</h1>
 
-						<div className="contact-fade mt-24 grid md:grid-cols-[2fr_1fr] gap-20">
-							<div className="flex flex-col gap-12">
-								<p className="text-2xl md:text-3xl font-light text-muted-foreground leading-tight max-w-xl">
-									Whether you have a fully-formed idea or just the start of a
-									vision, we are here to help you build what&apos;s next.
-								</p>
-								<div className="flex flex-col gap-2">
-									<span className="text-[10px] uppercase tracking-widest text-muted-foreground/60 font-bold">
-										Email us
-									</span>
-									<a
-										href="mailto:hello@untab.studio"
-										className="text-2xl md:text-4xl font-medium text-foreground hover:text-primary transition-colors underline decoration-primary/20 hover:decoration-primary"
-									>
-										hello@untab.studio
-									</a>
-								</div>
+						<div className="contact-fade mt-24 grid lg:grid-cols-[1.5fr_1fr] gap-24 items-start">
+							<div className="flex flex-col gap-20">
+								<ContactForm />
 							</div>
 
-							<div className="flex flex-col gap-12">
-								<div className="flex flex-col gap-2">
-									<span className="text-[10px] uppercase tracking-widest text-muted-foreground/60 font-bold">
-										Follow
-									</span>
-									<div className="flex flex-wrap gap-x-6 gap-y-2 text-sm font-bold uppercase tracking-widest">
-										<Link
-											href="#"
-											className="hover:text-primary transition-colors"
+							<div className="flex flex-col gap-16 lg:sticky lg:top-32">
+								<div className="flex flex-col gap-6">
+									<p className="text-xl md:text-2xl font-light text-muted-foreground leading-relaxed">
+										Whether you have a fully-formed idea or just the start of a
+										vision, we are here to help you build what&apos;s next.
+									</p>
+									<div className="flex flex-col gap-2 mt-4">
+										<span className="text-[10px] uppercase tracking-widest text-muted-foreground/60 font-bold">
+											Email us
+										</span>
+										<a
+											href="mailto:hello@untab.studio"
+											className="text-xl md:text-2xl font-medium text-foreground hover:text-primary transition-colors underline decoration-primary/20 hover:decoration-primary w-fit"
 										>
-											Twitter
-										</Link>
-										<Link
-											href="#"
-											className="hover:text-primary transition-colors"
-										>
-											Instagram
-										</Link>
-										<Link
-											href="#"
-											className="hover:text-primary transition-colors"
-										>
-											LinkedIn
-										</Link>
+											hello@untab.studio
+										</a>
 									</div>
 								</div>
-								<div className="flex flex-col gap-2">
-									<span className="text-[10px] uppercase tracking-widest text-muted-foreground/60 font-bold">
-										Location
-									</span>
-									<span className="text-sm font-medium">
-										Warsaw — Poland <br /> Available Globally
-									</span>
+
+								<div className="flex flex-col gap-12">
+									<div className="flex flex-col gap-4">
+										<span className="text-[10px] uppercase tracking-widest text-muted-foreground/60 font-bold">
+											Follow
+										</span>
+										<div className="flex flex-wrap gap-x-8 gap-y-4 text-[10px] font-bold uppercase tracking-[0.2em]">
+											<Link
+												href="#"
+												className="hover:text-primary transition-colors"
+											>
+												Twitter
+											</Link>
+											<Link
+												href="#"
+												className="hover:text-primary transition-colors"
+											>
+												Instagram
+											</Link>
+											<Link
+												href="#"
+												className="hover:text-primary transition-colors"
+											>
+												LinkedIn
+											</Link>
+										</div>
+									</div>
+									<div className="flex flex-col gap-4 border-t border-border pt-8">
+										<span className="text-[10px] uppercase tracking-widest text-muted-foreground/60 font-bold">
+											Location
+										</span>
+										<span className="text-sm font-medium leading-relaxed">
+											Warsaw — Poland <br /> Available Globally
+										</span>
+									</div>
 								</div>
 							</div>
 						</div>

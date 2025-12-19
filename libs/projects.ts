@@ -1,4 +1,4 @@
-import { cache } from "react";
+import { cache, cacheSignal } from "react";
 import { client, QUERIES } from "./sanity";
 
 export interface Project {
@@ -193,7 +193,12 @@ export const staticProjects: Project[] = [
 
 export const getProjects = cache(async (): Promise<Project[]> => {
 	try {
-		const sanityProjects = await client.fetch(QUERIES.projects);
+		const signal = cacheSignal();
+		const sanityProjects = await client.fetch(
+			QUERIES.projects,
+			{},
+			{ signal: signal as AbortSignal },
+		);
 		if (sanityProjects && sanityProjects.length > 0) {
 			// biome-ignore lint/suspicious/noExplicitAny: sanity results are dynamic
 			return sanityProjects.map((p: any) => {
@@ -210,8 +215,15 @@ export const getProjects = cache(async (): Promise<Project[]> => {
 				};
 			});
 		}
-	} catch (error) {
-		console.error("Error fetching projects from Sanity:", error);
+	} catch (error: unknown) {
+		const err = error as Error & { name?: string; digest?: string };
+		// Only log if it's not a cancellation/hanging promise error which is handled by React 19
+		if (
+			err.name !== "AbortError" &&
+			err.digest !== "HANGING_PROMISE_REJECTION"
+		) {
+			console.error("Error fetching projects from Sanity:", err);
+		}
 	}
 	return staticProjects;
 });
@@ -219,7 +231,12 @@ export const getProjects = cache(async (): Promise<Project[]> => {
 export const getProjectBySlug = cache(
 	async (slug: string): Promise<Project | null> => {
 		try {
-			const project = await client.fetch(QUERIES.projectBySlug, { slug });
+			const signal = cacheSignal();
+			const project = await client.fetch(
+				QUERIES.projectBySlug,
+				{ slug },
+				{ signal: signal as AbortSignal },
+			);
 			if (project) {
 				const staticProject = staticProjects.find((sp) => sp.slug === slug);
 				return {
@@ -237,8 +254,14 @@ export const getProjectBySlug = cache(
 						project.accentColor || staticProject?.accentColor || "zinc",
 				};
 			}
-		} catch (error) {
-			console.error(`Error fetching project with slug ${slug}:`, error);
+		} catch (error: unknown) {
+			const err = error as Error & { name?: string; digest?: string };
+			if (
+				err.name !== "AbortError" &&
+				err.digest !== "HANGING_PROMISE_REJECTION"
+			) {
+				console.error(`Error fetching project with slug ${slug}:`, err);
+			}
 		}
 		return staticProjects.find((p) => p.slug === slug) || null;
 	},

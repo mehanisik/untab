@@ -1,14 +1,26 @@
+// Re-poking to trigger recompile and fix possible font import sync issue
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, JetBrains_Mono } from "next/font/google";
+import { Geist, Geist_Mono } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 import type { Viewport } from "next";
 import Script from "next/script";
 import { GSAPRuntime } from "~/components/gsap/runtime";
 import AppData from "~/package.json";
 
-const jetbrainsMono = JetBrains_Mono({
-	subsets: ["latin"],
-	variable: "--font-sans",
+const satoshi = localFont({
+	src: [
+		{
+			path: "../public/fonts/Satoshi-VariableItalic.woff2",
+			style: "italic",
+		},
+		{
+			path: "../public/fonts/Satoshi-Regular.woff2",
+			weight: "400",
+			style: "normal",
+		},
+	],
+	variable: "--font-satoshi",
 });
 
 const geistSans = Geist({
@@ -42,7 +54,7 @@ export default function RootLayout({
 	children: React.ReactNode;
 }>) {
 	return (
-		<html lang="en" className={jetbrainsMono.variable} suppressHydrationWarning>
+		<html lang="en" className={satoshi.variable} suppressHydrationWarning>
 			<Script async>{`window.satusVersion = '${AppData.version}';`}</Script>
 			<body
 				className={`${geistSans.variable} ${geistMono.variable} antialiased font-sans`}

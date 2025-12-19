@@ -31,28 +31,35 @@ export function ThemeToggle() {
 		return <div className="size-9" />;
 	}
 
+	const toggleTheme = () => {
+		setTheme(resolvedTheme === "dark" ? "light" : "dark");
+	};
+
+	if (!mounted) {
+		return <div className="size-9" />;
+	}
+
+	const renderIcon = () => {
+		if (resolvedTheme === "dark") {
+			return (
+				<HugeiconsIcon icon={Sun01Icon} className="size-4" strokeWidth={1.5} />
+			);
+		}
+		return (
+			<HugeiconsIcon icon={Moon01Icon} className="size-4" strokeWidth={1.5} />
+		);
+	};
+
 	return (
 		<Button
 			variant="ghost"
 			size="icon"
 			className="relative size-9 rounded-full border border-border/40 hover:bg-accent hover:text-accent-foreground"
-			onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
+			onClick={toggleTheme}
 			aria-label="Toggle theme"
 		>
 			<div ref={iconRef} className="flex items-center justify-center">
-				{resolvedTheme === "dark" ? (
-					<HugeiconsIcon
-						icon={Sun01Icon}
-						className="size-4"
-						strokeWidth={1.5}
-					/>
-				) : (
-					<HugeiconsIcon
-						icon={Moon01Icon}
-						className="size-4"
-						strokeWidth={1.5}
-					/>
-				)}
+				{renderIcon()}
 			</div>
 		</Button>
 	);
