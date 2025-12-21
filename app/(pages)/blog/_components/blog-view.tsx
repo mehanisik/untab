@@ -9,7 +9,6 @@ import { Wrapper } from "~/components/wrapper";
 import { Footer, Navbar } from "../../_components";
 import type { Post } from "~/libs/sanity";
 
-
 interface BlogViewProps {
 	posts: Post[];
 }

@@ -22,11 +22,7 @@ export const aj = arcjet({
 		// Bot detection to block automated submissions
 		detectBot({
 			mode: "LIVE",
-			allow: [
-				"CATEGORY:SEARCH_ENGINE",
-				"CATEGORY:PREVIEW",
-				"CATEGORY:MONITOR",
-			],
+			allow: ["CATEGORY:SEARCH_ENGINE", "CATEGORY:PREVIEW", "CATEGORY:MONITOR"],
 		}),
 		// Token bucket rate limiting for more flexible control
 		tokenBucket({

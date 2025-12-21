@@ -61,7 +61,9 @@ export function validateEnv(): EnvConfig {
 	}
 
 	if (!process.env.ARCJET_API_KEY && process.env.NODE_ENV === "production") {
-		errors.push("ARCJET_API_KEY is required in production for action protection");
+		errors.push(
+			"ARCJET_API_KEY is required in production for action protection",
+		);
 	}
 
 	if (errors.length > 0) {
@@ -89,4 +91,3 @@ export function validateEnv(): EnvConfig {
 export function getEnv(): EnvConfig {
 	return validateEnv();
 }
-

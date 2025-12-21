@@ -43,9 +43,7 @@ export default function ContactPage() {
 						<div className="flex justify-between items-center text-[9px] uppercase tracking-[0.3em] font-black text-muted-foreground/40">
 							<div className="flex items-center gap-6">
 								<span>Untab Studio © 2025</span>
-								<span className="hidden md:inline">
-									Warsaw, Poland
-								</span>
+								<span className="hidden md:inline">Warsaw, Poland</span>
 							</div>
 							<div className="flex items-center gap-6">
 								<span>Status: Operational</span>

@@ -139,10 +139,13 @@ export async function sendContactEmail(formData: FormData) {
 
 		if (error) {
 			console.error("Resend error:", error);
-			const devError = process.env.NODE_ENV === "development" 
-				? `: ${error.message || JSON.stringify(error)}` 
-				: "";
-			return { error: `Failed to send email${devError}. Please try again later.` };
+			const devError =
+				process.env.NODE_ENV === "development"
+					? `: ${error.message || JSON.stringify(error)}`
+					: "";
+			return {
+				error: `Failed to send email${devError}. Please try again later.`,
+			};
 		}
 
 		return { success: true, data };

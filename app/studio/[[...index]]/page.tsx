@@ -1,6 +1,5 @@
 import { Studio } from "./studio";
 
-
 export function generateStaticParams() {
 	return [{ index: [] }];
 }

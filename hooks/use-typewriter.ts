@@ -10,9 +10,9 @@ interface UseTypewriterOptions {
 
 /**
  * useTypewriter
- * 
+ *
  * Custom hook to handle typewriter logic with React 19 best practices.
- * 
+ *
  * @param text - The text to animate
  * @param options - Configuration options (speed, delay, onComplete)
  */

@@ -15,9 +15,12 @@ const Typewriter = ({
 	text,
 	onComplete,
 	className,
-}: { text: string; onComplete?: () => void; className?: string }) => {
+}: {
+	text: string;
+	onComplete?: () => void;
+	className?: string;
+}) => {
 	const { displayedText, isFinished } = useTypewriter(text, { onComplete });
-
 
 	return (
 		<div className={cn("min-h-[1.2em]", className)}>
@@ -28,7 +31,6 @@ const Typewriter = ({
 		</div>
 	);
 };
-
 
 const PROJECT_TYPES = [
 	"Web Development",
@@ -110,7 +112,8 @@ export function ContactForm() {
 	const handleMouseMove = (e: React.MouseEvent) => {
 		if (!magneticRef.current) return;
 		const { clientX, clientY } = e;
-		const { left, top, width, height } = magneticRef.current.getBoundingClientRect();
+		const { left, top, width, height } =
+			magneticRef.current.getBoundingClientRect();
 		const x = clientX - (left + width / 2);
 		const y = clientY - (top + height / 2);
 
