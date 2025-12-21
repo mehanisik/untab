@@ -68,9 +68,16 @@
 		"babel-plugin-react-compiler": "^1.0.0",
 		"cross-env": "^10.1.0",
 		"husky": "^9.1.7",
+		"lint-staged": "^16.2.7",
 		"react-email": "^5.1.0",
 		"tailwindcss": "^4.1.18",
 		"typescript": "^5.9.3",
 		"uuid": "^13.0.0"
+	},
+	"lint-staged": {
+		"*.{js,ts,jsx,tsx}": [
+			"biome lint --write --no-errors-on-unmatched",
+			"biome format --write --no-errors-on-unmatched"
+		]
 	}
 }
