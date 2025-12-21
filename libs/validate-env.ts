@@ -48,22 +48,27 @@ export function validateEnv(): EnvConfig {
 	const RESEND_API_KEY = process.env.RESEND_API_KEY;
 	const CONTACT_EMAIL = process.env.CONTACT_EMAIL;
 
-	if (!RESEND_API_KEY && process.env.NODE_ENV === "production") {
-		errors.push(
-			"RESEND_API_KEY is required in production for contact form functionality",
-		);
-	}
+	// Only validate server-side secrets when on the server
+	const isServer = typeof window === "undefined";
 
-	if (!CONTACT_EMAIL && process.env.NODE_ENV === "production") {
-		errors.push(
-			"CONTACT_EMAIL is required in production for contact form functionality",
-		);
-	}
+	if (isServer && process.env.NODE_ENV === "production") {
+		if (!RESEND_API_KEY) {
+			errors.push(
+				"RESEND_API_KEY is required in production for contact form functionality",
+			);
+		}
 
-	if (!process.env.ARCJET_API_KEY && process.env.NODE_ENV === "production") {
-		errors.push(
-			"ARCJET_API_KEY is required in production for action protection",
-		);
+		if (!CONTACT_EMAIL) {
+			errors.push(
+				"CONTACT_EMAIL is required in production for contact form functionality",
+			);
+		}
+
+		if (!process.env.ARCJET_API_KEY) {
+			errors.push(
+				"ARCJET_API_KEY is required in production for action protection",
+			);
+		}
 	}
 
 	if (errors.length > 0) {
