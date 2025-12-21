@@ -10,8 +10,6 @@ import { useEffect } from "react";
 export function VisualEditingWrapper() {
 	useEffect(() => {
 		if (process.env.NODE_ENV !== "development") return;
-
-		// Optional: Add logic to handle overlay state or deep links
 		console.log("Sanity Visual Editing Active");
 	}, []);
 

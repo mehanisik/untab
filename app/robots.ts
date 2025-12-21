@@ -1,7 +1,8 @@
 import type { MetadataRoute } from "next";
+import { getEnv } from "~/libs/validate-env";
 
-const APP_BASE_URL =
-	process.env.NEXT_PUBLIC_BASE_URL ?? "https://localhost:3000";
+const env = getEnv();
+const APP_BASE_URL = env.NEXT_PUBLIC_BASE_URL;
 
 export default function robots(): MetadataRoute.Robots {
 	return {

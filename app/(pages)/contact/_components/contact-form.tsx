@@ -1,14 +1,34 @@
 "use client";
 
 import gsap from "gsap";
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState } from "react";
 import { Input } from "~/components/ui/input";
 import { Textarea } from "~/components/ui/textarea";
 import { Button } from "~/components/ui/button";
-import { FieldLabel } from "~/components/ui/field";
-import { RadioGroup, RadioGroupItem } from "~/components/ui/radio-group";
 import { sendContactEmail } from "~/app/actions/contact";
 import { toast } from "sonner";
+import { cn } from "~/libs/utils";
+
+import { useTypewriter } from "~/hooks/use-typewriter";
+
+const Typewriter = ({
+	text,
+	onComplete,
+	className,
+}: { text: string; onComplete?: () => void; className?: string }) => {
+	const { displayedText, isFinished } = useTypewriter(text, { onComplete });
+
+
+	return (
+		<div className={cn("min-h-[1.2em]", className)}>
+			{displayedText}
+			{!isFinished && (
+				<span className="inline-block w-1.5 h-[0.9em] bg-primary ml-1 animate-pulse align-middle" />
+			)}
+		</div>
+	);
+};
+
 
 const PROJECT_TYPES = [
 	"Web Development",
@@ -18,80 +38,19 @@ const PROJECT_TYPES = [
 	"Other",
 ] as const;
 
-function Typewriter({
-	text,
-	className,
-	onComplete,
-}: {
-	text: string;
-	className?: string;
-	onComplete?: () => void;
-}) {
-	const [displayText, setDisplayText] = useState("");
-	const [index, setIndex] = useState(0);
-
-	useEffect(() => {
-		if (text) {
-			setDisplayText("");
-			setIndex(0);
-		}
-	}, [text]);
-
-	useEffect(() => {
-		if (index < text.length) {
-			const timeout = setTimeout(() => {
-				setDisplayText((prev) => prev + text[index]);
-				setIndex((prev) => prev + 1);
-			}, 50);
-			return () => clearTimeout(timeout);
-		}
-		onComplete?.();
-		return undefined;
-	}, [index, onComplete, text]);
-
-	return <span className={className}>{displayText}</span>;
-}
-
 export function ContactForm() {
-	const stepRef = useRef<HTMLDivElement>(null);
 	const [step, setStep] = useState(0);
-	const [showContent, setShowContent] = useState(false);
-	const [formData, setFormData] = useState<{
-		name: string;
-		email: string;
-		projectType: string;
-		message: string;
-	}>({
+	const [formData, setFormData] = useState({
 		name: "",
 		email: "",
-		projectType: "Web Development",
+		projectType: "Web Development" as string,
 		message: "",
 	});
-	const [status, setStatus] = useState<
-		"idle" | "submitting" | "success" | "error"
-	>("idle");
-
-	const handleTypingComplete = () => {
-		setTimeout(() => setShowContent(true), 600);
-	};
-
-	const nextStep = () => {
-		setShowContent(false);
-		gsap.to(stepRef.current, {
-			opacity: 0,
-			y: -40,
-			duration: 0.6,
-			ease: "power3.inOut",
-			onComplete: () => {
-				setStep((s) => s + 1);
-				gsap.fromTo(
-					stepRef.current,
-					{ opacity: 0, y: 40 },
-					{ opacity: 1, y: 0, duration: 0.8, ease: "power3.out" },
-				);
-			},
-		});
-	};
+	const [status, setStatus] = useState<"idle" | "submitting" | "success">(
+		"idle",
+	);
+	const [isTyping, setIsTyping] = useState(true);
+	const stepRef = useRef<HTMLDivElement>(null);
 
 	const handleSubmit = async () => {
 		setStatus("submitting");
@@ -100,33 +59,103 @@ export function ContactForm() {
 			rawFormData.append(key, value);
 		});
 		rawFormData.append("_honeypot", "");
+
 		const result = await sendContactEmail(rawFormData);
+
 		if (result.success) {
 			setStatus("success");
-			toast.success("Message shot into space! 🚀");
 		} else {
-			setStatus("error");
-			toast.error(result.error || "Oops! Our carrier pigeon got lost. 🐦");
+			setStatus("idle");
+			toast.error(result.error || "Failed to send message.");
+		}
+	};
+
+	const nextStep = () => {
+		if (step === 1 && !formData.name) {
+			toast.error("Please enter your name.");
+			return;
+		}
+		if (step === 2 && !formData.email) {
+			toast.error("Please enter a valid email.");
+			return;
+		}
+		if (step === 4 && !formData.message) {
+			toast.error("Please tell us more about your project.");
+			return;
+		}
+
+		if (step < 4) {
+			gsap.to(stepRef.current, {
+				opacity: 0,
+				y: -20,
+				duration: 0.4,
+				ease: "power2.inOut",
+				onComplete: () => {
+					setStep((prev) => prev + 1);
+					setIsTyping(true);
+					gsap.fromTo(
+						stepRef.current,
+						{ opacity: 0, y: 20 },
+						{ opacity: 1, y: 0, duration: 0.6, ease: "power3.out" },
+					);
+				},
+			});
+		} else {
+			handleSubmit();
+		}
+	};
+
+	const magneticRef = useRef<HTMLButtonElement>(null);
+
+	const handleMouseMove = (e: React.MouseEvent) => {
+		if (!magneticRef.current) return;
+		const { clientX, clientY } = e;
+		const { left, top, width, height } = magneticRef.current.getBoundingClientRect();
+		const x = clientX - (left + width / 2);
+		const y = clientY - (top + height / 2);
+
+		gsap.to(magneticRef.current, {
+			x: x * 0.3,
+			y: y * 0.3,
+			duration: 0.6,
+			ease: "power3.out",
+		});
+	};
+
+	const handleMouseLeave = () => {
+		if (!magneticRef.current) return;
+		gsap.to(magneticRef.current, {
+			x: 0,
+			y: 0,
+			duration: 0.6,
+			ease: "elastic.out(1, 0.3)",
+		});
+	};
+
+	const handleKeyDown = (e: React.KeyboardEvent) => {
+		if (e.key === "Enter" && !e.shiftKey) {
+			if (step === 3) return;
+			e.preventDefault();
+			if (!isTyping) nextStep();
 		}
 	};
 
 	if (status === "success") {
 		return (
 			<div className="py-20 text-center animate-in fade-in slide-in-from-bottom-8 duration-1000">
-				<div className="text-6xl mb-8 animate-bounce">✨</div>
-				<h3 className="text-4xl font-bold mb-4 uppercase tracking-tighter">
-					High Five! ✋
+				<div className="text-7xl mb-10">🛸</div>
+				<h3 className="text-4xl md:text-6xl font-black uppercase tracking-tighter italic leading-none mb-6">
+					Transmission <br /> <span className="text-primary">Complete</span>
 				</h3>
-				<p className="text-muted-foreground max-w-sm mx-auto">
-					Your message is currently being decoded by our top-secret team of
-					experts.
+				<p className="text-muted-foreground max-w-sm mx-auto text-[10px] uppercase tracking-[0.5em] font-black opacity-40">
+					Establishment Successful — Stand by for feedback
 				</p>
 				<Button
 					variant="link"
 					onClick={() => {
 						setStep(0);
 						setStatus("idle");
-						setShowContent(false);
+						setIsTyping(true);
 						setFormData({
 							name: "",
 							email: "",
@@ -134,233 +163,165 @@ export function ContactForm() {
 							message: "",
 						});
 					}}
-					className="mt-12 text-[10px] font-bold uppercase tracking-[0.2em] text-primary hover:text-foreground transition-all"
+					className="mt-16 text-[10px] font-black uppercase tracking-[0.4em] text-primary hover:text-foreground transition-all"
 				>
-					Start Over
+					Re-initiate Protocol
 				</Button>
 			</div>
 		);
 	}
 
 	return (
-		<div className="min-h-[400px] flex flex-col justify-center max-w-2xl mx-auto">
-			<div ref={stepRef} className="space-y-12">
+		<section
+			className="min-h-[500px] flex flex-col justify-center relative px-4 md:px-0 outline-none"
+			onKeyDown={handleKeyDown}
+			aria-label="Contact Form"
+			tabIndex={-1}
+		>
+			<div ref={stepRef} className="space-y-16">
 				{step === 0 && (
-					<div className="space-y-8 text-center md:text-left">
-						<h2 className="text-4xl md:text-6xl font-black uppercase tracking-tighter leading-tight">
-							<Typewriter
-								text="Ready to build something legendary?"
-								onComplete={handleTypingComplete}
-							/>
-						</h2>
-						{showContent && (
-							<Button
-								onClick={nextStep}
-								className="group relative border border-primary px-12 py-8 text-xs font-black uppercase tracking-[0.3em] bg-transparent text-foreground hover:text-black transition-all animate-in fade-in slide-in-from-bottom-4 duration-700"
-							>
-								<span className="relative z-10">Initiate Launch Sequence</span>
-								<div className="absolute inset-0 z-0 bg-primary translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-in-out" />
-							</Button>
+					<div className="space-y-12">
+						<Typewriter
+							text="Hello. We've been waiting for you. Let's build something legendary."
+							onComplete={() => setIsTyping(false)}
+							className="text-4xl md:text-7xl font-black uppercase tracking-tighter leading-[0.9] italic"
+						/>
+						{!isTyping && (
+							<div className="animate-in fade-in zoom-in-95 duration-1000">
+								<button
+									ref={magneticRef}
+									type="button"
+									onClick={nextStep}
+									onMouseMove={handleMouseMove}
+									onMouseLeave={handleMouseLeave}
+									className="group relative flex items-center justify-center px-12 py-6 bg-white/5 backdrop-blur-xl border border-white/10 rounded-full text-[14px] font-black uppercase tracking-[0.4em] text-white hover:text-primary transition-colors shadow-[0_0_50px_rgba(207,63,153,0.1)] hover:shadow-[0_0_80px_rgba(207,63,153,0.3)] transform-gpu"
+								>
+									<span className="relative z-10 flex items-center gap-4">
+										Initiate Sequence
+										<span className="w-2 h-2 bg-primary rounded-full animate-pulse shadow-[0_0_10px_rgba(207,63,153,0.8)]" />
+									</span>
+									<div className="absolute inset-0 rounded-full bg-linear-to-r from-primary/20 to-transparent opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-500" />
+								</button>
+							</div>
 						)}
 					</div>
 				)}
 
 				{step === 1 && (
-					<div className="space-y-8">
-						<h2 className="text-3xl md:text-5xl font-black uppercase tracking-tighter leading-tight">
-							<Typewriter
-								text="First things first, what's your name?"
-								onComplete={handleTypingComplete}
+					<div className="space-y-10">
+						<Typewriter
+							text="First off, what should we call you?"
+							onComplete={() => setIsTyping(false)}
+							className="text-3xl md:text-5xl font-black uppercase tracking-tighter leading-tight italic"
+						/>
+						{!isTyping && (
+							<Input
+								autoFocus
+								placeholder="TYPE YOUR NAME..."
+								value={formData.name}
+								onChange={(e) =>
+									setFormData((prev) => ({ ...prev, name: e.target.value }))
+								}
+								className="bg-transparent border-0 border-b-2 border-primary/20 focus:border-primary rounded-none px-0 h-20 text-3xl md:text-5xl font-black uppercase tracking-tighter transition-all placeholder:opacity-10 ring-0 focus-visible:ring-0"
 							/>
-						</h2>
-						{showContent && (
-							<div className="flex flex-col gap-4 animate-in fade-in slide-in-from-bottom-4 duration-700">
-								<Input
-									autoFocus
-									placeholder="e.g. Tony Stark"
-									value={formData.name}
-									onChange={(e) =>
-										setFormData((prev) => ({ ...prev, name: e.target.value }))
-									}
-									onKeyDown={(e) =>
-										e.key === "Enter" && formData.name && nextStep()
-									}
-									className="text-2xl md:text-4xl bg-transparent border-0 border-b-2 border-primary focus:ring-0 px-0 h-auto font-bold placeholder:opacity-20 transition-all"
-								/>
-								<div className="flex justify-between items-center">
-									<p className="text-[10px] uppercase tracking-widest text-muted-foreground font-bold">
-										Press Enter to continue
-									</p>
-									<Button
-										disabled={!formData.name}
-										onClick={nextStep}
-										variant="ghost"
-										className="text-primary hover:text-primary/80 font-bold uppercase tracking-widest text-[10px]"
-									>
-										Next Step →
-									</Button>
-								</div>
-							</div>
 						)}
 					</div>
 				)}
 
 				{step === 2 && (
-					<div className="space-y-8">
-						<h2 className="text-3xl md:text-5xl font-black uppercase tracking-tighter leading-tight">
-							<Typewriter
-								text={`Awesome, ${formData.name.split(" ")[0]}! Where can we reach you?`}
-								onComplete={handleTypingComplete}
+					<div className="space-y-10">
+						<Typewriter
+							text="Excellent. And your digital coordinate?"
+							onComplete={() => setIsTyping(false)}
+							className="text-3xl md:text-5xl font-black uppercase tracking-tighter leading-tight italic"
+						/>
+						{!isTyping && (
+							<Input
+								autoFocus
+								type="email"
+								placeholder="YOUR@EMAIL.COM"
+								value={formData.email}
+								onChange={(e) =>
+									setFormData((prev) => ({ ...prev, email: e.target.value }))
+								}
+								className="bg-transparent border-0 border-b-2 border-primary/20 focus:border-primary rounded-none px-0 h-20 text-3xl md:text-5xl font-black uppercase tracking-tighter transition-all placeholder:opacity-10 ring-0 focus-visible:ring-0"
 							/>
-						</h2>
-						{showContent && (
-							<div className="flex flex-col gap-4 animate-in fade-in slide-in-from-bottom-4 duration-700">
-								<Input
-									autoFocus
-									type="email"
-									placeholder="your@legendary.email"
-									value={formData.email}
-									onChange={(e) =>
-										setFormData((prev) => ({ ...prev, email: e.target.value }))
-									}
-									onKeyDown={(e) =>
-										e.key === "Enter" &&
-										formData.email.includes("@") &&
-										nextStep()
-									}
-									className="text-2xl md:text-4xl bg-transparent border-0 border-b-2 border-primary focus:ring-0 px-0 h-auto font-bold placeholder:opacity-20 transition-all"
-								/>
-								<div className="flex justify-between items-center">
-									<Button
-										onClick={() => {
-											setStep(1);
-											setShowContent(true);
-										}}
-										variant="ghost"
-										className="text-muted-foreground hover:text-foreground font-bold uppercase tracking-widest text-[10px]"
-									>
-										← Back
-									</Button>
-									<Button
-										disabled={!formData.email.includes("@")}
-										onClick={nextStep}
-										variant="ghost"
-										className="text-primary hover:text-primary/80 font-bold uppercase tracking-widest text-[10px]"
-									>
-										Almost there →
-									</Button>
-								</div>
-							</div>
 						)}
 					</div>
 				)}
 
 				{step === 3 && (
-					<div className="space-y-8">
-						<h2 className="text-3xl md:text-5xl font-black uppercase tracking-tighter leading-tight">
-							<Typewriter
-								text="What are we building today?"
-								onComplete={handleTypingComplete}
-							/>
-						</h2>
-						{showContent && (
-							<div className="flex flex-col gap-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
-								<RadioGroup
-									value={formData.projectType}
-									onValueChange={(val: unknown) => {
-										if (typeof val === "string") {
-											setFormData((prev) => ({ ...prev, projectType: val }));
-										}
-									}}
-									className="flex flex-wrap gap-3"
-								>
-									{PROJECT_TYPES.map((type) => (
-										<FieldLabel
-											key={type}
-											className="relative cursor-pointer group flex items-center gap-2 border-2 border-border px-6 py-4 has-data-checked:bg-primary has-data-checked:text-black has-data-checked:border-primary hover:border-primary transition-all duration-300"
-										>
-											<RadioGroupItem value={type} className="sr-only" />
-											<span className="text-xs uppercase tracking-widest font-black">
-												{type}
-											</span>
-										</FieldLabel>
-									))}
-								</RadioGroup>
-								<div className="flex justify-between items-center">
-									<Button
+					<div className="space-y-10">
+						<Typewriter
+							text="What kind of project are we launching?"
+							onComplete={() => setIsTyping(false)}
+							className="text-3xl md:text-5xl font-black uppercase tracking-tighter leading-tight italic"
+						/>
+						{!isTyping && (
+							<div className="flex flex-wrap gap-4 animate-in fade-in duration-1000">
+								{PROJECT_TYPES.map((type) => (
+									<button
+										key={type}
+										type="button"
 										onClick={() => {
-											setStep(2);
-											setShowContent(true);
+											setFormData((prev) => ({
+												...prev,
+												projectType: type,
+											}));
+											setTimeout(nextStep, 300);
 										}}
-										variant="ghost"
-										className="text-muted-foreground hover:text-foreground font-bold uppercase tracking-widest text-[10px]"
+										className={cn(
+											"px-10 py-4 border-2 rounded-full text-xs font-black uppercase tracking-[0.2em] transition-all transform-gpu",
+											formData.projectType === type
+												? "bg-primary text-black border-primary scale-105 shadow-[0_0_30px_rgba(var(--primary),0.2)]"
+												: "border-white/5 hover:border-primary/50 opacity-50 hover:opacity-100",
+										)}
 									>
-										← Back
-									</Button>
-									<Button
-										onClick={nextStep}
-										variant="ghost"
-										className="text-primary hover:text-primary/80 font-bold uppercase tracking-widest text-[10px]"
-									>
-										Final detail →
-									</Button>
-								</div>
+										{type}
+									</button>
+								))}
 							</div>
 						)}
 					</div>
 				)}
 
 				{step === 4 && (
-					<div className="space-y-8">
-						<h2 className="text-3xl md:text-5xl font-black uppercase tracking-tighter leading-tight">
-							<Typewriter
-								text="Last part! Tell us its destiny."
-								onComplete={handleTypingComplete}
+					<div className="space-y-10">
+						<Typewriter
+							text="Tell us about the mission parameters..."
+							onComplete={() => setIsTyping(false)}
+							className="text-3xl md:text-5xl font-black uppercase tracking-tighter leading-tight italic"
+						/>
+						{!isTyping && (
+							<Textarea
+								autoFocus
+								placeholder="DESCRIBE YOUR VISION..."
+								value={formData.message}
+								onChange={(e) =>
+									setFormData((prev) => ({ ...prev, message: e.target.value }))
+								}
+								className="bg-transparent border-0 border-b-2 border-primary/20 focus:border-primary rounded-none px-0 min-h-[150px] text-2xl md:text-4xl font-black uppercase tracking-tighter transition-all placeholder:opacity-10 resize-none ring-0 focus-visible:ring-0 leading-[1.1]"
 							/>
-						</h2>
-						{showContent && (
-							<div className="flex flex-col gap-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
-								<Textarea
-									autoFocus
-									placeholder="Tell us everything. The goals, the dreams, the budget..."
-									value={formData.message}
-									onChange={(e) =>
-										setFormData((prev) => ({
-											...prev,
-											message: e.target.value,
-										}))
-									}
-									className="text-xl bg-transparent border-0 border-b-2 border-primary focus:ring-0 px-0 min-h-[150px] font-medium placeholder:opacity-20 resize-none transition-all"
-								/>
-								<div className="flex justify-between items-center">
-									<Button
-										onClick={() => {
-											setStep(3);
-											setShowContent(true);
-										}}
-										variant="ghost"
-										className="text-muted-foreground hover:text-foreground font-bold uppercase tracking-widest text-[10px]"
-									>
-										← Back
-									</Button>
-									<Button
-										disabled={status === "submitting" || !formData.message}
-										onClick={handleSubmit}
-										className="group relative border border-primary px-8 py-4 text-xs font-black uppercase tracking-[0.3em] bg-transparent text-foreground hover:text-black transition-all"
-									>
-										<span className="relative z-10">
-											{status === "submitting"
-												? "Transmitting..."
-												: "Send Signal"}
-										</span>
-										<div className="absolute inset-0 z-0 bg-primary translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-in-out" />
-									</Button>
-								</div>
-							</div>
 						)}
 					</div>
 				)}
+
+				{step > 0 && !isTyping && status !== "submitting" && (
+					<div className="animate-in fade-in slide-in-from-bottom-4 duration-1000 flex items-center gap-4 text-[11px] font-black uppercase tracking-[0.5em] text-primary/40">
+						<span className="animate-pulse">Press Enter to continue</span>
+						<span className="h-px grow bg-white/5" />
+					</div>
+				)}
+
+				{status === "submitting" && (
+					<div className="flex flex-col items-center gap-6 py-10">
+						<div className="w-16 h-16 border-4 border-primary/20 border-t-primary rounded-full animate-spin" />
+						<div className="text-[12px] font-black uppercase tracking-[0.6em] text-primary animate-pulse">
+							Transmitting Signal...
+						</div>
+					</div>
+				)}
 			</div>
-		</div>
+		</section>
 	);
 }

@@ -53,6 +53,23 @@ export function WorkView({ projects }: WorkViewProps) {
 		{ scope: containerRef },
 	);
 
+	if (!projects || projects.length === 0) {
+		return (
+			<Wrapper>
+				<Navbar />
+				<main className="grow bg-background">
+					<Container className="py-48 text-center">
+						<h1 className="text-4xl font-bold mb-4">No Projects Available</h1>
+						<p className="text-muted-foreground">
+							We&apos;re working on some amazing projects. Check back soon!
+						</p>
+					</Container>
+				</main>
+				<Footer />
+			</Wrapper>
+		);
+	}
+
 	return (
 		<Wrapper>
 			<Navbar />

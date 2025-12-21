@@ -1,10 +1,26 @@
 import { cacheSignal } from "react";
 import { createImageUrlBuilder } from "@sanity/image-url";
 import { createClient } from "next-sanity";
+import { getEnv } from "./validate-env";
+import type { PortableTextBlock } from "next-sanity";
+
+export interface Post {
+	_id: string;
+	title: string;
+	slug: string;
+	author: string;
+	mainImage: string;
+	publishedAt: string;
+	body?: PortableTextBlock[];
+	excerpt: string;
+}
+
+// Validate environment variables
+const env = getEnv();
 
 export const client = createClient({
-	projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID!,
-	dataset: process.env.NEXT_PUBLIC_SANITY_DATASET || "production",
+	projectId: env.NEXT_PUBLIC_SANITY_PROJECT_ID,
+	dataset: env.NEXT_PUBLIC_SANITY_DATASET || "production",
 	apiVersion: "2023-05-03",
 	useCdn: process.env.NODE_ENV === "production",
 	stega: {

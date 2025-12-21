@@ -36,8 +36,22 @@ const DEFAULT_KEYWORDS = [
 	"Creative Agency Warsaw",
 ];
 
-const APP_BASE_URL =
-	process.env.NEXT_PUBLIC_BASE_URL ?? "https://localhost:3000";
+// Get base URL from environment, fail fast if missing in production
+function getBaseUrl(): string {
+	const url = process.env.NEXT_PUBLIC_BASE_URL;
+	if (!url) {
+		if (process.env.NODE_ENV === "production") {
+			throw new Error(
+				"NEXT_PUBLIC_BASE_URL environment variable is required in production. Please set it to your production URL (e.g., https://untab.studio)",
+			);
+		}
+		// In development, use localhost
+		return "http://localhost:3000";
+	}
+	return url;
+}
+
+const APP_BASE_URL = getBaseUrl();
 
 /**
  * Generate complete metadata object for pages
@@ -66,7 +80,7 @@ export function generatePageMetadata(
 		keywords = DEFAULT_KEYWORDS,
 		image,
 		url,
-		siteName = "Satūs",
+		siteName = "Untab Studio",
 		noIndex = false,
 		type = "website",
 		publishedTime,
@@ -75,7 +89,8 @@ export function generatePageMetadata(
 	} = options;
 
 	const fullUrl = url ? `${APP_BASE_URL}${url}` : APP_BASE_URL;
-	const imageUrl = image?.url || "/opengraph-image.jpg";
+	// Use provided image or fallback to logo if no opengraph image exists
+	const imageUrl = image?.url || `${APP_BASE_URL}/logo.png`;
 	const imageWidth = image?.width || 1200;
 	const imageHeight = image?.height || 630;
 	const imageAlt = image?.alt || title || siteName;

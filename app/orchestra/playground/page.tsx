@@ -10,9 +10,6 @@ import { THEME_REGISTRY } from "~/libs/themes";
 import { useAdaptiveTheme } from "~/hooks/use-adaptive-theme";
 import { generateAIMetadata } from "~/app/actions/ai";
 
-/**
- * Component Playground
- */
 export default function PlaygroundPage() {
 	const [activeComponent, setActiveComponent] = useState("buttons");
 	const [activeThemeKey, setActiveThemeKey] = useState<string | undefined>(
@@ -27,7 +24,6 @@ export default function PlaygroundPage() {
 	const containerRef = useRef<HTMLDivElement>(null);
 	const { theme, setTheme } = useTheme();
 
-	// Enable adaptive theme shifting
 	useAdaptiveTheme(activeThemeKey);
 
 	useGSAP(() => {

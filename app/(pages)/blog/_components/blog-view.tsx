@@ -7,16 +7,8 @@ import { Container } from "~/components/container";
 import { Link } from "~/components/ui/link";
 import { Wrapper } from "~/components/wrapper";
 import { Footer, Navbar } from "../../_components";
+import type { Post } from "~/libs/sanity";
 
-interface Post {
-	_id?: string;
-	title: string;
-	slug: string;
-	author: string;
-	mainImage: string;
-	publishedAt: string;
-	excerpt: string;
-}
 
 interface BlogViewProps {
 	posts: Post[];
@@ -47,6 +39,23 @@ export function BlogView({ posts }: BlogViewProps) {
 		},
 		{ scope: containerRef },
 	);
+
+	if (!posts || posts.length === 0) {
+		return (
+			<Wrapper>
+				<Navbar />
+				<main className="grow bg-background">
+					<Container className="py-48 text-center">
+						<h1 className="text-4xl font-bold mb-4">No Posts Available</h1>
+						<p className="text-muted-foreground">
+							We&apos;re working on some great content. Check back soon!
+						</p>
+					</Container>
+				</main>
+				<Footer />
+			</Wrapper>
+		);
+	}
 
 	return (
 		<Wrapper>

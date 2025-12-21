@@ -1,4 +1,3 @@
-// Re-poking to trigger recompile and fix possible font import sync issue
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import localFont from "next/font/local";

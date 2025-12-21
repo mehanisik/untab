@@ -1,78 +1,153 @@
 "use server";
 
 import { Resend } from "resend";
+import { escapeHtml, sanitizeInput } from "~/libs/escape-html";
 
-import { headers } from "next/headers";
+import { aj } from "~/libs/arcjet";
+import { request } from "@arcjet/next";
+import { isSpoofedBot } from "@arcjet/inspect";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+import { UntabContactEmail } from "~/emails/untab-contact";
+import { getEnv } from "~/libs/validate-env";
 
-// Simple in-memory rate limiting
-const rateLimitMap = new Map<string, { count: number; lastReset: number }>();
-const LIMIT = 3; // Max 3 requests
-const WINDOW = 60 * 60 * 1000; // per hour
+const env = getEnv();
+const RESEND_API_KEY = env.RESEND_API_KEY;
+const CONTACT_EMAIL = env.CONTACT_EMAIL;
+
+// Final check for contact dependencies (already validated by getEnv but for type safety)
+if (!(RESEND_API_KEY && CONTACT_EMAIL)) {
+	throw new Error(
+		"Contact form environment variables are missing. Please check your .env file.",
+	);
+}
+
+const resend = new Resend(RESEND_API_KEY);
+
+const MAX_NAME_LENGTH = 100;
+const MAX_EMAIL_LENGTH = 255;
+const MAX_MESSAGE_LENGTH = 5000;
+const MAX_PROJECT_TYPE_LENGTH = 50;
 
 export async function sendContactEmail(formData: FormData) {
-	// Honeypot check
 	const _honeypot = formData.get("_honeypot") as string;
 	if (_honeypot) {
-		console.warn("Honeypot triggered");
-		return { success: true }; // Silently fail for bots
+		if (process.env.NODE_ENV === "development") {
+			console.warn("Honeypot triggered");
+		}
+		return { success: true };
 	}
 
-	// Rate limiting
-	const headerList = await headers();
-	const ip = headerList.get("x-forwarded-for") || "unknown";
-	const now = Date.now();
-	const userLimit = rateLimitMap.get(ip) || { count: 0, lastReset: now };
+	const rawEmail = formData.get("email") as string;
 
-	if (now - userLimit.lastReset > WINDOW) {
-		userLimit.count = 0;
-		userLimit.lastReset = now;
+	// Arcjet protection
+	try {
+		const req = await request();
+		const decision = await aj.protect(req, {
+			email: rawEmail, // Pass email for validation rule
+			requested: 5, // Deduct 5 tokens from the bucket
+		});
+
+		if (process.env.NODE_ENV === "development") {
+			console.log("✦ Arcjet Decision:", decision.conclusion);
+			if (decision.isDenied()) {
+				console.log("✦ Arcjet Denied Reason:", decision.reason);
+			}
+		}
+
+		if (decision.isDenied()) {
+			if (decision.reason.isRateLimit()) {
+				return {
+					error:
+						"Whoa there, eager beaver! You've sent enough messages for now. Try again in an hour!",
+				};
+			}
+			if (decision.reason.isBot()) {
+				return { error: "Bots are not allowed." };
+			}
+			if (decision.reason.isEmail()) {
+				return {
+					error: "Invalid email address. Please provide a valid one.",
+				};
+			}
+			return { error: "Access denied." };
+		}
+
+		// Additional advanced checks
+		if (decision.ip.isHosting()) {
+			return {
+				error: "Forbidden: Requests from hosting providers are not allowed.",
+			};
+		}
+
+		if (decision.results.some(isSpoofedBot)) {
+			return { error: "Forbidden: Spoofed bot detected." };
+		}
+	} catch (error) {
+		// Log error but proceed to avoid blocking users if Arcjet is down
+		console.error("Arcjet error:", error);
 	}
 
-	if (userLimit.count >= LIMIT) {
-		return {
-			error:
-				"Whoa there, eager beaver! You've sent enough messages for now. Try again in an hour!",
-		};
+	const rawName = formData.get("name") as string;
+	const rawProjectType = formData.get("projectType") as string;
+	const rawMessage = formData.get("message") as string;
+
+	if (!rawName) {
+		return { error: "Name is required." };
+	}
+	if (!rawEmail) {
+		return { error: "Email is required." };
+	}
+	if (!rawMessage) {
+		return { error: "Message is required." };
 	}
 
-	userLimit.count++;
-	rateLimitMap.set(ip, userLimit);
+	const name = sanitizeInput(rawName, MAX_NAME_LENGTH);
+	const email = sanitizeInput(rawEmail, MAX_EMAIL_LENGTH);
+	const projectType = rawProjectType
+		? sanitizeInput(rawProjectType, MAX_PROJECT_TYPE_LENGTH)
+		: "";
+	const message = sanitizeInput(rawMessage, MAX_MESSAGE_LENGTH);
 
-	const name = formData.get("name") as string;
-	const email = formData.get("email") as string;
-	const projectType = formData.get("projectType") as string;
-	const message = formData.get("message") as string;
+	if (name.length < 2) {
+		return { error: "Name must be at least 2 characters long." };
+	}
 
-	if (!(name && email && message)) {
-		return { error: "Please fill in all required fields." };
+	if (message.length < 10) {
+		return { error: "Message must be at least 10 characters long." };
 	}
 
 	try {
+		const escapedName = escapeHtml(name);
+		const escapedEmail = escapeHtml(email);
+		const escapedProjectType = escapeHtml(projectType || "N/A");
+		const escapedMessage = escapeHtml(message);
+
+		const recipientEmail = CONTACT_EMAIL!;
+
 		const { data, error } = await resend.emails.send({
 			from: "Untab Studio <onboarding@resend.dev>",
-			to: ["mehmethanifiisik64@gmail.com"], // Using the verified testing email for now
-			subject: `New Contact Form Submission: ${name}`,
+			to: [recipientEmail],
+			subject: `New Contact Form Submission: ${escapedName}`,
 			replyTo: email,
-			html: `
-				<h1>New Contact Form Submission</h1>
-				<p><strong>Name:</strong> ${name}</p>
-				<p><strong>Email:</strong> ${email}</p>
-				<p><strong>Project Type:</strong> ${projectType || "N/A"}</p>
-				<p><strong>Message:</strong></p>
-				<p>${message}</p>
-			`,
+			react: UntabContactEmail({
+				name: escapedName,
+				email: escapedEmail,
+				projectType: escapedProjectType,
+				message: escapedMessage,
+			}),
 		});
 
 		if (error) {
 			console.error("Resend error:", error);
-			return { error: "Failed to send email" };
+			const devError = process.env.NODE_ENV === "development" 
+				? `: ${error.message || JSON.stringify(error)}` 
+				: "";
+			return { error: `Failed to send email${devError}. Please try again later.` };
 		}
 
 		return { success: true, data };
 	} catch (error) {
 		console.error("Server action error:", error);
-		return { error: "Internal server error" };
+		return { error: "Internal server error. Please try again later." };
 	}
 }

@@ -15,7 +15,7 @@ export default function ErrorPage({ error, reset }: ErrorPageProps) {
 
 	return (
 		<div className="font-mono">
-			<div className="flex flex-col items-center justify-center dr-gap-y-24 my-auto uppercase">
+			<div className="flex flex-col items-center justify-center gap-y-24 my-auto uppercase">
 				<h1 className="mb-4 text-4xl font-bold">Something went wrong</h1>
 				<p className="mb-6 text-lg text-gray-600">
 					We're sorry, but something unexpected happened. Please try again.
