@@ -1,8 +1,3 @@
-/**
- * Environment Variable Validation
- * Validates required environment variables at application startup
- */
-
 interface EnvConfig {
 	NEXT_PUBLIC_SANITY_PROJECT_ID: string;
 	NEXT_PUBLIC_SANITY_DATASET?: string;
@@ -13,14 +8,9 @@ interface EnvConfig {
 	ARCJET_API_KEY?: string;
 }
 
-/**
- * Validates required environment variables
- * Throws error if required variables are missing
- */
 export function validateEnv(): EnvConfig {
 	const errors: string[] = [];
 
-	// Required variables
 	const NEXT_PUBLIC_SANITY_PROJECT_ID =
 		process.env.NEXT_PUBLIC_SANITY_PROJECT_ID;
 	const NEXT_PUBLIC_BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
@@ -33,7 +23,6 @@ export function validateEnv(): EnvConfig {
 		errors.push("NEXT_PUBLIC_BASE_URL is required in production");
 	}
 
-	// Validate BASE_URL format
 	if (NEXT_PUBLIC_BASE_URL) {
 		try {
 			new URL(NEXT_PUBLIC_BASE_URL);
@@ -44,11 +33,9 @@ export function validateEnv(): EnvConfig {
 		}
 	}
 
-	// Optional but recommended variables
 	const RESEND_API_KEY = process.env.RESEND_API_KEY;
 	const CONTACT_EMAIL = process.env.CONTACT_EMAIL;
 
-	// Only validate server-side secrets when on the server
 	const isServer = typeof window === "undefined";
 
 	if (isServer && process.env.NODE_ENV === "production") {
@@ -89,10 +76,6 @@ export function validateEnv(): EnvConfig {
 	};
 }
 
-/**
- * Get validated environment variables
- * Call this at application startup
- */
 export function getEnv(): EnvConfig {
 	return validateEnv();
 }

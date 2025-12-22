@@ -50,17 +50,34 @@ const quotes = [
 	},
 ];
 
-export function WordsWorthBillions() {
+interface WordsWorthBillionsProps {
+	title?: string;
+	testimonials?: {
+		quote: string;
+		name: string;
+		role: string;
+		location: string;
+		company: string;
+		initials: string;
+	}[];
+}
+
+export function WordsWorthBillions({
+	title = "Words worth billions",
+	testimonials,
+}: WordsWorthBillionsProps) {
 	const [currentIndex, setCurrentIndex] = useState(0);
 	const [isAnimating, setIsAnimating] = useState(false);
 	const headingRef = useFadeInOnScroll<HTMLHeadingElement>({ delay: 0 });
 	const contentRef = useFadeInOnScroll<HTMLDivElement>({ delay: 0.2 });
 
+	const displayTestimonials = testimonials || quotes;
+
 	const goNext = () => {
 		if (isAnimating) return;
 		setIsAnimating(true);
 		setTimeout(() => {
-			setCurrentIndex((prev) => (prev + 1) % quotes.length);
+			setCurrentIndex((prev) => (prev + 1) % displayTestimonials.length);
 			setIsAnimating(false);
 		}, 300);
 	};
@@ -69,21 +86,24 @@ export function WordsWorthBillions() {
 		if (isAnimating) return;
 		setIsAnimating(true);
 		setTimeout(() => {
-			setCurrentIndex((prev) => (prev - 1 + quotes.length) % quotes.length);
+			setCurrentIndex(
+				(prev) =>
+					(prev - 1 + displayTestimonials.length) % displayTestimonials.length,
+			);
 			setIsAnimating(false);
 		}, 300);
 	};
 
-	const currentQuote = quotes[currentIndex];
+	const currentQuote = displayTestimonials[currentIndex];
 
 	return (
-		<section className="bg-background py-32">
+		<section className="bg-background py-20 md:py-32">
 			<div className="mx-auto max-w-[1440px] px-6 md:px-12 lg:px-24">
 				<h2
 					ref={headingRef}
-					className="mb-16 text-4xl font-medium tracking-tight text-foreground md:text-5xl lg:text-6xl"
+					className="mb-12 md:mb-16 text-3xl font-medium tracking-tight text-foreground sm:text-5xl md:text-6xl"
 				>
-					Words worth billions
+					{title}
 				</h2>
 
 				<div ref={contentRef} className="relative">
@@ -140,7 +160,7 @@ export function WordsWorthBillions() {
 									: "opacity-100 translate-y-0",
 							)}
 						>
-							<blockquote className="text-xl font-medium leading-relaxed text-foreground md:text-2xl lg:text-3xl">
+							<blockquote className="text-lg font-medium leading-relaxed text-foreground sm:text-xl md:text-2xl lg:text-3xl">
 								{currentQuote.quote}
 							</blockquote>
 
@@ -165,7 +185,7 @@ export function WordsWorthBillions() {
 					</div>
 
 					<div className="mt-12 flex justify-center gap-2">
-						{quotes.map((quote, index) => (
+						{displayTestimonials.map((quote, index) => (
 							<button
 								type="button"
 								key={quote.name}

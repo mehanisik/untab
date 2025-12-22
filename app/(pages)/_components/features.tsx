@@ -11,27 +11,46 @@ import {
 import { useFadeInOnScroll } from "~/hooks/use-scroll-animation";
 import { useEffect, useEffectEvent, useRef, useState } from "react";
 
-const features = [
+// biome-ignore lint/suspicious/noExplicitAny: Hugeicons icon objects have complex internal structures
+const ICON_MAP: Record<string, any> = {
+	rocket: Rocket01Icon,
+	shield: Shield02Icon,
+	time: Time01Icon,
+	team: UserGroupIcon,
+};
+
+interface Feature {
+	title: string;
+	description: string;
+	icon: string;
+}
+
+interface FeaturesProps {
+	title?: string;
+	features?: Feature[];
+}
+
+const DEFAULT_FEATURES = [
 	{
-		icon: Rocket01Icon,
+		icon: "rocket",
 		title: "Vision to Reality",
 		description:
 			"Transform your vision into an outstanding digital experience. We don't just build software; we craft digital ecosystems that scale and perform.",
 	},
 	{
-		icon: Shield02Icon,
+		icon: "shield",
 		title: "Risk Mitigation",
 		description:
 			"Increase your probability of success by mitigating technical risks early. Our architecture reviews and stress testing ensure your platform stands the test of time.",
 	},
 	{
-		icon: Time01Icon,
+		icon: "time",
 		title: "Expert Efficiency",
 		description:
 			"Save time by accessing an experienced team committed to your success. We leverage modern stack capabilities to deliver faster without compromising quality.",
 	},
 	{
-		icon: UserGroupIcon,
+		icon: "team",
 		title: "Collaborative Space",
 		description:
 			"Find a safe space to reach the best outcome through collaborative decision-making. We work as an extension of your team, providing transparent communication.",
@@ -43,10 +62,11 @@ function FeatureCard({
 	index,
 	onVisible,
 }: {
-	feature: (typeof features)[0];
+	feature: Feature;
 	index: number;
 	onVisible: (index: number) => void;
 }) {
+	const IconComponent = ICON_MAP[feature.icon] || Rocket01Icon;
 	const cardRef = useRef<HTMLDivElement>(null);
 	const [isActive, setIsActive] = useState(false);
 	const onIntersect = useEffectEvent((isIntersecting: boolean) => {
@@ -79,36 +99,36 @@ function FeatureCard({
 				isActive ? "opacity-100" : "opacity-100",
 			)}
 		>
-			<div className="flex gap-8 items-start">
+			<div className="flex gap-3 sm:gap-8 items-start">
 				<span
 					aria-hidden="true"
 					className={cn(
-						"text-7xl font-light tabular-nums transition-colors duration-500 md:text-8xl lg:text-9xl",
+						"text-3xl font-light tabular-nums transition-colors duration-500 sm:text-7xl md:text-8xl lg:text-9xl",
 						isActive ? "text-foreground" : "text-zinc-500",
 					)}
 				>
 					{String(index + 1).padStart(2, "0")}
 				</span>
 
-				<div className="flex-1 pt-4">
-					<div className="flex items-center gap-4 mb-4">
+				<div className="flex-1 pt-2 sm:pt-4">
+					<div className="flex items-center gap-3 sm:gap-4 mb-3 sm:mb-4">
 						<div
 							className={cn(
-								"flex size-10 items-center justify-center rounded-full transition-all duration-500",
+								"flex size-8 sm:size-10 items-center justify-center rounded-full transition-all duration-500",
 								isActive
 									? "bg-foreground text-background"
 									: "bg-muted text-muted-foreground",
 							)}
 						>
 							<HugeiconsIcon
-								icon={feature.icon}
-								className="size-5"
+								icon={IconComponent}
+								className="size-4 sm:size-5"
 								strokeWidth={1.5}
 							/>
 						</div>
 						<h3
 							className={cn(
-								"text-2xl font-medium tracking-tight text-foreground md:text-3xl transition-opacity duration-500",
+								"text-xl font-medium tracking-tight text-foreground sm:text-2xl md:text-3xl transition-opacity duration-500",
 								isActive ? "opacity-100" : "opacity-70",
 							)}
 						>
@@ -117,7 +137,7 @@ function FeatureCard({
 					</div>
 					<p
 						className={cn(
-							"text-muted-foreground leading-relaxed text-base font-light max-w-lg transition-all duration-500",
+							"text-muted-foreground leading-relaxed text-sm sm:text-base font-light max-w-lg transition-all duration-500",
 							isActive ? "opacity-100" : "opacity-80",
 						)}
 					>
@@ -136,19 +156,22 @@ function FeatureCard({
 	);
 }
 
-export function Features() {
+export function Features({
+	title = "How we work",
+	features = DEFAULT_FEATURES,
+}: FeaturesProps) {
 	const headerRef = useFadeInOnScroll<HTMLDivElement>({ delay: 0 });
 	const [activeIndex, setActiveIndex] = useState(0);
 
 	return (
-		<section className="relative bg-background py-24 md:py-32 lg:py-48">
+		<section className="relative bg-background py-20 md:py-32 lg:py-48">
 			<div className="mx-auto max-w-[1440px] px-6 md:px-12 lg:px-24">
 				<div className="grid gap-12 lg:grid-cols-2 lg:gap-24">
 					<div className="relative hidden lg:block">
 						<div className="sticky top-32 flex flex-col justify-center min-h-[60vh]">
 							<div ref={headerRef}>
 								<h2 className="mb-8 text-5xl font-medium tracking-tight text-foreground lg:text-7xl">
-									How we work
+									{title}
 								</h2>
 
 								<p className="mb-12 text-lg text-muted-foreground leading-relaxed font-light max-w-md">
@@ -181,15 +204,15 @@ export function Features() {
 					</div>
 
 					<div className="lg:hidden mb-12">
-						<h2 className="mb-4 text-4xl font-medium tracking-tight text-foreground">
-							How we work
+						<h2 className="mb-4 text-3xl font-medium tracking-tight text-foreground sm:text-4xl">
+							{title}
 						</h2>
 						<p className="text-base text-muted-foreground font-light leading-relaxed">
 							Strike the optimal balance between investment and impact.
 						</p>
 					</div>
 
-					<div className="flex flex-col gap-16 lg:gap-32 py-12 lg:py-[10vh]">
+					<div className="flex flex-col gap-12 lg:gap-32 py-12 lg:py-[10vh]">
 						{features.map((feature, index) => (
 							<FeatureCard
 								key={feature.title}

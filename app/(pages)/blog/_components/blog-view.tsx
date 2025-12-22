@@ -95,7 +95,7 @@ export function BlogView({ posts }: BlogViewProps) {
 												Author
 											</span>
 											<span className="text-sm font-medium">
-												{featuredPost.author}
+												{featuredPost.author.name}
 											</span>
 										</div>
 										<div className="size-1 bg-border rounded-full" />

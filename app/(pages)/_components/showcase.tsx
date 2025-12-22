@@ -1,7 +1,7 @@
 "use client";
 
 import { useFadeInOnScroll } from "~/hooks/use-scroll-animation";
-import { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { cn } from "~/libs/utils";
 
 function AnimatedLine() {
@@ -108,7 +108,17 @@ function AnimatedLine() {
 	);
 }
 
-export function Showcase() {
+interface ShowcaseProps {
+	title?: string;
+	heading?: string[];
+	description?: string;
+}
+
+export function Showcase({
+	title = "What we deliver",
+	heading = ["Minimum", "Perfect", "Experiences"],
+	description = "Digital products, webapps, mobile apps, brands and marketing websites you'll be excited to put in front of your customers and investors.",
+}: ShowcaseProps) {
 	const titleRef = useFadeInOnScroll<HTMLHeadingElement>({ delay: 0 });
 	const contentRef = useFadeInOnScroll<HTMLDivElement>({ delay: 0.4 });
 
@@ -119,7 +129,7 @@ export function Showcase() {
 					ref={titleRef}
 					className="text-3xl font-medium tracking-tight text-foreground md:text-4xl"
 				>
-					What we deliver
+					{title}
 				</h2>
 
 				<AnimatedLine />
@@ -129,17 +139,14 @@ export function Showcase() {
 					className="mt-[544px] flex max-w-[559px] flex-col gap-8"
 				>
 					<h3 className="text-4xl font-medium tracking-tight text-foreground md:text-5xl lg:text-6xl">
-						Minimum
-						<br />
-						Perfect
-						<br />
-						Experiences
+						{heading.map((line) => (
+							<React.Fragment key={line}>
+								{line}
+								<br />
+							</React.Fragment>
+						))}
 					</h3>
-					<p className="text-base text-muted-foreground">
-						Digital products, webapps, mobile apps, brands and marketing
-						websites you&apos;ll be excited to put in front of your customers
-						and investors.
-					</p>
+					<p className="text-base text-muted-foreground">{description}</p>
 				</div>
 			</div>
 		</section>

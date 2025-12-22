@@ -44,7 +44,7 @@ function DisplayCard({
 			ref={ref}
 			id={cardId}
 			className={cn(
-				"relative flex h-64 w-[24rem] -skew-y-[8deg] select-none flex-col rounded-xl border border-border/50 bg-card/90 backdrop-blur-md transition-all duration-700 ease-out hover:border-primary/50 hover:bg-card hover:-translate-y-4 hover:z-50 hover:shadow-2xl hover:shadow-primary/5",
+				"relative flex h-80 sm:h-64 w-[calc(100vw-3rem)] sm:w-[24rem] -skew-y-2 sm:-skew-y-[8deg] select-none flex-col rounded-xl border border-border/50 bg-card/90 backdrop-blur-md transition-all duration-700 ease-out hover:border-primary/50 hover:bg-card hover:-translate-y-4 hover:z-50 hover:shadow-2xl hover:shadow-primary/5",
 				className,
 			)}
 		>
@@ -283,10 +283,14 @@ const ProcessVisual = () => (
 );
 
 interface DisplayCardsProps {
+	title?: string;
 	cards?: DisplayCardProps[];
 }
 
-export function DisplayCards({ cards }: DisplayCardsProps) {
+export function DisplayCards({
+	title = "What you can expect",
+	cards,
+}: DisplayCardsProps) {
 	const defaultCards: DisplayCardProps[] = [
 		{
 			icon: PaintBrush01Icon,
@@ -296,7 +300,7 @@ export function DisplayCards({ cards }: DisplayCardsProps) {
 			gradient: "from-chart-1 to-chart-2",
 			visual: <DesignVisual />,
 			className:
-				"[grid-area:stack] hover:-translate-y-2 before:absolute before:inset-0 before:rounded-xl before:bg-background/40 grayscale-[80%] hover:before:opacity-0 before:transition-opacity before:duration-500 hover:grayscale-0",
+				"[grid-area:stack] hover:-translate-y-2 before:absolute before:inset-0 before:rounded-xl before:bg-background/40 md:grayscale-[80%] hover:before:opacity-0 before:transition-opacity before:duration-500 hover:grayscale-0",
 		},
 		{
 			icon: CodeIcon,
@@ -306,7 +310,7 @@ export function DisplayCards({ cards }: DisplayCardsProps) {
 			gradient: "from-chart-2 to-chart-3",
 			visual: <TechVisual />,
 			className:
-				"[grid-area:stack] translate-x-12 translate-y-10 hover:translate-y-8 before:absolute before:inset-0 before:rounded-xl before:bg-background/40 grayscale-[80%] hover:before:opacity-0 before:transition-opacity before:duration-500 hover:grayscale-0",
+				"[grid-area:stack] translate-y-8 sm:translate-x-12 sm:translate-y-10 hover:translate-y-8 before:absolute before:inset-0 before:rounded-xl before:bg-background/40 md:grayscale-[80%] hover:before:opacity-0 before:transition-opacity before:duration-500 hover:grayscale-0",
 		},
 		{
 			icon: Target01Icon,
@@ -316,7 +320,7 @@ export function DisplayCards({ cards }: DisplayCardsProps) {
 			gradient: "from-chart-3 to-chart-4",
 			visual: <PurposeVisual />,
 			className:
-				"[grid-area:stack] translate-x-24 translate-y-20 hover:translate-y-18 before:absolute before:inset-0 before:rounded-xl before:bg-background/40 grayscale-[80%] hover:before:opacity-0 before:transition-opacity before:duration-500 hover:grayscale-0",
+				"[grid-area:stack] translate-y-16 sm:translate-x-24 sm:translate-y-20 hover:translate-y-18 before:absolute before:inset-0 before:rounded-xl before:bg-background/40 md:grayscale-[80%] hover:before:opacity-0 before:transition-opacity before:duration-500 hover:grayscale-0",
 		},
 		{
 			icon: Route01Icon,
@@ -326,7 +330,7 @@ export function DisplayCards({ cards }: DisplayCardsProps) {
 			gradient: "from-primary to-chart-1",
 			visual: <ProcessVisual />,
 			className:
-				"[grid-area:stack] translate-x-36 translate-y-[120px] hover:translate-y-28",
+				"[grid-area:stack] translate-y-24 sm:translate-x-36 sm:translate-y-[120px] hover:translate-y-28",
 		},
 	];
 
@@ -338,11 +342,11 @@ export function DisplayCards({ cards }: DisplayCardsProps) {
 			<div className="mx-auto max-w-[1440px] px-6 md:px-12 lg:px-24">
 				<div ref={headingRef} className="mb-16 max-w-xl">
 					<h2 className="text-4xl font-medium tracking-tight text-foreground md:text-5xl lg:text-6xl">
-						What you can expect
+						{title}
 					</h2>
 				</div>
 
-				<div className="grid [grid-template-areas:'stack'] place-items-center">
+				<div className="grid [grid-template-areas:'stack'] place-items-center mb-36 sm:mb-48">
 					{displayCards.map((cardProps, index) => (
 						<DisplayCard
 							key={cardProps.title || index}

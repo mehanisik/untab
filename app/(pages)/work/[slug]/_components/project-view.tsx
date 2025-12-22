@@ -1,5 +1,6 @@
 "use client";
 
+import { PortableText } from "@portabletext/react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -188,7 +189,11 @@ export function ProjectView({ project, nextProject }: ProjectViewProps) {
 								</div>
 
 								<div className="space-y-6 text-lg md:text-xl text-background/60 font-light leading-relaxed">
-									<p>{project.content.approach}</p>
+									{Array.isArray(project.content.approach) ? (
+										<PortableText value={project.content.approach} />
+									) : (
+										<p>{project.content.approach}</p>
+									)}
 								</div>
 							</div>
 
@@ -241,7 +246,11 @@ export function ProjectView({ project, nextProject }: ProjectViewProps) {
 												05 / Impact
 											</p>
 											<h3 className="text-3xl md:text-5xl font-light tracking-tight leading-tight">
-												{project.content.result}
+												{Array.isArray(project.content.result) ? (
+													<PortableText value={project.content.result} />
+												) : (
+													project.content.result
+												)}
 											</h3>
 										</div>
 										<div className="flex flex-col items-end gap-2 text-[10px] font-bold uppercase tracking-widest text-white/40">

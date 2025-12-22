@@ -57,20 +57,17 @@ export function CaseStudies({ projects }: CaseStudiesProps) {
 					</Link>
 				</div>
 
-				<div className="grid grid-cols-1 md:grid-cols-2 gap-8 min-h-[1200px]">
+				<div className="grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-8 min-h-auto md:min-h-[1200px]">
 					{projects.slice(0, 4).map((project, index) => (
 						<div
 							key={project.title}
 							className={cn(
-								"transition-all duration-700 ease-[cubic-bezier(0.23,1,0.32,1)]",
+								"h-[400px] sm:h-[500px] md:h-[600px] transition-all duration-700 ease-[cubic-bezier(0.23,1,0.32,1)]",
+								index % 2 !== 0 ? "md:mt-32" : "mt-0",
 								hoveredIndex !== null && hoveredIndex !== index
 									? "opacity-30 grayscale scale-[0.98] blur-[2px]"
 									: "opacity-100 grayscale-0 scale-100 blur-0",
 							)}
-							style={{
-								marginTop: index % 2 !== 0 ? "120px" : "0px",
-								height: "600px",
-							}}
 						>
 							<ProjectCard
 								project={project}
@@ -171,7 +168,7 @@ function ProjectCard({
 				)}
 			/>
 
-			<div className="relative flex flex-col justify-between p-10 md:p-14 h-full z-10">
+			<div className="relative flex flex-col justify-between p-6 sm:p-10 md:p-14 h-full z-10">
 				<div className="flex items-start justify-between">
 					<div
 						className={cn(
@@ -218,7 +215,7 @@ function ProjectCard({
 				<div className="max-w-xs">
 					<h3
 						className={cn(
-							"font-medium tracking-tighter text-white transition-all duration-700 text-4xl md:text-6xl lg:text-7xl",
+							"font-medium tracking-tighter text-white transition-all duration-700 text-3xl sm:text-5xl md:text-6xl lg:text-7xl",
 							isHovered ? "translate-x-2" : "translate-x-0",
 						)}
 					>

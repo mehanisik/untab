@@ -3,7 +3,17 @@
 import { Link } from "~/components/ui/link";
 import { useFadeInOnScroll } from "~/hooks/use-scroll-animation";
 
-export function Vision() {
+interface VisionProps {
+	description?: string;
+	linkText?: string;
+	heading?: string;
+}
+
+export function Vision({
+	description = "We have the perfect combination of mindset, skills, processes, and pricing structure. Together, we'll transform your ideas into the best-in-class digital experience.",
+	linkText = "Let's talk",
+	heading = "about your vision.",
+}: VisionProps) {
 	const textRef = useFadeInOnScroll<HTMLParagraphElement>({ delay: 0 });
 	const headingRef = useFadeInOnScroll<HTMLHeadingElement>({ delay: 0.2 });
 
@@ -69,27 +79,25 @@ export function Vision() {
 				</svg>
 			</div>
 
-			<div className="relative mx-auto flex max-w-[1440px] flex-col gap-12 px-6 py-40 md:px-12 lg:px-24">
+			<div className="relative mx-auto flex max-w-[1440px] flex-col gap-12 px-6 py-24 sm:py-32 md:py-40 md:px-12 lg:px-24">
 				<p
 					ref={textRef}
 					className="max-w-[447px] text-lg font-medium leading-relaxed text-foreground"
 				>
-					We have the perfect combination of mindset, skills, processes, and
-					pricing structure. Together, we&apos;ll transform your ideas into the
-					best-in-class digital experience.
+					{description}
 				</p>
 
 				<h2
 					ref={headingRef}
-					className="ml-auto flex max-w-[600px] flex-col items-start text-5xl font-normal leading-tight tracking-tight text-foreground md:text-6xl lg:text-7xl"
+					className="ml-auto flex max-w-[600px] flex-col items-start text-3xl font-normal leading-tight tracking-tight text-foreground sm:text-5xl md:text-6xl lg:text-7xl"
 				>
 					<Link
 						href="/contact"
 						className="mb-4 border-b-4 border-foreground leading-none transition-colors duration-200 hover:border-transparent"
 					>
-						Let&apos;s talk
+						{linkText}
 					</Link>
-					<span>about your vision.</span>
+					<span>{heading}</span>
 				</h2>
 			</div>
 		</section>

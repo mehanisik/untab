@@ -8,14 +8,26 @@ export interface Post {
 	_id: string;
 	title: string;
 	slug: string;
-	author: string;
+	author: {
+		name: string;
+		image: string;
+		bio?: PortableTextBlock[];
+	};
 	mainImage: string;
 	publishedAt: string;
 	body?: PortableTextBlock[];
 	excerpt: string;
+	readingTime?: string;
+	categories?: { title: string }[];
+	featured?: boolean;
+	seo?: {
+		title: string;
+		description: string;
+		image: string;
+		keywords: string[];
+	};
 }
 
-// Validate environment variables
 const env = getEnv();
 
 export const client = createClient({
@@ -31,14 +43,11 @@ export const client = createClient({
 
 const builder = createImageUrlBuilder(client);
 
-// biome-ignore lint/suspicious/noExplicitAny: sanity image source can be any valid source
+// biome-ignore lint/suspicious/noExplicitAny: Sanity image sources are polymorphic
 export function urlFor(source: any) {
 	return builder.image(source);
 }
 
-/**
- * Enhanced fetcher with React 19 cacheSignal support
- */
 export async function fetchSanity<T>(
 	query: string,
 	params: Record<string, unknown> = {},
@@ -47,10 +56,17 @@ export async function fetchSanity<T>(
 	const signal = cacheSignal();
 
 	return client.fetch<T>(query, params, {
-		next: { tags, revalidate: 3600 }, // Default 1hr cache
-		// biome-ignore lint/suspicious/noExplicitAny: cacheSignal returns a type incompatible with AbortSignal in current types
+		next: { tags, revalidate: 3600 },
+		// biome-ignore lint/suspicious/noExplicitAny: cacheSignal cast is required for fetch compatibility
 		signal: signal as any,
 	});
+}
+
+export async function getSettings() {
+	return fetchSanity<{ logo: string }>(`*[_type == "settings"][0]{
+    ...,
+    "logo": logo.asset->url
+  }`);
 }
 
 export const QUERIES = {
@@ -58,45 +74,93 @@ export const QUERIES = {
     _id,
     title,
     "slug": slug.current,
-    category,
+    "image": image.asset->url,
+    "category": category->title,
     year,
     description,
-    "image": image.asset->url,
+    client {
+      name,
+      "logo": logo.asset->url,
+      website
+    },
+    metrics,
+    featured,
     content,
-    branding,
     techStack,
-    tools
+    accentColor
   }`,
 	projectBySlug: `*[_type == "project" && slug.current == $slug][0] {
     _id,
     title,
     "slug": slug.current,
-    category,
+    "category": category->title,
     year,
     description,
     "image": image.asset->url,
+    "gallery": gallery[].asset->url,
+    client {
+      name,
+      "logo": logo.asset->url,
+      website
+    },
+    metrics,
     content,
     branding,
+    testimonial {
+      quote,
+      author,
+      role,
+      "avatar": avatar.asset->url
+    },
+    links,
     techStack,
-    tools
+    tools,
+    "author": {
+      "name": author->name,
+      "image": author->image.asset->url,
+      "bio": author->bio
+    },
+    seo
   }`,
 	posts: `*[_type == "post"] | order(publishedAt desc) {
     _id,
     title,
     "slug": slug.current,
-    author,
+    "author": {
+      "name": author->name,
+      "image": author->image.asset->url
+    },
     "mainImage": mainImage.asset->url,
     publishedAt,
-    excerpt
+    excerpt,
+    readingTime,
+    "categories": categories[]->{title},
+    featured,
+    seo
   }`,
 	postBySlug: `*[_type == "post" && slug.current == $slug][0] {
     _id,
     title,
     "slug": slug.current,
-    author,
+    "author": {
+      "name": author->name,
+      "image": author->image.asset->url,
+      "bio": author->bio
+    },
     "mainImage": mainImage.asset->url,
     publishedAt,
     body,
-    excerpt
+    excerpt,
+    readingTime,
+    "categories": categories[]->{title},
+    featured,
+    seo
+  }`,
+	settings: `*[_type == "settings"][0] {
+    title,
+    "logo": logo.asset->url,
+    socials,
+    footerText,
+    copyright
   }`,
 };

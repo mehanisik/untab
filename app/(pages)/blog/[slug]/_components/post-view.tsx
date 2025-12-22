@@ -6,17 +6,7 @@ import { Wrapper } from "~/components/wrapper";
 import { Footer, Navbar } from "../../../_components";
 import { Image } from "~/components/ui/image";
 
-interface Post {
-	_id: string;
-	title: string;
-	slug: string;
-	author: string;
-	mainImage: string;
-	publishedAt: string;
-	// biome-ignore lint/suspicious/noExplicitAny: sanity portable text
-	body: any[];
-	excerpt: string;
-}
+import type { Post } from "~/libs/sanity";
 
 interface PostViewProps {
 	post: Post;
@@ -44,7 +34,9 @@ export function PostView({ post }: PostViewProps) {
 									<span className="text-[10px] uppercase tracking-widest text-muted-foreground font-bold">
 										Author
 									</span>
-									<span className="text-sm font-medium">{post.author}</span>
+									<span className="text-sm font-medium">
+										{post.author.name}
+									</span>
 								</div>
 								<div className="size-1 bg-border rounded-full" />
 								<div className="flex flex-col">
@@ -72,7 +64,7 @@ export function PostView({ post }: PostViewProps) {
 
 						<div className="prose prose-lg prose-invert max-w-none">
 							<div className="text-foreground text-xl leading-relaxed space-y-8 font-light">
-								<PortableText value={post.body} />
+								{post.body && <PortableText value={post.body} />}
 							</div>
 						</div>
 					</Container>

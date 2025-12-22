@@ -1,12 +1,26 @@
 "use client";
 
+import React from "react";
+
 import { ArrowDown01Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import gsap from "gsap";
 import { useRef } from "react";
 import { useGSAP } from "@gsap/react";
 
-export function Hero() {
+interface HeroProps {
+	title?: string[];
+	highlightedText?: string;
+	subtitle?: string;
+	videoUrl?: string;
+}
+
+export function Hero({
+	title = ["We craft digital", "experiences to"],
+	highlightedText = "scale and impact",
+	subtitle = "Scroll to start",
+	videoUrl = "/hero.mp4",
+}: HeroProps) {
 	const containerRef = useRef<HTMLElement>(null);
 
 	useGSAP(
@@ -101,21 +115,24 @@ export function Hero() {
 			</div>
 
 			<div className="mx-auto flex w-full max-w-[1440px] flex-1 flex-col px-6 md:px-12 lg:px-24 relative z-10">
-				<div className="hero-content-wrapper pt-48 md:pt-56 lg:pt-64 flex flex-col w-full">
+				<div className="hero-content-wrapper pt-32 md:pt-48 lg:pt-64 flex flex-col w-full">
 					<div className="max-w-3xl w-full">
-						<h1 className="text-4xl font-medium tracking-tight text-foreground sm:text-5xl md:text-6xl lg:text-7xl">
-							<span className="hero-line inline-block">We craft digital</span>
-							<br />
-							<span className="hero-line inline-block">experiences to</span>
+						<h1 className="text-3xl font-medium tracking-tight text-foreground sm:text-5xl md:text-6xl lg:text-7xl leading-[1.1]">
+							{title.map((line, i) => (
+								<React.Fragment key={line}>
+									<span className="hero-line inline-block">{line}</span>
+									{i < title.length - 1 && <br />}
+								</React.Fragment>
+							))}
 							<br />
 							<span className="hero-line inline-block">
 								<span className="bg-linear-to-r from-primary via-chart-2 to-chart-1 bg-clip-text text-transparent animate-gradient bg-size-[200%_auto]">
-									scale and impact
+									{highlightedText}
 								</span>
 							</span>
 						</h1>
 
-						<div className="hero-scroll-btn mt-12 flex w-fit">
+						<div className="hero-scroll-btn mt-8 md:mt-12 flex w-fit">
 							<button
 								type="button"
 								className="group flex items-center gap-3 text-muted-foreground transition-colors hover:text-foreground"
@@ -133,14 +150,14 @@ export function Hero() {
 									<div className="absolute inset-0 rounded-full border border-muted-foreground/30 animate-ping-slow" />
 								</div>
 								<span className="text-xs font-medium uppercase tracking-widest">
-									Scroll to start
+									{subtitle}
 								</span>
 							</button>
 						</div>
 					</div>
 				</div>
 
-				<div className="hero-image-container relative mt-16 mb-0 aspect-video overflow-hidden rounded-t-3xl bg-zinc-950/50 lg:mt-20">
+				<div className="hero-image-container relative mt-12 mb-0 aspect-video overflow-hidden rounded-t-2xl md:rounded-t-3xl bg-zinc-950/50 lg:mt-20">
 					<video
 						autoPlay
 						loop
@@ -148,7 +165,7 @@ export function Hero() {
 						playsInline
 						className="relative z-10 size-full object-cover"
 					>
-						<source src="/hero.mp4" type="video/mp4" />
+						<source src={videoUrl} type="video/mp4" />
 					</video>
 
 					<div className="absolute inset-0 z-20 bg-linear-to-t from-background via-transparent to-transparent opacity-60" />
