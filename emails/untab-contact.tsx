@@ -42,7 +42,7 @@ export const UntabContactEmail = ({
 								src={`${baseUrl}/logo.png`}
 								width="120"
 								height="auto"
-								alt="Untab Studio"
+								alt="Untab"
 								className="mx-auto my-0"
 							/>
 						</Section>
