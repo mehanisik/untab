@@ -27,23 +27,37 @@ export function Hero({
 		() => {
 			const tl = gsap.timeline();
 
-			gsap.set(".hero-line", { opacity: 0, y: 30 });
-			gsap.set(".hero-scroll-btn", { opacity: 0, y: 20 });
-			gsap.set(".hero-image-container", {
-				opacity: 0,
-				y: 60,
-				scale: 0.9,
-				transformOrigin: "center top",
-			});
+			const hasLines =
+				containerRef.current?.querySelectorAll(".hero-line").length;
+			const hasScrollBtn =
+				containerRef.current?.querySelector(".hero-scroll-btn");
+			const hasImage = containerRef.current?.querySelector(
+				".hero-image-container",
+			);
 
-			tl.to(".hero-line", {
-				opacity: 1,
-				y: 0,
-				duration: 0.8,
-				stagger: 0.15,
-				ease: "power3.out",
-			})
-				.to(
+			if (hasLines) gsap.set(".hero-line", { opacity: 0, y: 30 });
+			if (hasScrollBtn) gsap.set(".hero-scroll-btn", { opacity: 0, y: 20 });
+			if (hasImage) {
+				gsap.set(".hero-image-container", {
+					opacity: 0,
+					y: 60,
+					scale: 0.9,
+					transformOrigin: "center top",
+				});
+			}
+
+			if (hasLines) {
+				tl.to(".hero-line", {
+					opacity: 1,
+					y: 0,
+					duration: 0.8,
+					stagger: 0.15,
+					ease: "power3.out",
+				});
+			}
+
+			if (hasScrollBtn) {
+				tl.to(
 					".hero-scroll-btn",
 					{
 						opacity: 1,
@@ -51,9 +65,12 @@ export function Hero({
 						duration: 0.8,
 						ease: "power3.out",
 					},
-					"-=0.4",
-				)
-				.to(
+					hasLines ? "-=0.4" : "0",
+				);
+			}
+
+			if (hasImage) {
+				tl.to(
 					".hero-image-container",
 					{
 						opacity: 1,
@@ -63,6 +80,7 @@ export function Hero({
 					},
 					"-=0.6",
 				);
+			}
 
 			const contentWrapper = document.querySelector(".hero-content-wrapper");
 			const lines = gsap.utils.toArray<HTMLElement>(".hero-line");
@@ -81,23 +99,33 @@ export function Hero({
 					gsap.set(scrollBtn, { x: btnX });
 				}
 
-				tl.to(
-					[".hero-line", ".hero-scroll-btn"],
-					{
-						x: 0,
-						duration: 2.5,
-						ease: "power2.inOut",
-					},
-					"+=1.0",
-				).to(
-					".hero-image-container",
-					{
-						scale: 1,
-						duration: 2.5,
-						ease: "power2.inOut",
-					},
-					"<",
-				);
+				if (hasLines || hasScrollBtn) {
+					const targets = [];
+					if (hasLines) targets.push(".hero-line");
+					if (hasScrollBtn) targets.push(".hero-scroll-btn");
+
+					tl.to(
+						targets,
+						{
+							x: 0,
+							duration: 2.5,
+							ease: "power2.inOut",
+						},
+						"+=1.0",
+					);
+				}
+
+				if (hasImage) {
+					tl.to(
+						".hero-image-container",
+						{
+							scale: 1,
+							duration: 2.5,
+							ease: "power2.inOut",
+						},
+						"<",
+					);
+				}
 			}
 		},
 		{ scope: containerRef },

@@ -40,6 +40,10 @@ const geistMono = Geist_Mono({
 });
 
 import { generatePageMetadata } from "~/libs/metadata";
+import { getEnv } from "~/libs/validate-env";
+
+const env = getEnv();
+const baseUrl = env.NEXT_PUBLIC_BASE_URL;
 
 export const metadata: Metadata = generatePageMetadata({
 	title: "Untab Studio - Digital Product Studio Warsaw",
@@ -85,8 +89,8 @@ export default function RootLayout({
 								"@context": "https://schema.org",
 								"@type": "Organization",
 								name: "Untab Studio",
-								url: "https://untabstudio.com",
-								logo: "https://untabstudio.com/logo.png",
+								url: baseUrl,
+								logo: `${baseUrl}/logo.png`,
 								address: {
 									"@type": "PostalAddress",
 									addressLocality: "Warsaw",

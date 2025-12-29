@@ -13,6 +13,7 @@ import { getEnv } from "~/libs/validate-env";
 const env = getEnv();
 const RESEND_API_KEY = env.RESEND_API_KEY;
 const CONTACT_EMAIL = env.CONTACT_EMAIL;
+const SENDER_EMAIL = env.SENDER_EMAIL || "Untab <contact@untabstudio.com>";
 
 // Final check for contact dependencies (already validated by getEnv but for type safety)
 if (!(RESEND_API_KEY && CONTACT_EMAIL)) {
@@ -125,7 +126,7 @@ export async function sendContactEmail(formData: FormData) {
 		const recipientEmail = CONTACT_EMAIL!;
 
 		const { data, error } = await resend.emails.send({
-			from: "Untab <contact@untabstudio.com>",
+			from: SENDER_EMAIL,
 			to: [recipientEmail],
 			subject: `New Contact Form Submission: ${escapedName}`,
 			replyTo: email,

@@ -13,24 +13,28 @@ export function TeamView({ children }: TeamViewProps) {
 
 	useGSAP(
 		() => {
-			gsap.from(".team-title span", {
-				y: 150,
-				opacity: 0,
-				duration: 1.5,
-				stagger: 0.1,
-				ease: "expo.out",
-			});
+			if (containerRef.current?.querySelectorAll(".team-title span").length) {
+				gsap.from(".team-title span", {
+					y: 150,
+					opacity: 0,
+					duration: 1.5,
+					stagger: 0.1,
+					ease: "expo.out",
+				});
+			}
 
-			gsap.to(".parallax-item", {
-				y: (_, target) => -target.offsetHeight * 0.5,
-				ease: "none",
-				scrollTrigger: {
-					trigger: containerRef.current,
-					start: "top top",
-					end: "bottom bottom",
-					scrub: true,
-				},
-			});
+			if (containerRef.current?.querySelectorAll(".parallax-item").length) {
+				gsap.to(".parallax-item", {
+					y: (_, target) => -target.offsetHeight * 0.5,
+					ease: "none",
+					scrollTrigger: {
+						trigger: containerRef.current,
+						start: "top top",
+						end: "bottom bottom",
+						scrub: true,
+					},
+				});
+			}
 
 			gsap.utils.toArray<HTMLElement>(".value-card").forEach((card) => {
 				gsap.from(card, {

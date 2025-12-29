@@ -21,20 +21,24 @@ export function BlogView({ posts }: BlogViewProps) {
 
 	useGSAP(
 		() => {
-			gsap.to(".ticker-track", {
-				xPercent: -50,
-				repeat: -1,
-				duration: 20,
-				ease: "none",
-			});
+			if (containerRef.current?.querySelector(".ticker-track")) {
+				gsap.to(".ticker-track", {
+					xPercent: -50,
+					repeat: -1,
+					duration: 20,
+					ease: "none",
+				});
+			}
 
-			gsap.from(".blog-hero > *", {
-				opacity: 0,
-				y: 30,
-				duration: 1,
-				stagger: 0.1,
-				ease: "power3.out",
-			});
+			if (containerRef.current?.querySelectorAll(".blog-hero > *").length) {
+				gsap.from(".blog-hero > *", {
+					opacity: 0,
+					y: 30,
+					duration: 1,
+					stagger: 0.1,
+					ease: "power3.out",
+				});
+			}
 		},
 		{ scope: containerRef },
 	);

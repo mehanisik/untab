@@ -24,36 +24,42 @@ export function ProjectView({ project, nextProject }: ProjectViewProps) {
 
 	useGSAP(
 		() => {
-			gsap.from(".deck-item", {
-				opacity: 0,
-				y: 60,
-				duration: 1.2,
-				stagger: 0.1,
-				ease: "expo.out",
-				scrollTrigger: {
-					trigger: ".deck-grid",
-					start: "top 80%",
-				},
-			});
+			if (containerRef.current?.querySelectorAll(".deck-item").length) {
+				gsap.from(".deck-item", {
+					opacity: 0,
+					y: 60,
+					duration: 1.2,
+					stagger: 0.1,
+					ease: "expo.out",
+					scrollTrigger: {
+						trigger: ".deck-grid",
+						start: "top 80%",
+					},
+				});
+			}
 
-			gsap.from(".hero-title", {
-				opacity: 0,
-				y: 40,
-				duration: 1.5,
-				ease: "power4.out",
-				delay: 0.2,
-			});
+			if (containerRef.current?.querySelector(".hero-title")) {
+				gsap.from(".hero-title", {
+					opacity: 0,
+					y: 40,
+					duration: 1.5,
+					ease: "power4.out",
+					delay: 0.2,
+				});
+			}
 
-			gsap.to(".parallax-img", {
-				y: -30,
-				ease: "none",
-				scrollTrigger: {
-					trigger: ".deck-grid",
-					start: "top bottom",
-					end: "bottom top",
-					scrub: true,
-				},
-			});
+			if (containerRef.current?.querySelector(".parallax-img")) {
+				gsap.to(".parallax-img", {
+					y: -30,
+					ease: "none",
+					scrollTrigger: {
+						trigger: ".deck-grid",
+						start: "top bottom",
+						end: "bottom top",
+						scrub: true,
+					},
+				});
+			}
 		},
 		{ scope: containerRef },
 	);
@@ -126,7 +132,7 @@ export function ProjectView({ project, nextProject }: ProjectViewProps) {
 									))}
 								</div>
 
-								<div className="absolute -right-10 -bottom-20 text-[20rem] font-black text-white/[0.03] select-none">
+								<div className="absolute -right-10 -bottom-20 text-[20rem] font-black text-white/3 select-none">
 									{project.title.charAt(0)}
 								</div>
 							</div>

@@ -4,6 +4,7 @@ interface EnvConfig {
 	NEXT_PUBLIC_BASE_URL: string;
 	RESEND_API_KEY?: string;
 	CONTACT_EMAIL?: string;
+	SENDER_EMAIL?: string;
 	NEXT_PUBLIC_UMAMI_WEBSITE_ID?: string;
 	ARCJET_API_KEY?: string;
 }
@@ -35,6 +36,7 @@ export function validateEnv(): EnvConfig {
 
 	const RESEND_API_KEY = process.env.RESEND_API_KEY;
 	const CONTACT_EMAIL = process.env.CONTACT_EMAIL;
+	const SENDER_EMAIL = process.env.SENDER_EMAIL;
 
 	const isServer = typeof window === "undefined";
 
@@ -71,6 +73,7 @@ export function validateEnv(): EnvConfig {
 		NEXT_PUBLIC_BASE_URL: NEXT_PUBLIC_BASE_URL || "http://localhost:3000",
 		RESEND_API_KEY,
 		CONTACT_EMAIL,
+		SENDER_EMAIL,
 		NEXT_PUBLIC_UMAMI_WEBSITE_ID: process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID,
 		ARCJET_API_KEY: process.env.ARCJET_API_KEY,
 	};

@@ -2,11 +2,15 @@
 
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
-import React, { useRef } from "react";
-import { cn } from "~/libs/utils";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { useRef } from "react";
 import { Container } from "~/components/container";
 import { Wrapper } from "~/components/wrapper";
 import { Footer, Navbar } from "../_components";
+
+if (typeof window !== "undefined") {
+	gsap.registerPlugin(ScrollTrigger);
+}
 
 interface Step {
 	number: string;
@@ -22,103 +26,104 @@ interface ProcessContentProps {
 }
 
 export default function ProcessContent({
-	title = ["The", "Blueprint", "Method"],
-	description = "A systematic approach to digital excellence. We combine rigorous engineering with boundless creativity to build what’s next.",
+	title = ["Design", "Develop", "Deploy"],
+	description = "A streamlined, results-driven approach to digital product engineering. We focus on clarity, efficiency, and uncompromising quality.",
 	steps = [
 		{
 			number: "01",
-			title: "Discovery & Strategy",
+			title: "Discovery & Architecture",
 			description:
-				"We analyze your business objectives and user landscapes to architect a technical strategy that ensures long-term ROI and market fit.",
+				"We define the technical landscape and core system requirements, ensuring a scalable foundation for your project.",
 			details: [
-				"Market Architecture",
-				"UX Strategy",
-				"Technical Feasibility",
-				"Product Roadmap",
+				"Requirement Analysis",
+				"System Mapping",
+				"Infrastructure Design",
+				"Risk Assessment",
 			],
 		},
 		{
 			number: "02",
-			title: "Design & UX Systems",
+			title: "Precision Engineering",
 			description:
-				"Crafting cohesive design systems that prioritize performance and accessibility, ensuring a premium brand experience across every touchpoint.",
+				"Our developers build with clean code principles, performance optimization, and rigorous testing at every stage.",
 			details: [
-				"Atomic Design",
-				"Interaction Systems",
-				"Motion Frameworks",
-				"Brand Integration",
+				"High-Fidelity Codebase",
+				"API Development",
+				"UI Interaction Design",
+				"Unit & Integration Testing",
 			],
 		},
 		{
 			number: "03",
-			title: "High-End Development",
+			title: "Quality Assurance",
 			description:
-				"Engineering robust solutions using Next.js 16, React 19, and Tailwind 4. We focus on clean architecture, lightning speed, and boundless scalability.",
+				"Before launch, every feature undergoes intense scrutiny to guarantee a flawless user experience and rock-solid stability.",
 			details: [
-				"Core Architecture",
 				"Performance Indexing",
-				"API Orchestration",
-				"Quality Assurance",
+				"Cross-Platform Testing",
+				"Accessibility Verification",
+				"Security Hardening",
 			],
 		},
 		{
 			number: "04",
-			title: "Deployment & Growth",
+			title: "Launch & Evolution",
 			description:
-				"Launching with Vercel and monitoring with precision. We provide continuous engineering support to iterate and scale based on real-time data.",
+				"We manage the deployment and provide continuous support, monitoring performance to drive ongoing improvements.",
 			details: [
-				"Edge Deployment",
-				"Security Auditing",
-				"Feature Iteration",
-				"Strategic Support",
+				"Seamless Deployment",
+				"Live Monitoring",
+				"Data-Driven Iteration",
+				"Scalability Roadmap",
 			],
 		},
 	],
 }: ProcessContentProps) {
 	const containerRef = useRef<HTMLDivElement>(null);
-	const blueprintRef = useRef<SVGSVGElement>(null);
 
 	useGSAP(
 		() => {
-			gsap.from(".process-title span", {
-				y: 100,
-				opacity: 0,
-				duration: 1,
-				stagger: 0.1,
-				ease: "power4.out",
-			});
+			// Precise Reveal for Hero
+			if (containerRef.current?.querySelectorAll(".minimal-hero-line").length) {
+				gsap.from(".minimal-hero-line", {
+					y: 20,
+					opacity: 0,
+					duration: 0.8,
+					stagger: 0.1,
+					ease: "power2.out",
+				});
+			}
 
-			if (blueprintRef.current) {
-				const path = blueprintRef.current.querySelector(
-					".main-path",
-				) as SVGPathElement;
-				if (path) {
-					const length = path.getTotalLength();
-					gsap.set(path, { strokeDasharray: length, strokeDashoffset: length });
+			// Steps Staggered Entrance
+			const stepItems = gsap.utils.toArray<HTMLElement>(".minimal-step-item");
+			stepItems.forEach((item) => {
+				const content = item.querySelector(".minimal-step-content");
+				const divider = item.querySelector(".minimal-step-divider");
 
-					gsap.to(path, {
-						strokeDashoffset: 0,
-						ease: "none",
+				if (content) {
+					gsap.from(content, {
+						opacity: 0,
+						y: 20,
 						scrollTrigger: {
-							trigger: ".process-steps",
-							start: "top 20%",
-							end: "bottom 80%",
-							scrub: 1,
+							trigger: item,
+							start: "top 80%",
+							toggleActions: "play none none reverse",
 						},
 					});
 				}
-			}
 
-			gsap.utils.toArray<HTMLElement>(".step-card").forEach((card) => {
-				gsap.from(card, {
-					opacity: 0,
-					x: -50,
-					duration: 0.8,
-					scrollTrigger: {
-						trigger: card,
-						start: "top 80%",
-					},
-				});
+				if (divider) {
+					gsap.from(divider, {
+						scaleX: 0,
+						transformOrigin: "left center",
+						duration: 1.2,
+						scrollTrigger: {
+							trigger: item,
+							start: "top 90%",
+							toggleActions: "play none none reverse",
+						},
+					});
+				}
 			});
 		},
 		{ scope: containerRef },
@@ -129,109 +134,76 @@ export default function ProcessContent({
 			<Navbar />
 			<main
 				ref={containerRef}
-				className="grow bg-background text-foreground selection:bg-primary selection:text-primary-foreground"
+				className="grow bg-background text-foreground selection:bg-foreground selection:text-background"
 			>
-				<section className="relative pt-48 pb-32 overflow-hidden">
-					<div className="absolute inset-0 -z-10 opacity-20 dark:opacity-40">
-						<div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_center,transparent_0%,hsl(var(--background))_100%)]" />
-						<svg
-							className="w-full h-full"
-							viewBox="0 0 100 100"
-							preserveAspectRatio="none"
-						>
-							<title>Grid Pattern</title>
-							<defs>
-								<pattern
-									id="grid-process"
-									width="10"
-									height="10"
-									patternUnits="userSpaceOnUse"
-								>
-									<path
-										d="M 10 0 L 0 0 0 10"
-										fill="none"
-										stroke="currentColor"
-										strokeWidth="0.05"
-									/>
-								</pattern>
-							</defs>
-							<rect width="100" height="100" fill="url(#grid-process)" />
-						</svg>
-					</div>
-
+				{/* Hero Section */}
+				<section className="relative pt-40 pb-20 border-b border-foreground/5">
 					<Container>
 						<div className="max-w-4xl">
-							<h1 className="process-title text-6xl md:text-8xl lg:text-9xl font-black tracking-tighter uppercase italic">
+							<div className="flex items-center gap-4 mb-12">
+								<div className="w-12 h-px bg-primary" />
+								<span className="minimal-hero-line text-[10px] font-mono leading-none uppercase tracking-[0.4em] text-primary">
+									Methodology v2.0
+								</span>
+							</div>
+							<h1 className="text-5xl md:text-7xl font-medium tracking-tight mb-12 leading-[1.1]">
 								{title.map((line, i) => (
-									<React.Fragment key={line}>
-										<span className={cn("block", i === 1 && "text-primary")}>
-											{line}
-										</span>
-									</React.Fragment>
+									<span key={line} className="minimal-hero-line block">
+										{line}
+										{i !== title.length - 1 && (
+											<span className="text-primary opacity-50">.</span>
+										)}
+									</span>
 								))}
 							</h1>
-							<p className="mt-12 text-xl md:text-2xl font-light text-muted-foreground max-w-2xl leading-relaxed">
+							<p className="minimal-hero-line text-lg md:text-xl text-foreground/50 leading-relaxed max-w-2xl">
 								{description}
 							</p>
 						</div>
 					</Container>
 				</section>
 
-				<section className="process-steps relative py-32 lg:py-64">
-					<Container className="grid lg:grid-cols-[1fr_2fr] gap-20 lg:gap-32">
-						<div className="hidden lg:block relative h-[600px]">
-							<div className="sticky top-48">
-								<svg
-									ref={blueprintRef}
-									viewBox="0 0 200 600"
-									className="w-full h-full text-muted-foreground/20"
-								>
-									<title>Process Blueprint</title>
-									<path
-										className="main-path"
-										d="M100 0 V600"
-										fill="none"
-										stroke="currentColor"
-										strokeWidth="1"
-									/>
-									{steps.map((step) => (
-										<circle
-											key={step.number}
-											cx="100"
-											cy={100 + (Number.parseInt(step.number, 10) - 1) * 150}
-											r="6"
-											className="fill-background stroke-muted-foreground/40"
-											strokeWidth="2"
-										/>
-									))}
-								</svg>
-							</div>
-						</div>
-
-						<div className="flex flex-col gap-32 lg:gap-48">
+				{/* Process List Section */}
+				<section className="py-20">
+					<Container>
+						<div className="flex flex-col">
 							{steps.map((step) => (
-								<div key={step.number} className="step-card group relative">
-									<div className="flex flex-col gap-6">
-										<div className="flex items-center gap-4">
-											<span className="text-primary font-mono text-xl">
-												{step.number}
-											</span>
-											<div className="h-px flex-1 bg-border group-hover:bg-primary/30 transition-colors" />
-										</div>
-										<h2 className="text-4xl md:text-6xl font-black uppercase tracking-tight">
+								<div
+									key={step.number}
+									className="minimal-step-item grid grid-cols-1 lg:grid-cols-12 gap-12 py-20 border-b border-foreground/5 last:border-0"
+								>
+									{/* Index */}
+									<div className="lg:col-span-2">
+										<span className="text-xs font-mono text-foreground/20 uppercase tracking-widest">
+											[{step.number}]
+										</span>
+									</div>
+
+									{/* Main Content */}
+									<div className="minimal-step-content lg:col-span-6 flex flex-col gap-8">
+										<h2 className="text-3xl md:text-4xl font-medium tracking-tight">
 											{step.title}
 										</h2>
-										<p className="text-lg md:text-xl text-muted-foreground font-light leading-relaxed max-w-xl">
+										<p className="text-lg text-foreground/40 leading-relaxed">
 											{step.description}
 										</p>
-										<div className="grid grid-cols-2 gap-4 mt-8">
+									</div>
+
+									{/* Capabilities/Details List */}
+									<div className="minimal-step-content lg:col-span-4 flex flex-col gap-6 lg:border-l lg:border-foreground/5 lg:pl-12">
+										<span className="text-[10px] font-mono text-foreground/30 uppercase tracking-[0.2em] mb-2">
+											Core Capabilities
+										</span>
+										<div className="grid grid-cols-1 gap-4">
 											{step.details.map((detail) => (
 												<div
 													key={detail}
-													className="flex items-center gap-3 text-sm text-muted-foreground/60 font-medium uppercase tracking-widest"
+													className="flex items-center gap-4 group cursor-default"
 												>
-													<div className="size-1 bg-primary/40 rounded-full" />
-													{detail}
+													<div className="w-1 h-1 rounded-full bg-foreground/10 group-hover:bg-primary transition-colors" />
+													<span className="text-sm text-foreground/50 group-hover:text-foreground transition-colors">
+														{detail}
+													</span>
 												</div>
 											))}
 										</div>
@@ -242,14 +214,30 @@ export default function ProcessContent({
 					</Container>
 				</section>
 
-				<section className="py-32 bg-primary text-primary-foreground">
+				{/* High-End Minimal CTA */}
+				<section className="py-40 bg-foreground text-background selection:bg-primary selection:text-white">
 					<Container>
-						<div className="max-w-4xl mx-auto text-center">
-							<h2 className="text-3xl md:text-5xl lg:text-7xl font-black uppercase tracking-tighter leading-none mb-12">
-								We bridge the gap between imagination and execution.
-							</h2>
-							<div className="inline-block px-8 py-4 bg-foreground text-background text-sm font-bold uppercase tracking-[0.2em]">
-								Start your project
+						<div className="flex flex-col lg:flex-row lg:items-end justify-between gap-16">
+							<div className="max-w-2xl">
+								<span className="text-[10px] font-mono text-primary uppercase tracking-[0.2em] mb-8 block">
+									{"// Ready to begin"}
+								</span>
+								<h2 className="text-4xl md:text-6xl font-medium tracking-tight leading-tight">
+									Let's translate your vision into{" "}
+									<span className="italic font-serif">precision.</span>
+								</h2>
+							</div>
+
+							<div className="flex flex-col gap-6">
+								<button
+									type="button"
+									className="px-12 py-5 bg-background text-foreground text-xs font-bold uppercase tracking-[0.3em] hover:bg-primary hover:text-white transition-all transform hover:-translate-y-1 duration-300"
+								>
+									Contact Studio
+								</button>
+								<span className="text-[9px] font-mono text-background/20 uppercase tracking-widest text-center truncate">
+									Avg initialization time: 24h
+								</span>
 							</div>
 						</div>
 					</Container>

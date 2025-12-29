@@ -22,6 +22,7 @@ export function Navbar() {
 	const [isVisible, setIsVisible] = useState(true);
 	const [lastScrollY, setLastScrollY] = useState(0);
 	const [isMenuOpen, setIsMenuOpen] = useState(false);
+	const containerRef = useRef<HTMLElement>(null);
 	const menuRef = useRef<HTMLDivElement>(null);
 	const menuItemsRef = useRef<HTMLDivElement>(null);
 
@@ -59,21 +60,25 @@ export function Navbar() {
 					duration: 0.6,
 					ease: "expo.out",
 				});
-				gsap.to(".mobile-nav-item", {
-					opacity: 1,
-					y: 0,
-					stagger: 0.1,
-					delay: 0.2,
-					duration: 0.6,
-					ease: "power3.out",
-				});
+				if (containerRef.current?.querySelectorAll(".mobile-nav-item").length) {
+					gsap.to(".mobile-nav-item", {
+						opacity: 1,
+						y: 0,
+						stagger: 0.1,
+						delay: 0.2,
+						duration: 0.6,
+						ease: "power3.out",
+					});
+				}
 			} else {
-				gsap.to(".mobile-nav-item", {
-					opacity: 0,
-					y: 20,
-					duration: 0.3,
-					ease: "power3.in",
-				});
+				if (containerRef.current?.querySelectorAll(".mobile-nav-item").length) {
+					gsap.to(".mobile-nav-item", {
+						opacity: 0,
+						y: 20,
+						duration: 0.3,
+						ease: "power3.in",
+					});
+				}
 				gsap.to(menuRef.current, {
 					height: 0,
 					duration: 0.5,
@@ -82,11 +87,12 @@ export function Navbar() {
 				});
 			}
 		},
-		{ dependencies: [isMenuOpen] },
+		{ dependencies: [isMenuOpen], scope: containerRef },
 	);
 
 	return (
 		<header
+			ref={containerRef}
 			className={cn(
 				"fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md transition-transform duration-300 ease-in-out",
 				isVisible ? "translate-y-0" : "-translate-y-full",

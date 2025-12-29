@@ -18,20 +18,22 @@ export default function Loading() {
 				yoyo: true,
 			});
 
-			gsap.fromTo(
-				".loading-text",
-				{ opacity: 0, y: 10 },
-				{
-					opacity: 1,
-					y: 0,
-					duration: 1,
-					stagger: 0.2,
-					ease: "power3.out",
-					repeat: -1,
-					yoyo: true,
-					repeatDelay: 0.5,
-				},
-			);
+			if (containerRef.current?.querySelectorAll(".loading-text").length) {
+				gsap.fromTo(
+					".loading-text",
+					{ opacity: 0, y: 10 },
+					{
+						opacity: 1,
+						y: 0,
+						duration: 1,
+						stagger: 0.2,
+						ease: "power3.out",
+						repeat: -1,
+						yoyo: true,
+						repeatDelay: 0.5,
+					},
+				);
+			}
 		},
 		{ scope: containerRef },
 	);

@@ -244,28 +244,32 @@ export function TechStack() {
 
 	useGSAP(
 		() => {
-			gsap.from(".tech-header-text", {
-				opacity: 0,
-				y: 50,
-				duration: 1.5,
-				ease: "expo.out",
-				scrollTrigger: {
-					trigger: containerRef.current,
-					start: "top 80%",
-				},
-			});
+			if (containerRef.current?.querySelector(".tech-header-text")) {
+				gsap.from(".tech-header-text", {
+					opacity: 0,
+					y: 50,
+					duration: 1.5,
+					ease: "expo.out",
+					scrollTrigger: {
+						trigger: containerRef.current,
+						start: "top 80%",
+					},
+				});
+			}
 
-			gsap.from(".tech-category", {
-				opacity: 0,
-				y: 60,
-				duration: 1.2,
-				stagger: 0.2,
-				ease: "power4.out",
-				scrollTrigger: {
-					trigger: containerRef.current,
-					start: "top 70%",
-				},
-			});
+			if (containerRef.current?.querySelectorAll(".tech-category").length) {
+				gsap.from(".tech-category", {
+					opacity: 0,
+					y: 60,
+					duration: 1.2,
+					stagger: 0.2,
+					ease: "power4.out",
+					scrollTrigger: {
+						trigger: containerRef.current,
+						start: "top 70%",
+					},
+				});
+			}
 		},
 		{ scope: containerRef },
 	);
