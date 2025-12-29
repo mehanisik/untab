@@ -28,56 +28,64 @@ Title: ${input.title}
 ${input.excerpt ? `Excerpt: ${input.excerpt}` : ""}
 ${input.body ? `Content preview: ${input.body.slice(0, 500)}` : ""}
 
-Please respond with a JSON object containing:
-- seoTitle: An optimized SEO title (max 60 characters)
-- seoDescription: An engaging meta description (max 160 characters)
-- keywords: An array of 5-7 relevant keywords
+Return a JSON object exactly with these fields:
+{
+  "seoTitle": "Optimized title (max 60 chars)",
+  "seoDescription": "Engaging description (max 160 chars)",
+  "keywords": ["tag1", "tag2", "tag3", "tag4", "tag5"]
+}
 
-Focus on digital product design, web development, and modern technology.`;
+Focus on digital product design, web development, and modern technology (Next.js 15+, React 19).`;
 
-		const response = await fetch(
-			`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
-			{
-				method: "POST",
-				headers: {
-					"Content-Type": "application/json",
-				},
-				body: JSON.stringify({
-					contents: [
-						{
-							parts: [{ text: prompt }],
+		// Primary: gemini-3-flash-preview (latest Dec 2025)
+		// Fallback: gemini-1.5-flash
+		const models = ["gemini-3-flash-preview", "gemini-1.5-flash"];
+		let lastError: Error | null = null;
+
+		for (const model of models) {
+			try {
+				const response = await fetch(
+					`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
+					{
+						method: "POST",
+						headers: {
+							"Content-Type": "application/json",
 						},
-					],
-				}),
-			},
-		);
+						body: JSON.stringify({
+							contents: [{ parts: [{ text: prompt }] }],
+							generationConfig: {
+								response_mime_type: "application/json",
+							},
+						}),
+					},
+				);
 
-		if (!response.ok) {
-			throw new Error(`Google API error: ${response.statusText}`);
+				if (!response.ok) {
+					throw new Error(
+						`Google API error (${model}): ${response.statusText}`,
+					);
+				}
+
+				const data = await response.json();
+				const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+
+				if (!text) {
+					throw new Error(`No response from AI model (${model})`);
+				}
+
+				const parsed = JSON.parse(text);
+				return {
+					seoTitle: parsed.seoTitle || `${input.title} | Untab Studio`,
+					seoDescription: parsed.seoDescription || input.excerpt || "",
+					keywords: parsed.keywords || ["digital studio", "product design"],
+				};
+			} catch (error) {
+				console.warn(`AI model ${model} failed, trying next...`, error);
+				lastError = error as Error;
+			}
 		}
 
-		const data = await response.json();
-		const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
-
-		if (!text) {
-			throw new Error("No response from AI model");
-		}
-
-		const jsonMatch = text.match(/\{[\s\S]*\}/);
-		if (jsonMatch) {
-			const parsed = JSON.parse(jsonMatch[0]);
-			return {
-				seoTitle: parsed.seoTitle || `${input.title} | Untab Studio`,
-				seoDescription: parsed.seoDescription || input.excerpt || "",
-				keywords: parsed.keywords || ["digital studio", "product design"],
-			};
-		}
-
-		return {
-			seoTitle: `${input.title} | Untab Studio`,
-			seoDescription: input.excerpt || "",
-			keywords: ["digital studio", "product design"],
-		};
+		throw lastError || new Error("All AI models failed");
 	} catch (error) {
 		console.error("AI Content Engine Error:", error);
 		return {

@@ -16,13 +16,14 @@ import { Toaster } from "sonner";
 const satoshi = localFont({
 	src: [
 		{
-			path: "../public/fonts/Satoshi-VariableItalic.woff2",
-			style: "italic",
+			path: "../public/fonts/Satoshi-Variable.woff2",
+			style: "normal",
+			weight: "300 900",
 		},
 		{
-			path: "../public/fonts/Satoshi-Regular.woff2",
-			weight: "400",
-			style: "normal",
+			path: "../public/fonts/Satoshi-VariableItalic.woff2",
+			style: "italic",
+			weight: "300 900",
 		},
 	],
 	variable: "--font-satoshi",

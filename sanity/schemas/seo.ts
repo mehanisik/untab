@@ -1,9 +1,13 @@
 import { defineField } from "sanity";
+import { AISeoInput } from "../components/ai-seo-input";
 
 export const seo = {
 	name: "seo",
 	title: "SEO & Metadata",
 	type: "object",
+	components: {
+		input: AISeoInput,
+	},
 	fields: [
 		defineField({
 			name: "title",

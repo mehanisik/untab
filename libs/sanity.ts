@@ -28,6 +28,14 @@ export interface Post {
 	};
 }
 
+export interface Author {
+	_id: string;
+	name: string;
+	imageUrl?: string;
+	bio?: string;
+	socials?: { platform: string; url: string }[];
+}
+
 const env = getEnv();
 
 export const client = createClient({
@@ -69,7 +77,18 @@ export async function getSettings() {
   }`);
 }
 
+export async function getAuthors() {
+	return fetchSanity<Author[]>(QUERIES.authors);
+}
+
 export const QUERIES = {
+	authors: `*[_type == "author"] | order(name asc) {
+    _id,
+    name,
+    "imageUrl": image.asset->url,
+    bio,
+    socials
+  }`,
 	projects: `*[_type == "project"] | order(year desc) {
     _id,
     title,

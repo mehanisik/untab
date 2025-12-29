@@ -1,5 +1,5 @@
-import { cache, cacheSignal } from "react";
-import { client as sanityClient, QUERIES, urlFor } from "./sanity";
+import { cache } from "react";
+import { fetchSanity, QUERIES, urlFor } from "./sanity";
 import type { PortableTextBlock } from "next-sanity";
 
 export interface Project {
@@ -52,37 +52,25 @@ export interface Project {
 
 export const getProjects = cache(async (): Promise<Project[]> => {
 	try {
-		const signal = cacheSignal();
-		const sanityProjects = await sanityClient.fetch(
-			QUERIES.projects,
-			{},
-			{ signal: signal as AbortSignal },
-		);
+		const sanityProjects = await fetchSanity<Project[]>(QUERIES.projects, {}, [
+			"project",
+		]);
 		if (sanityProjects && sanityProjects.length > 0) {
-			// biome-ignore lint/suspicious/noExplicitAny: sanity results are dynamic
-			return sanityProjects.map((p: any) => {
-				const slug = typeof p.slug === "string" ? p.slug : p.slug?.current;
+			return sanityProjects.map((p) => {
+				const slug = p.slug;
 				return {
 					...p,
 					slug,
 					href: `/work/${slug}`,
-					// Use Sanity image or placeholder
 					image: p.image ? urlFor(p.image).url() : "/projects/placeholder.png",
-					// Use Sanity value or default fallback
 					gradient: p.gradient || "from-zinc-900 to-zinc-800",
 					accentColor: p.accentColor || "zinc",
 					branding: p.branding || { colors: [], typography: [] },
 				};
 			});
 		}
-	} catch (error: unknown) {
-		const err = error as Error & { name?: string; digest?: string };
-		if (
-			err.name !== "AbortError" &&
-			err.digest !== "HANGING_PROMISE_REJECTION"
-		) {
-			console.error("Error fetching projects from Sanity:", err);
-		}
+	} catch (error) {
+		console.error("Error fetching projects from Sanity:", error);
 	}
 	return [];
 });
@@ -90,17 +78,13 @@ export const getProjects = cache(async (): Promise<Project[]> => {
 export const getProjectBySlug = cache(
 	async (slug: string): Promise<Project | null> => {
 		try {
-			const signal = cacheSignal();
-			const project = await sanityClient.fetch(
+			const project = await fetchSanity<Project>(
 				QUERIES.projectBySlug,
 				{ slug },
-				{ signal: signal as AbortSignal },
+				[`project:${slug}`],
 			);
 			if (project) {
-				const slugVal =
-					typeof project.slug === "string"
-						? project.slug
-						: project.slug?.current;
+				const slugVal = project.slug;
 				return {
 					...project,
 					slug: slugVal,
@@ -113,18 +97,9 @@ export const getProjectBySlug = cache(
 					branding: project.branding || { colors: [], typography: [] },
 				};
 			}
-		} catch (error: unknown) {
-			const err = error as Error & { name?: string; digest?: string };
-			if (
-				err.name !== "AbortError" &&
-				err.digest !== "HANGING_PROMISE_REJECTION"
-			) {
-				console.error(`Error fetching project with slug ${slug}:`, err);
-			}
+		} catch (error) {
+			console.error(`Error fetching project with slug ${slug}:`, error);
 		}
 		return null;
 	},
 );
-
-// Remove static export as it is no longer needed
-// export const projects = staticProjects;
