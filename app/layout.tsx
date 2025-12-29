@@ -85,8 +85,8 @@ export default function RootLayout({
 								"@context": "https://schema.org",
 								"@type": "Organization",
 								name: "Untab Studio",
-								url: "https://untab.studio",
-								logo: "https://untab.studio/logo.png",
+								url: "https://untabstudio.com",
+								logo: "https://untabstudio.com/logo.png",
 								address: {
 									"@type": "PostalAddress",
 									addressLocality: "Warsaw",

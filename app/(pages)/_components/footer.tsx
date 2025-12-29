@@ -216,7 +216,7 @@ export function Footer() {
 										</h3>
 										<div className="flex flex-col gap-4">
 											<Link
-												href="mailto:hello@untab.studio"
+												href="mailto:contact@untabstudio.com"
 												className="flex items-center gap-2 text-sm font-medium text-foreground/70 hover:text-primary transition-colors"
 											>
 												<HugeiconsIcon
@@ -224,7 +224,7 @@ export function Footer() {
 													className="size-4 opacity-40"
 													strokeWidth={1.5}
 												/>
-												hello@untab.studio
+												contact@untabstudio.com
 											</Link>
 											<p className="text-[11px] leading-relaxed text-muted-foreground/60 font-light max-w-[200px]">
 												Let&apos;s build the future of digital experiences
@@ -239,7 +239,7 @@ export function Footer() {
 								<Separator className="mb-8 opacity-10 bg-foreground" />
 								<div className="flex flex-col gap-8 md:flex-row md:items-center md:justify-between">
 									<div className="flex flex-wrap items-center gap-6 text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground/30">
-										<span>© UntabStudio {new Date().getFullYear()}</span>
+										<span>© Untab {new Date().getFullYear()}</span>
 										<Separator
 											orientation="vertical"
 											className="h-3 opacity-10 hidden md:block bg-foreground"

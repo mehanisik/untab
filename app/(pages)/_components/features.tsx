@@ -33,27 +33,27 @@ interface FeaturesProps {
 const DEFAULT_FEATURES = [
 	{
 		icon: "rocket",
-		title: "Vision to Reality",
+		title: "Strategic Blueprinting",
 		description:
-			"Transform your vision into an outstanding digital experience. We don't just build software; we craft digital ecosystems that scale and perform.",
+			"We transform complex visions into high-performance digital architectures. Our approach ensures your product is built on a foundation designed for success.",
 	},
 	{
 		icon: "shield",
-		title: "Risk Mitigation",
+		title: "Technical Risk Management",
 		description:
-			"Increase your probability of success by mitigating technical risks early. Our architecture reviews and stress testing ensure your platform stands the test of time.",
+			"Early identification and mitigation of technical debt and security risks. We protect your investment by ensuring long-term maintainability.",
 	},
 	{
 		icon: "time",
-		title: "Expert Efficiency",
+		title: "Engineering Excellence",
 		description:
-			"Save time by accessing an experienced team committed to your success. We leverage modern stack capabilities to deliver faster without compromising quality.",
+			"Leveraging the absolute latest in web technology to deliver superior performance. We ship stable, tested, and optimized code that scales with your growth.",
 	},
 	{
 		icon: "team",
-		title: "Collaborative Space",
+		title: "Transparent Partnership",
 		description:
-			"Find a safe space to reach the best outcome through collaborative decision-making. We work as an extension of your team, providing transparent communication.",
+			"A collaborative model built on open communication and shared goals. We operate as an extension of your team, providing expert guidance at every step.",
 	},
 ];
 

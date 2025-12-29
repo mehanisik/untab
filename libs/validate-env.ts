@@ -28,7 +28,7 @@ export function validateEnv(): EnvConfig {
 			new URL(NEXT_PUBLIC_BASE_URL);
 		} catch {
 			errors.push(
-				"NEXT_PUBLIC_BASE_URL must be a valid URL (e.g., https://untab.studio)",
+				"NEXT_PUBLIC_BASE_URL must be a valid URL (e.g., https://untabstudio.com)",
 			);
 		}
 	}

@@ -43,7 +43,7 @@ function getBaseUrl(): string {
 	if (!url) {
 		if (process.env.NODE_ENV === "production") {
 			throw new Error(
-				"NEXT_PUBLIC_BASE_URL environment variable is required in production. Please set it to your production URL (e.g., https://untab.studio)",
+				"NEXT_PUBLIC_BASE_URL environment variable is required in production. Please set it to your production URL (e.g., https://untabstudio.com)",
 			);
 		}
 		// In development, use localhost

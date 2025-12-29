@@ -62,10 +62,10 @@ export default function ContactPage() {
 										Email
 									</p>
 									<Link
-										href="mailto:hi@untab.studio"
+										href="mailto:contact@untabstudio.com"
 										className="text-lg md:text-xl font-light hover:text-primary transition-colors"
 									>
-										hi@untab.studio
+										contact@untabstudio.com
 									</Link>
 								</div>
 
@@ -111,7 +111,7 @@ export default function ContactPage() {
 					<Container>
 						<div className="flex flex-col md:flex-row gap-4 md:gap-0 justify-between items-center text-[9px] md:text-[10px] uppercase tracking-[0.4em] font-medium text-muted-foreground/40">
 							<div className="flex items-center gap-4 md:gap-8">
-								<span>Untab Studio © 2025</span>
+								<span>Untab © 2025</span>
 								<span className="hidden md:inline">Open to New Projects</span>
 							</div>
 							<div className="flex items-center gap-2">

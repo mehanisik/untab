@@ -8,3 +8,4 @@ export * from "./vision";
 export * from "./words-worth-billions";
 export * from "./footer";
 export * from "./navbar";
+export * from "./tech-stack";

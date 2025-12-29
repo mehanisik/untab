@@ -125,7 +125,7 @@ export async function sendContactEmail(formData: FormData) {
 		const recipientEmail = CONTACT_EMAIL!;
 
 		const { data, error } = await resend.emails.send({
-			from: "Untab Studio <onboarding@resend.dev>",
+			from: "Untab <contact@untabstudio.com>",
 			to: [recipientEmail],
 			subject: `New Contact Form Submission: ${escapedName}`,
 			replyTo: email,

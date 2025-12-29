@@ -20,7 +20,7 @@ interface UntabContactEmailProps {
 	message: string;
 }
 
-const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://untab.studio";
+const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://untabstudio.com";
 
 export const UntabContactEmail = ({
 	name,
@@ -92,7 +92,7 @@ export const UntabContactEmail = ({
 
 						<Section className="text-center">
 							<Text className="text-[#666666] text-[12px] leading-[24px] mb-2">
-								Untab Studio &copy; 2025
+								Untab &copy; 2025
 							</Text>
 							<Text className="text-[#999999] text-[10px] leading-[18px]">
 								Warsaw, Poland
@@ -101,7 +101,7 @@ export const UntabContactEmail = ({
 							</Text>
 							<Section className="mt-4">
 								<Link
-									href="https://untab.studio"
+									href="https://untabstudio.com"
 									className="text-[#cf3f99] text-[10px] mx-2 no-underline"
 								>
 									Website
