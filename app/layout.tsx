@@ -52,10 +52,7 @@ export const metadata: Metadata = generatePageMetadata({
 });
 
 export const viewport: Viewport = {
-	themeColor: [
-		{ media: "(prefers-color-scheme: light)", color: "white" },
-		{ media: "(prefers-color-scheme: dark)", color: "black" },
-	],
+	themeColor: "#181a19",
 };
 
 export default function RootLayout({
@@ -71,16 +68,18 @@ export default function RootLayout({
 			>
 				<ThemeProvider
 					attribute="class"
-					defaultTheme="dark"
-					enableSystem
+					defaultTheme="light"
+					forcedTheme="light"
 					disableTransitionOnChange
 				>
 					<GSAPRuntime />
 					{children}
-					<Orchestra />
-					<VisualEditingWrapper />
-					<Analytics />
-					<Toaster closeButton position="bottom-right" />
+					<div className="fixed inset-0 pointer-events-none z-[9999]">
+						<Orchestra />
+						<VisualEditingWrapper />
+						<Analytics />
+						<Toaster closeButton position="bottom-right" />
+					</div>
 					<script
 						type="application/ld+json"
 						// biome-ignore lint/security/noDangerouslySetInnerHtml: injecting static SEO schema

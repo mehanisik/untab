@@ -28,7 +28,7 @@ function NavigationMenu({
 function NavigationMenuList({
   className,
   ...props
-}: NavigationMenuPrimitive.List.Props) {
+}: Omit<NavigationMenuPrimitive.List.Props, "ref">) {
   return (
     <NavigationMenuPrimitive.List
       data-slot="navigation-menu-list"
