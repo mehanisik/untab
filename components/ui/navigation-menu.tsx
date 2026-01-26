@@ -44,7 +44,7 @@ function NavigationMenuList({
 function NavigationMenuItem({
   className,
   ...props
-}: NavigationMenuPrimitive.Item.Props) {
+}: Omit<NavigationMenuPrimitive.Item.Props, "ref">) {
   return (
     <NavigationMenuPrimitive.Item
       data-slot="navigation-menu-item"
@@ -136,7 +136,7 @@ function NavigationMenuLink({
 function NavigationMenuIndicator({
   className,
   ...props
-}: NavigationMenuPrimitive.Icon.Props) {
+}: Omit<NavigationMenuPrimitive.Icon.Props, "ref">) {
   return (
     <NavigationMenuPrimitive.Icon
       data-slot="navigation-menu-indicator"

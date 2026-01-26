@@ -35,7 +35,7 @@ export const aj = arcjet({
 		// Email validation for production-grade deliverability
 		validateEmail({
 			mode: "LIVE",
-			block: ["DISPOSABLE", "INVALID", "NO_MX_RECORDS"],
+			deny: ["DISPOSABLE", "INVALID", "NO_MX_RECORDS"],
 		}),
 	],
 });
