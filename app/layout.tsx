@@ -4,14 +4,14 @@ import localFont from "next/font/local";
 import "./globals.css";
 import type { Viewport } from "next";
 import Script from "next/script";
-import { GSAPRuntime } from "~/components/gsap/runtime";
+import { Providers } from "~/components/providers";
 import AppData from "~/package.json";
 
-import { ThemeProvider } from "~/components/theme-provider";
 import { Orchestra } from "~/orchestra";
 import { VisualEditingWrapper } from "~/components/visual-editing";
 import { Analytics } from "~/components/analytics";
 import { Toaster } from "sonner";
+import { ReactTempus } from "tempus/react";
 
 const satoshi = localFont({
 	src: [
@@ -52,7 +52,10 @@ export const metadata: Metadata = generatePageMetadata({
 });
 
 export const viewport: Viewport = {
-	themeColor: "#181a19",
+	themeColor: [
+		{ media: "(prefers-color-scheme: light)", color: "#FAFAFA" },
+		{ media: "(prefers-color-scheme: dark)", color: "#0A0A0A" },
+	],
 };
 
 export default function RootLayout({
@@ -65,14 +68,9 @@ export default function RootLayout({
 			<Script async>{`window.satusVersion = '${AppData.version}';`}</Script>
 			<body
 				className={`${geistSans.variable} ${geistMono.variable} antialiased font-sans`}
+				suppressHydrationWarning
 			>
-				<ThemeProvider
-					attribute="class"
-					defaultTheme="light"
-					forcedTheme="light"
-					disableTransitionOnChange
-				>
-					<GSAPRuntime />
+				<Providers>
 					{children}
 					<div className="fixed inset-0 pointer-events-none z-[9999]">
 						<Orchestra />
@@ -80,32 +78,33 @@ export default function RootLayout({
 						<Analytics />
 						<Toaster closeButton position="bottom-right" />
 					</div>
-					<script
-						type="application/ld+json"
-						// biome-ignore lint/security/noDangerouslySetInnerHtml: injecting static SEO schema
-						dangerouslySetInnerHTML={{
-							__html: JSON.stringify({
-								"@context": "https://schema.org",
-								"@type": "Organization",
-								name: "Untab Studio",
-								url: baseUrl,
-								logo: `${baseUrl}/logo.png`,
-								address: {
-									"@type": "PostalAddress",
-									addressLocality: "Warsaw",
-									addressCountry: "PL",
-								},
-								description:
-									"A passionate digital agency based in Warsaw specializing in high-end design and development.",
-								sameAs: [
-									"https://twitter.com/untab_studio",
-									"https://instagram.com/untab_studio",
-									"https://linkedin.com/company/untab-studio",
-								],
-							}),
-						}}
-					/>
-				</ThemeProvider>
+				</Providers>
+				<ReactTempus patch />
+				<script
+					type="application/ld+json"
+					// biome-ignore lint/security/noDangerouslySetInnerHtml: injecting static SEO schema
+					dangerouslySetInnerHTML={{
+						__html: JSON.stringify({
+							"@context": "https://schema.org",
+							"@type": "Organization",
+							name: "Untab Studio",
+							url: baseUrl,
+							logo: `${baseUrl}/logo.png`,
+							address: {
+								"@type": "PostalAddress",
+								addressLocality: "Warsaw",
+								addressCountry: "PL",
+							},
+							description:
+								"A passionate digital agency based in Warsaw specializing in high-end design and development.",
+							sameAs: [
+								"https://twitter.com/untab_studio",
+								"https://instagram.com/untab_studio",
+								"https://linkedin.com/company/untab-studio",
+							],
+						}),
+					}}
+				/>
 			</body>
 		</html>
 	);
