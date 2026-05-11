@@ -1,45 +1,43 @@
 "use client";
 
 import { Link } from "~/components/ui/link";
-import { buttonVariants } from "~/components/ui/button";
-import { ThemeToggle } from "~/components/theme-toggle";
 import { Logo } from "~/components/logo";
-import { cn } from "~/libs/utils";
+import { ThemeToggle } from "~/components/theme-toggle";
 import { useEffect, useEffectEvent, useRef, useState } from "react";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { Menu01Icon, Cancel01Icon } from "@hugeicons/core-free-icons";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 
-const navLinks = [
-	{ label: "WORK", href: "/work" },
-	{ label: "PROCESS", href: "/process" },
-	{ label: "TEAM", href: "/team" },
-	{ label: "BLOG", href: "/blog" },
+const leftNavLinks = [
+	{ label: "Services", href: "/services" },
+	{ label: "Work", href: "/work" },
+];
+
+const rightNavLinks = [
+	{ label: "About", href: "/about" },
+	{ label: "Blog", href: "/blog" },
+];
+
+const mobileNavLinks = [
+	...leftNavLinks,
+	...rightNavLinks,
+	{ label: "Contact", href: "/contact" },
 ];
 
 export function Navbar() {
-	const [isVisible, setIsVisible] = useState(true);
-	const [lastScrollY, setLastScrollY] = useState(0);
+	const [isScrolled, setIsScrolled] = useState(false);
 	const [isMenuOpen, setIsMenuOpen] = useState(false);
 	const containerRef = useRef<HTMLElement>(null);
 	const menuRef = useRef<HTMLDivElement>(null);
 	const menuItemsRef = useRef<HTMLDivElement>(null);
 
 	const onScroll = useEffectEvent(() => {
-		if (isMenuOpen) return;
-		const currentScrollY = window.scrollY;
-
-		if (currentScrollY < lastScrollY || currentScrollY < 50) {
-			setIsVisible(true);
-		} else if (currentScrollY > lastScrollY && currentScrollY > 50) {
-			setIsVisible(false);
-		}
-
-		setLastScrollY(currentScrollY);
+		setIsScrolled(window.scrollY > 50);
 	});
 
 	useEffect(() => {
+		onScroll();
 		window.addEventListener("scroll", onScroll, { passive: true });
 		return () => window.removeEventListener("scroll", onScroll);
 	}, []);
@@ -51,6 +49,62 @@ export function Navbar() {
 			document.body.style.overflow = "auto";
 		}
 	}, [isMenuOpen]);
+
+	useGSAP(
+		() => {
+			const leftItems = containerRef.current?.querySelectorAll(
+				".scroll-nav-left .scroll-nav-item",
+			);
+			const rightItems = containerRef.current?.querySelectorAll(
+				".scroll-nav-right .scroll-nav-item",
+			);
+
+			if (isScrolled) {
+				if (leftItems?.length) {
+					gsap.to(leftItems, {
+						opacity: 1,
+						x: 0,
+						duration: 0.5,
+						stagger: 0.06,
+						ease: "expo.out",
+						pointerEvents: "auto",
+					});
+				}
+				if (rightItems?.length) {
+					gsap.to(rightItems, {
+						opacity: 1,
+						x: 0,
+						duration: 0.5,
+						stagger: 0.06,
+						ease: "expo.out",
+						pointerEvents: "auto",
+					});
+				}
+			} else {
+				if (leftItems?.length) {
+					gsap.to(leftItems, {
+						opacity: 0,
+						x: 12,
+						duration: 0.3,
+						stagger: { each: 0.04, from: "end" },
+						ease: "power2.in",
+						pointerEvents: "none",
+					});
+				}
+				if (rightItems?.length) {
+					gsap.to(rightItems, {
+						opacity: 0,
+						x: -12,
+						duration: 0.3,
+						stagger: { each: 0.04, from: "end" },
+						ease: "power2.in",
+						pointerEvents: "none",
+					});
+				}
+			}
+		},
+		{ dependencies: [isScrolled], scope: containerRef },
+	);
 
 	useGSAP(
 		() => {
@@ -93,54 +147,72 @@ export function Navbar() {
 	return (
 		<header
 			ref={containerRef}
-			className={cn(
-				"fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md transition-transform duration-300 ease-in-out",
-				isVisible ? "translate-y-0" : "-translate-y-full",
-			)}
+			className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md"
 		>
-			<nav className="mx-auto flex h-14 max-w-[1440px] items-center justify-between px-6 md:px-12 lg:px-24">
-				<Link href="/" className="flex items-center gap-2">
-					<Logo />
-				</Link>
-
-				<div className="flex items-center gap-4 md:gap-8">
-					<div className="hidden items-center gap-6 md:flex">
-						{navLinks.map((link) => (
+			<nav className="mx-auto grid h-14 max-w-[1440px] grid-cols-[1fr_auto_1fr] items-center px-6 md:px-12 lg:px-24">
+				<div className="flex items-center justify-between gap-6">
+					<Link href="/" className="flex items-center gap-2" aria-label="Home">
+						<Logo showText={false} />
+					</Link>
+					<div className="scroll-nav-left hidden items-center gap-7 md:flex">
+						{leftNavLinks.map((link) => (
 							<Link
 								key={link.label}
 								href={link.href}
-								className="text-xs font-medium text-muted-foreground uppercase tracking-wider transition-colors hover:text-foreground"
+								className="scroll-nav-item font-sans text-[13px] font-medium text-foreground/70 transition-colors hover:text-foreground"
+								style={{ opacity: 0, transform: "translateX(12px)" }}
 							>
 								{link.label}
 							</Link>
 						))}
 					</div>
+				</div>
 
-					<div className="flex items-center gap-2 md:gap-4">
-						<ThemeToggle />
-						<Link
-							href="/contact"
-							className={cn(
-								buttonVariants({ variant: "outline", size: "sm" }),
-								"hidden text-xs uppercase tracking-wider sm:flex",
-							)}
-						>
-							Let&apos;s talk
-						</Link>
+				<Link
+					href="/"
+					className="flex flex-col items-center leading-none px-10 font-sans"
+					aria-label="untab software studio home"
+				>
+					<span className="text-[15px] font-semibold tracking-tight text-foreground lowercase whitespace-nowrap">
+						untab
+					</span>
+					<span className="text-[9px] font-medium text-foreground/55 lowercase tracking-[0.22em] whitespace-nowrap mt-0.5">
+						software studio
+					</span>
+				</Link>
 
-						<button
-							type="button"
-							className="flex size-10 items-center justify-center rounded-full border border-border bg-background/50 text-foreground transition-all hover:bg-background md:hidden"
-							onClick={() => setIsMenuOpen(!isMenuOpen)}
-							aria-label={isMenuOpen ? "Close menu" : "Open menu"}
-						>
-							<HugeiconsIcon
-								icon={isMenuOpen ? Cancel01Icon : Menu01Icon}
-								className="size-5"
-								strokeWidth={1.5}
-							/>
-						</button>
+				<div className="flex items-center justify-end gap-6">
+					<div className="scroll-nav-right mr-auto hidden items-center gap-7 md:flex">
+						{rightNavLinks.map((link) => (
+							<Link
+								key={link.label}
+								href={link.href}
+								className="scroll-nav-item font-sans text-[13px] font-medium text-foreground/70 transition-colors hover:text-foreground"
+								style={{ opacity: 0, transform: "translateX(-12px)" }}
+							>
+								{link.label}
+							</Link>
+						))}
 					</div>
+					<Link
+						href="/contact"
+						className="hidden font-sans text-[13px] font-medium text-foreground transition-colors hover:text-foreground/70 sm:inline-flex"
+					>
+						Contact
+					</Link>
+					<ThemeToggle />
+					<button
+						type="button"
+						className="flex size-10 items-center justify-center rounded-full border border-border bg-background/50 text-foreground transition-all hover:bg-background md:hidden"
+						onClick={() => setIsMenuOpen(!isMenuOpen)}
+						aria-label={isMenuOpen ? "Close menu" : "Open menu"}
+					>
+						<HugeiconsIcon
+							icon={isMenuOpen ? Cancel01Icon : Menu01Icon}
+							className="size-5"
+							strokeWidth={1.5}
+						/>
+					</button>
 				</div>
 			</nav>
 
@@ -154,7 +226,7 @@ export function Navbar() {
 					ref={menuItemsRef}
 					className="flex flex-col items-center justify-center gap-8 py-20 px-6"
 				>
-					{navLinks.map((link) => (
+					{mobileNavLinks.map((link) => (
 						<Link
 							key={link.label}
 							href={link.href}
@@ -164,13 +236,6 @@ export function Navbar() {
 							{link.label}
 						</Link>
 					))}
-					<Link
-						href="/contact"
-						onClick={() => setIsMenuOpen(false)}
-						className="mobile-nav-item opacity-0 translate-y-5 mt-4 flex h-14 w-full items-center justify-center rounded-full bg-primary text-base font-semibold text-primary-foreground transition-transform hover:scale-95"
-					>
-						LET&apos;S TALK
-					</Link>
 				</div>
 			</div>
 		</header>

@@ -5,18 +5,18 @@ import { generatePageMetadata } from "~/libs/metadata";
 import { Footer, Navbar } from "../_components";
 
 export const metadata: Metadata = generatePageMetadata({
-	title: "Blog",
-	description: "Notes from the studio.",
+	title: "About",
+	description: "Who we are.",
 });
 
-export default function BlogPage() {
+export default function AboutPage() {
 	return (
 		<Wrapper>
 			<Navbar />
 			<main className="grow">
 				<Container className="pt-48 pb-32 md:pt-64 md:pb-48">
 					<h1 className="text-5xl md:text-7xl lg:text-8xl font-light tracking-tight text-foreground">
-						Blog
+						About
 					</h1>
 				</Container>
 			</main>

@@ -1,7 +1,8 @@
 "use client";
 
-import NextLink from "next/link";
+import type NextLink from "next/link";
 import { usePathname } from "next/navigation";
+import { Link as TransitionLink } from "next-transition-router";
 import {
   type AnchorHTMLAttributes,
   type ComponentProps,
@@ -91,7 +92,7 @@ export function Link({
   }
 
   return (
-    <NextLink
+    <TransitionLink
       href={href as ComponentProps<typeof NextLink>["href"]}
       prefetch={shouldPrefetch}
       scroll={scroll}
@@ -100,6 +101,6 @@ export function Link({
       {...props}
     >
       {children}
-    </NextLink>
+    </TransitionLink>
   );
 }

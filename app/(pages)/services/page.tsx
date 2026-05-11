@@ -1,24 +1,23 @@
 import type { Metadata } from "next";
-import { Container } from "~/components/container";
 import { Wrapper } from "~/components/wrapper";
 import { generatePageMetadata } from "~/libs/metadata";
 import { Footer, Navbar } from "../_components";
+import { Partners, ServicesIntro, ServicesList } from "./_components";
 
 export const metadata: Metadata = generatePageMetadata({
-	title: "Blog",
-	description: "Notes from the studio.",
+	title: "Services",
+	description:
+		"Strategy, design, and development. Together from day one. We build and design digital products, brands, and websites for ambitious teams.",
 });
 
-export default function BlogPage() {
+export default function ServicesPage() {
 	return (
 		<Wrapper>
 			<Navbar />
 			<main className="grow">
-				<Container className="pt-48 pb-32 md:pt-64 md:pb-48">
-					<h1 className="text-5xl md:text-7xl lg:text-8xl font-light tracking-tight text-foreground">
-						Blog
-					</h1>
-				</Container>
+				<ServicesIntro />
+				<ServicesList />
+				<Partners />
 			</main>
 			<Footer />
 		</Wrapper>

@@ -2,9 +2,15 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-surface-anchor: var(--surface-anchor);
+  --color-surface-anchor-foreground: var(--surface-anchor-foreground);
+  --color-surface-deep: var(--surface-deep);
+  --color-surface-deep-foreground: var(--surface-deep-foreground);
   --font-sans: var(--font-satoshi);
   --font-mono: var(--font-geist-mono);
   --color-sidebar-ring: var(--sidebar-ring);
@@ -46,65 +52,126 @@
 }
 
 :root {
-  /* Background & Foreground - Dark Theme */
-  --background: oklch(0.15 0.005 160); /* #181a19 */
-  --foreground: oklch(0.99 0.01 90); /* #FEFCF8 */
+  /* Base palette */
+  --light: #e4e4e4;
+  --dark: #111111;
 
-  /* Card & Popover */
-  --card: oklch(0.18 0.005 160); /* slightly lighter than bg */
-  --card-foreground: oklch(0.99 0.01 90);
-  --popover: oklch(0.18 0.005 160);
-  --popover-foreground: oklch(0.99 0.01 90);
+  /* Aliases — default = dark (no flash before JS) */
+  --background: var(--dark);
+  --text: var(--light);
+  --foreground: var(--text);
 
-  /* Primary - Pink */
-  --primary: oklch(0.92 0.04 15); /* #FEDCDC */
-  --primary-foreground: oklch(0.15 0.005 160); /* dark text on pink */
+  /* Anchor surfaces — Intro panel + Footer */
+  --surface-anchor: #0a0a0a;
+  --surface-anchor-foreground: var(--light);
+  --surface-deep: #050505;
+  --surface-deep-foreground: var(--light);
 
-  /* Secondary - Beige */
-  --secondary: oklch(0.92 0.01 90); /* #EAE8E1 */
-  --secondary-foreground: oklch(0.15 0.005 160);
+  --card: #181818;
+  --card-foreground: var(--light);
+  --popover: #181818;
+  --popover-foreground: var(--light);
 
-  /* Muted */
-  --muted: oklch(0.25 0.005 160);
-  --muted-foreground: oklch(0.65 0.01 90);
+  --primary: var(--light);
+  --primary-foreground: var(--dark);
 
-  /* Accent */
-  --accent: oklch(0.25 0.005 160);
-  --accent-foreground: oklch(0.99 0.01 90);
+  --secondary: #1f1f1f;
+  --secondary-foreground: var(--light);
 
-  /* Destructive */
+  --muted: #1c1c1c;
+  --muted-foreground: #9a9a9a;
+
+  --accent: #1c1c1c;
+  --accent-foreground: var(--light);
+
   --destructive: oklch(0.65 0.2 25);
 
-  /* Border & Input */
-  --border: oklch(0.99 0.01 90 / 15%);
-  --input: oklch(0.99 0.01 90 / 20%);
-  --ring: oklch(0.92 0.04 15);
+  --border: rgb(228 228 228 / 12%);
+  --input: rgb(228 228 228 / 18%);
+  --ring: var(--light);
 
-  /* Chart colors - Pink gradient */
   --chart-1: oklch(0.95 0.03 15);
   --chart-2: oklch(0.92 0.04 15);
   --chart-3: oklch(0.85 0.05 15);
   --chart-4: oklch(0.78 0.06 15);
   --chart-5: oklch(0.70 0.07 15);
 
-  /* Radius */
   --radius: 0.625rem;
 
-  /* Sidebar */
-  --sidebar: oklch(0.12 0.005 160);
-  --sidebar-foreground: oklch(0.99 0.01 90);
-  --sidebar-primary: oklch(0.92 0.04 15);
-  --sidebar-primary-foreground: oklch(0.15 0.005 160);
-  --sidebar-accent: oklch(0.25 0.005 160);
-  --sidebar-accent-foreground: oklch(0.99 0.01 90);
-  --sidebar-border: oklch(0.99 0.01 90 / 10%);
-  --sidebar-ring: oklch(0.92 0.04 15);
+  --sidebar: #131313;
+  --sidebar-foreground: var(--light);
+  --sidebar-primary: var(--light);
+  --sidebar-primary-foreground: var(--dark);
+  --sidebar-accent: #1c1c1c;
+  --sidebar-accent-foreground: var(--light);
+  --sidebar-border: rgb(228 228 228 / 10%);
+  --sidebar-ring: var(--light);
+
+  color-scheme: dark;
+}
+
+/* Light theme — invert aliases */
+:root[data-theme="light"],
+html.light {
+  --background: var(--light);
+  --text: var(--dark);
+  --foreground: var(--text);
+
+  --surface-anchor: #dcdcd8;
+  --surface-anchor-foreground: var(--dark);
+  --surface-deep: #d2d2cd;
+  --surface-deep-foreground: var(--dark);
+
+  --card: #ececea;
+  --card-foreground: var(--dark);
+  --popover: #ececea;
+  --popover-foreground: var(--dark);
+
+  --primary: var(--dark);
+  --primary-foreground: var(--light);
+
+  --secondary: #dcdcd8;
+  --secondary-foreground: var(--dark);
+
+  --muted: #dedddb;
+  --muted-foreground: #6b6b68;
+
+  --accent: #dedddb;
+  --accent-foreground: var(--dark);
+
+  --destructive: oklch(0.55 0.22 25);
+
+  --border: rgb(17 17 17 / 10%);
+  --input: rgb(17 17 17 / 16%);
+  --ring: var(--dark);
+
+  --chart-1: oklch(0.85 0.06 15);
+  --chart-2: oklch(0.78 0.10 15);
+  --chart-3: oklch(0.72 0.13 15);
+  --chart-4: oklch(0.64 0.16 15);
+  --chart-5: oklch(0.56 0.19 15);
+
+  --sidebar: #dedddb;
+  --sidebar-foreground: var(--dark);
+  --sidebar-primary: var(--dark);
+  --sidebar-primary-foreground: var(--light);
+  --sidebar-accent: #dcdcd8;
+  --sidebar-accent-foreground: var(--dark);
+  --sidebar-border: rgb(17 17 17 / 10%);
+  --sidebar-ring: var(--dark);
+
+  color-scheme: light;
+}
+
+/* Explicit dark selectors (no-op — matches default :root, kept for clarity) */
+:root[data-theme="dark"],
+html.dark {
+  color-scheme: dark;
 }
 
 @layer base {
   html,
   body {
-    height: 100%;
     margin: 0;
     padding: 0;
   }
@@ -115,3 +182,4 @@
     @apply bg-background text-foreground antialiased;
   }
 }
+

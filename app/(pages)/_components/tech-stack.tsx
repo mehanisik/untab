@@ -2,7 +2,6 @@
 
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useRef, useState } from "react";
 import { Container } from "~/components/container";
 import { HugeiconsIcon } from "@hugeicons/react";
@@ -19,8 +18,6 @@ import {
 	GlobeIcon,
 	SmartPhone01Icon,
 } from "@hugeicons/core-free-icons";
-
-gsap.registerPlugin(ScrollTrigger);
 
 interface TechItem {
 	name: string;
