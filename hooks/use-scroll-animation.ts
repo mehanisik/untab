@@ -1,8 +1,11 @@
 "use client";
 
+import { useGSAP } from "@gsap/react";
+import gsap from "gsap";
 import { useRect, useWindowSize } from "hamo";
 import { useLenis } from "lenis/react";
 import { useEffect, useEffectEvent, useRef } from "react";
+import { REVEAL } from "~/libs/gsap/presets";
 import { clamp, mapRange } from "~/libs/utils";
 
 export type UseScrollTriggerOptions = {
@@ -123,34 +126,30 @@ export function useScrollTrigger<T extends HTMLElement = HTMLDivElement>(
 }
 
 export function useFadeInOnScroll<T extends HTMLElement = HTMLDivElement>(
-	options: { threshold?: number; delay?: number } = {},
+	options: { delay?: number } = {},
 ) {
-	const { threshold = 0.2, delay = 0 } = options;
+	const { delay = 0 } = options;
 	const elementRef = useRef<T>(null);
-	const hasAnimatedRef = useRef(false);
 
-	useEffect(() => {
-		const element = elementRef.current;
-		if (!element) return;
-
-		element.style.opacity = "0";
-		element.style.transform = "translateY(60px) scale(0.95)";
-		element.style.transition = `opacity 0.9s cubic-bezier(0.23, 1, 0.32, 1) ${delay}s, transform 0.9s cubic-bezier(0.23, 1, 0.32, 1) ${delay}s`;
-
-		const observer = new IntersectionObserver(
-			([entry]) => {
-				if (entry.isIntersecting && !hasAnimatedRef.current) {
-					hasAnimatedRef.current = true;
-					element.style.opacity = "1";
-					element.style.transform = "translateY(0) scale(1)";
-				}
-			},
-			{ threshold },
-		);
-
-		observer.observe(element);
-		return () => observer.disconnect();
-	}, [threshold, delay]);
+	useGSAP(
+		() => {
+			const el = elementRef.current;
+			if (!el) return;
+			gsap.from(el, {
+				y: REVEAL.y,
+				opacity: 0,
+				duration: REVEAL.duration,
+				ease: REVEAL.ease,
+				delay,
+				scrollTrigger: {
+					trigger: el,
+					start: REVEAL.start,
+					toggleActions: REVEAL.toggleActions,
+				},
+			});
+		},
+		{ scope: elementRef, dependencies: [delay] },
+	);
 
 	return elementRef;
 }

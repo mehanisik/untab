@@ -1,204 +1,341 @@
 "use client";
 
-import React from "react";
-
-import { ArrowDown01Icon } from "@hugeicons/core-free-icons";
-import { HugeiconsIcon } from "@hugeicons/react";
+import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { useRef } from "react";
-import { useGSAP } from "@gsap/react";
 
 interface HeroProps {
-	title?: string[];
-	highlightedText?: string;
-	subtitle?: string;
 	videoUrl?: string;
 }
 
-export function Hero({
-	title = ["We craft digital", "experiences to"],
-	highlightedText = "scale and impact",
-	subtitle = "Scroll to start",
-	videoUrl = "/hero.mp4",
-}: HeroProps) {
+const ROTATING_WORDS: { text: string; color: string }[] = [
+	{ text: "Software", color: "#f8a9c8" },
+	{ text: "Products", color: "#a892ff" },
+	{ text: "Interfaces", color: "#d8e85e" },
+	{ text: "Experiences", color: "#7c8df0" },
+	{ text: "Platforms", color: "#f15c7e" },
+];
+
+const HERO_MAX_WIDTH = 1440;
+const HERO_SIDE_PADDING = 48;
+const PARALLAX_X = 14;
+const PARALLAX_Y = 10;
+
+export function Hero({ videoUrl = "/hero.mp4" }: HeroProps) {
 	const containerRef = useRef<HTMLElement>(null);
+	const scrollActiveRef = useRef(false);
 
 	useGSAP(
-		() => {
-			const tl = gsap.timeline();
+		(_context, contextSafe) => {
+			const root = containerRef.current;
+			if (!(root && contextSafe)) return;
 
-			const hasLines =
-				containerRef.current?.querySelectorAll(".hero-line").length;
-			const hasScrollBtn =
-				containerRef.current?.querySelector(".hero-scroll-btn");
-			const hasImage = containerRef.current?.querySelector(
-				".hero-image-container",
+			const lineClips = root.querySelectorAll<HTMLElement>(".hero-line-clip");
+			const float = root.querySelector<HTMLElement>(".hero-float");
+			const stage = root.querySelector<HTMLElement>(".hero-stage");
+			const video = root.querySelector<HTMLElement>(".hero-video");
+			const frame = root.querySelector<HTMLElement>(".echo-frame");
+			const pink = root.querySelector<HTMLElement>(".echo-pink");
+			const purple = root.querySelector<HTMLElement>(".echo-purple");
+			const rotateWords =
+				root.querySelectorAll<HTMLElement>(".hero-rotate-word");
+			if (!(float && stage && video && frame && pink && purple)) return;
+
+			const topClip = lineClips[0];
+			const bottomClip = lineClips[1];
+
+			const introTargets = [topClip, float, bottomClip];
+			gsap.set(introTargets, { autoAlpha: 0, y: 18 });
+
+			const intro = gsap.timeline({
+				defaults: { ease: "expo.out", duration: 0.9 },
+			});
+			intro.to(
+				introTargets,
+				{
+					autoAlpha: 1,
+					y: 0,
+					stagger: 0.12,
+				},
+				0,
 			);
 
-			if (hasLines) gsap.set(".hero-line", { opacity: 0, y: 30 });
-			if (hasScrollBtn) gsap.set(".hero-scroll-btn", { opacity: 0, y: 20 });
-			if (hasImage) {
-				gsap.set(".hero-image-container", {
-					opacity: 0,
-					y: 60,
-					scale: 0.9,
-					transformOrigin: "center top",
+			const idleFloat = gsap.to(float, {
+				y: 6,
+				duration: 3.4,
+				ease: "sine.inOut",
+				yoyo: true,
+				repeat: -1,
+				paused: true,
+			});
+			intro.call(
+				() => {
+					idleFloat.play();
+				},
+				undefined,
+				">-0.2",
+			);
+
+			const quickX = gsap.quickTo(stage, "x", {
+				duration: 0.9,
+				ease: "power3.out",
+			});
+			const quickY = gsap.quickTo(stage, "y", {
+				duration: 0.9,
+				ease: "power3.out",
+			});
+
+			const mouse = { x: 0, y: 0 };
+
+			const onMove = contextSafe((e: MouseEvent) => {
+				const rect = root.getBoundingClientRect();
+				mouse.x = (e.clientX - rect.left) / rect.width - 0.5;
+				mouse.y = (e.clientY - rect.top) / rect.height - 0.5;
+			});
+
+			const onLeave = contextSafe(() => {
+				mouse.x = 0;
+				mouse.y = 0;
+			});
+
+			const tick = () => {
+				if (scrollActiveRef.current) return;
+				quickX(mouse.x * PARALLAX_X);
+				quickY(mouse.y * PARALLAX_Y);
+			};
+
+			root.addEventListener("mousemove", onMove);
+			root.addEventListener("mouseleave", onLeave);
+			gsap.ticker.add(tick);
+
+			const cleanupParallax = () => {
+				root.removeEventListener("mousemove", onMove);
+				root.removeEventListener("mouseleave", onLeave);
+				gsap.ticker.remove(tick);
+			};
+
+			if (rotateWords.length > 1) {
+				gsap.set(rotateWords, {
+					autoAlpha: 0,
+					scale: 0.94,
+					filter: "blur(14px)",
 				});
-			}
-
-			if (hasLines) {
-				tl.to(".hero-line", {
-					opacity: 1,
-					y: 0,
-					duration: 0.8,
-					stagger: 0.15,
-					ease: "power3.out",
-				});
-			}
-
-			if (hasScrollBtn) {
-				tl.to(
-					".hero-scroll-btn",
-					{
-						opacity: 1,
-						y: 0,
-						duration: 0.8,
-						ease: "power3.out",
-					},
-					hasLines ? "-=0.4" : "0",
-				);
-			}
-
-			if (hasImage) {
-				tl.to(
-					".hero-image-container",
-					{
-						opacity: 1,
-						y: 0,
-						duration: 1.2,
-						ease: "power3.out",
-					},
-					"-=0.6",
-				);
-			}
-
-			const contentWrapper = document.querySelector(".hero-content-wrapper");
-			const lines = gsap.utils.toArray<HTMLElement>(".hero-line");
-			const scrollBtn = document.querySelector<HTMLElement>(".hero-scroll-btn");
-
-			if (contentWrapper && lines.length > 0) {
-				const wrapperWidth = contentWrapper.clientWidth;
-
-				lines.forEach((line) => {
-					const lineX = (wrapperWidth - line.clientWidth) / 2;
-					gsap.set(line, { x: lineX });
+				gsap.set(rotateWords[0], {
+					autoAlpha: 1,
+					scale: 1,
+					filter: "blur(0px)",
 				});
 
-				if (scrollBtn) {
-					const btnX = (wrapperWidth - scrollBtn.clientWidth) / 2;
-					gsap.set(scrollBtn, { x: btnX });
+				let current = 0;
+				const rotateTl = gsap.timeline({ repeat: -1, delay: 1.4 });
+
+				for (const _ of rotateWords) {
+					const out = rotateWords[current];
+					const next = (current + 1) % rotateWords.length;
+					const incoming = rotateWords[next];
+
+					rotateTl
+						.to(
+							out,
+							{
+								autoAlpha: 0,
+								scale: 1.08,
+								filter: "blur(16px)",
+								duration: 0.55,
+								ease: "power2.in",
+							},
+							"+=2.6",
+						)
+						.fromTo(
+							incoming,
+							{ autoAlpha: 0, scale: 0.94, filter: "blur(14px)" },
+							{
+								autoAlpha: 1,
+								scale: 1,
+								filter: "blur(0px)",
+								duration: 0.75,
+								ease: "power2.out",
+							},
+							"<0.2",
+						);
+					current = next;
 				}
+			}
 
-				if (hasLines || hasScrollBtn) {
-					const targets = [];
-					if (hasLines) targets.push(".hero-line");
-					if (hasScrollBtn) targets.push(".hero-scroll-btn");
+			const isDesktop = window.matchMedia("(min-width: 768px)").matches;
+			if (!isDesktop) return cleanupParallax;
 
-					tl.to(
-						targets,
-						{
-							x: 0,
-							duration: 2.5,
-							ease: "power2.inOut",
+			gsap
+				.timeline({
+					scrollTrigger: {
+						trigger: root,
+						start: "top top",
+						end: "+=120%",
+						pin: true,
+						pinSpacing: true,
+						scrub: 1.2,
+						anticipatePin: 1,
+						invalidateOnRefresh: true,
+						onEnter: () => {
+							scrollActiveRef.current = true;
+							idleFloat.pause();
+							gsap.to(float, {
+								y: 0,
+								duration: 0.4,
+								overwrite: "auto",
+							});
+							gsap.to(stage, {
+								x: 0,
+								y: 0,
+								duration: 0.4,
+								overwrite: "auto",
+							});
 						},
-						"+=1.0",
-					);
-				}
-
-				if (hasImage) {
-					tl.to(
-						".hero-image-container",
-						{
-							scale: 1,
-							duration: 2.5,
-							ease: "power2.inOut",
+						onLeaveBack: () => {
+							scrollActiveRef.current = false;
+							idleFloat.play();
 						},
-						"<",
-					);
-				}
-			}
+					},
+				})
+				.to(
+					[frame, pink, purple],
+					{ autoAlpha: 0, duration: 0.18, ease: "power2.in" },
+					0,
+				)
+				.to(
+					float,
+					{
+						width: () =>
+							`${Math.min(window.innerWidth - HERO_SIDE_PADDING, HERO_MAX_WIDTH)}px`,
+						height: () => {
+							const w = Math.min(
+								window.innerWidth - HERO_SIDE_PADDING,
+								HERO_MAX_WIDTH,
+							);
+							return `${Math.min(window.innerHeight - 96, (w * 9) / 16)}px`;
+						},
+						maxWidth: "none",
+						ease: "power2.inOut",
+						duration: 1,
+					},
+					0,
+				)
+				.to(
+					video,
+					{
+						rotation: 0,
+						borderRadius: 0,
+						ease: "power2.inOut",
+						duration: 1,
+					},
+					0,
+				)
+				.to(
+					[topClip, bottomClip],
+					{ autoAlpha: 0, duration: 0.35, ease: "power2.in" },
+					0.3,
+				);
+
+			return cleanupParallax;
 		},
 		{ scope: containerRef },
 	);
 
+	const longestWord = ROTATING_WORDS.reduce((a, b) =>
+		a.text.length > b.text.length ? a : b,
+	).text;
+
 	return (
 		<section
 			ref={containerRef}
-			className="relative flex min-h-dvh flex-col bg-background overflow-hidden"
+			className="home-hero relative w-full overflow-hidden bg-background h-dvh"
 		>
-			<div className="pointer-events-none absolute inset-0 overflow-hidden">
-				<div className="absolute -top-20 -right-20 size-96 rounded-full bg-primary/5 blur-3xl" />
-				<div className="absolute top-1/2 -left-32 size-64 rounded-full bg-chart-2/5 blur-3xl" />
-				<div className="absolute bottom-20 right-1/3 size-48 rounded-full bg-chart-1/5 blur-3xl" />
-			</div>
+			<h1 className="hero-display absolute inset-0 z-10 text-center font-black uppercase leading-[0.86] tracking-[-0.04em] text-foreground text-[clamp(2rem,8vw,7.5rem)]">
+				<span
+					className="hero-line-clip absolute top-[var(--site-header-height,3.875rem)] left-0 right-0 px-3 md:px-6 block overflow-hidden pb-[0.06em]"
+					style={{ opacity: 0, visibility: "hidden" }}
+				>
+					<span className="hero-line block whitespace-nowrap">We craft</span>
+				</span>
 
-			<div className="mx-auto flex w-full max-w-[1440px] flex-1 flex-col px-6 md:px-12 lg:px-24 relative z-10">
-				<div className="hero-content-wrapper pt-32 md:pt-48 lg:pt-64 flex flex-col w-full">
-					<div className="max-w-3xl w-full">
-						<h1 className="text-3xl font-medium tracking-tight text-foreground sm:text-5xl md:text-6xl lg:text-7xl leading-[1.1]">
-							{title.map((line, i) => (
-								<React.Fragment key={line}>
-									<span className="hero-line inline-block">{line}</span>
-									{i < title.length - 1 && <br />}
-								</React.Fragment>
-							))}
-							<br />
-							<span className="hero-line inline-block">
-								<span className="bg-linear-to-r from-primary via-chart-2 to-chart-1 bg-clip-text text-transparent animate-gradient bg-size-[200%_auto]">
-									{highlightedText}
-								</span>
-							</span>
-						</h1>
-
-						<div className="hero-scroll-btn mt-8 md:mt-12 flex w-fit">
-							<button
-								type="button"
-								className="group flex items-center gap-3 text-muted-foreground transition-colors hover:text-foreground"
-								onClick={() => {
-									const showcase = document.getElementById("showcase");
-									if (showcase) showcase.scrollIntoView({ behavior: "smooth" });
+				<span
+					className="hero-line-clip absolute bottom-3 md:bottom-6 left-0 right-0 px-3 md:px-6 block overflow-hidden pb-[0.06em]"
+					aria-live="polite"
+					style={{ opacity: 0, visibility: "hidden" }}
+				>
+					<span className="hero-line hero-rotate relative inline-block align-baseline">
+						<span aria-hidden className="invisible block whitespace-nowrap">
+							{longestWord}
+						</span>
+						{ROTATING_WORDS.map((word, i) => (
+							<span
+								key={word.text}
+								className="hero-rotate-word absolute inset-x-0 top-0 block whitespace-nowrap origin-center will-change-[transform,filter,opacity]"
+								style={{
+									color: word.color,
+									...(i === 0
+										? undefined
+										: { opacity: 0, visibility: "hidden" }),
 								}}
 							>
-								<div className="relative flex size-10 items-center justify-center rounded-full border border-muted-foreground/50 transition-all group-hover:border-foreground group-hover:scale-110">
-									<HugeiconsIcon
-										icon={ArrowDown01Icon}
-										className="size-4 transition-transform group-hover:translate-y-0.5"
-										strokeWidth={2}
-									/>
-									<div className="absolute inset-0 rounded-full border border-muted-foreground/30 animate-ping-slow" />
-								</div>
-								<span className="text-xs font-medium uppercase tracking-widest">
-									{subtitle}
-								</span>
-							</button>
+								{word.text}
+							</span>
+						))}
+					</span>
+				</span>
+			</h1>
+
+			<div className="absolute inset-0 z-20 flex items-center justify-center pointer-events-none">
+				<div
+					className="hero-float relative w-[44vw] sm:w-[34vw] md:w-[26vw] lg:w-[22vw] max-w-[360px] aspect-[3/4] origin-center will-change-transform"
+					style={{ opacity: 0, visibility: "hidden" }}
+				>
+					<div className="hero-stage absolute inset-0 will-change-transform">
+						<span
+							aria-hidden
+							className="echo-frame pointer-events-none absolute inset-0 rounded-md md:rounded-xl border border-foreground/15"
+							style={{
+								transform: "translate(-9%, -8%) rotate(5deg) scale(1.04)",
+								zIndex: 0,
+							}}
+						/>
+						<span
+							aria-hidden
+							className="echo-pink pointer-events-none absolute inset-0 rounded-md md:rounded-xl bg-[#f8a9c8]"
+							style={{
+								transform: "translate(8%, -7%) rotate(8deg)",
+								zIndex: 1,
+							}}
+						/>
+						<span
+							aria-hidden
+							className="echo-purple pointer-events-none absolute inset-0 rounded-md md:rounded-xl bg-[#a892ff]"
+							style={{
+								transform: "translate(-7%, 9%) rotate(-9deg)",
+								zIndex: 2,
+							}}
+						/>
+						<div
+							className="hero-video relative size-full will-change-transform"
+							style={{
+								zIndex: 3,
+								transform: "rotate(-3deg)",
+								boxShadow:
+									"0 30px 60px -20px rgba(0,0,0,0.55), 0 12px 24px -12px rgba(0,0,0,0.35)",
+							}}
+						>
+							<video
+								autoPlay
+								loop
+								muted
+								playsInline
+								suppressHydrationWarning
+								className="block size-full rounded-md md:rounded-xl object-cover [backface-visibility:hidden]"
+							>
+								<source src={videoUrl} type="video/mp4" />
+							</video>
 						</div>
 					</div>
-				</div>
-
-				<div className="hero-image-container relative mt-12 mb-0 aspect-video overflow-hidden rounded-t-2xl md:rounded-t-3xl bg-zinc-950/50 lg:mt-20">
-					<video
-						autoPlay
-						loop
-						muted
-						playsInline
-						className="relative z-10 size-full object-cover"
-					>
-						<source src={videoUrl} type="video/mp4" />
-					</video>
-
-					<div className="absolute inset-0 z-20 bg-linear-to-t from-background via-transparent to-transparent opacity-60" />
-
-					<div className="absolute -bottom-1/2 left-1/2 -z-10 size-[800px] -translate-x-1/2 rounded-full bg-primary/10 blur-[120px]" />
 				</div>
 			</div>
 		</section>

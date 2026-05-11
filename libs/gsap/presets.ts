@@ -5,6 +5,14 @@ import { gsap } from "gsap";
  * Standardized high-fidelity motion sequences for Untab Studio.
  */
 
+export const REVEAL = {
+	ease: "expo.out",
+	duration: 0.9,
+	y: 32,
+	start: "top 80%",
+	toggleActions: "play none none none",
+} as const;
+
 export const EASINGS = {
 	expoOut: "expo.out",
 	expoInOut: "expo.inOut",

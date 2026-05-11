@@ -4,16 +4,21 @@ import type { LenisOptions } from "lenis";
 import "lenis/dist/lenis.css";
 import type { LenisRef, LenisProps as ReactLenisProps } from "lenis/react";
 import { ReactLenis } from "lenis/react";
-import { useEffect, useRef } from "react";
+import { useRef } from "react";
 import { useTempus } from "tempus/react";
+import { LenisScrollTriggerSync } from "./lenis-scroll-trigger";
 
 interface LenisProps extends Omit<ReactLenisProps, "ref"> {
 	root: boolean;
-	options: LenisOptions;
-	children?: React.ReactNode;
+	options?: LenisOptions;
+	syncScrollTrigger?: boolean;
 }
 
-export function Lenis({ root, options, children }: LenisProps) {
+export function Lenis({
+	root,
+	options = {},
+	syncScrollTrigger = false,
+}: LenisProps) {
 	const lenisRef = useRef<LenisRef>(null);
 
 	useTempus((time: number) => {
@@ -21,10 +26,6 @@ export function Lenis({ root, options, children }: LenisProps) {
 			lenisRef.current.lenis.raf(time);
 		}
 	});
-
-	useEffect(() => {
-		document.documentElement.classList.toggle("overflow-hidden", false);
-	}, []);
 
 	return (
 		<ReactLenis
@@ -41,7 +42,7 @@ export function Lenis({ root, options, children }: LenisProps) {
 					node?.id === "theatrejs-studio-root",
 			}}
 		>
-			{children}
+			{syncScrollTrigger && root && <LenisScrollTriggerSync />}
 		</ReactLenis>
 	);
 }

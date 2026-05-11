@@ -1,241 +1,229 @@
 "use client";
 
-import { useRef, useState } from "react";
-import { buttonVariants } from "~/components/ui/button";
+import { useGSAP } from "@gsap/react";
+import gsap from "gsap";
+import { useRef } from "react";
 import { Image } from "~/components/ui/image";
 import { Link } from "~/components/ui/link";
-import { useFadeInOnScroll } from "~/hooks/use-scroll-animation";
 import type { Project } from "~/libs/projects";
-import { cn } from "~/libs/utils";
 
 interface CaseStudiesProps {
 	projects: Project[];
 }
 
 export function CaseStudies({ projects }: CaseStudiesProps) {
-	const headerRef = useFadeInOnScroll<HTMLDivElement>({ delay: 0 });
-	const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+	const sectionRef = useRef<HTMLElement>(null);
+
+	const featured = projects.slice(0, 5);
 
 	return (
-		<section id="work" className="bg-background py-32 lg:py-48">
-			<div className="mx-auto max-w-[1440px] px-6 md:px-12 lg:px-24">
-				<div ref={headerRef} className="mb-20 flex items-end justify-between">
-					<div className="max-w-xl">
-						<div className="mb-4 text-[10px] font-bold uppercase tracking-widest text-primary">
-							Selected Works
-						</div>
-						<h2 className="text-5xl font-medium tracking-[calc(var(--tracking-tighter)*2)] text-foreground md:text-7xl">
-							Selected Projects
-						</h2>
-						<p className="mt-6 text-lg text-muted-foreground/60 font-light leading-relaxed">
-							A collection of digital products we've brought from concept to
-							market success. Focused on utility, aesthetics, and impact.
-						</p>
-					</div>
-					<Link
-						href="/work"
-						className="group hidden md:flex items-center gap-4 text-xs font-bold uppercase tracking-widest text-muted-foreground hover:text-foreground transition-all duration-300"
-					>
-						View all Work
-						<div className="flex size-10 items-center justify-center rounded-full border border-muted-foreground/20 transition-all duration-500 group-hover:bg-foreground group-hover:border-foreground group-hover:text-background group-hover:scale-110">
-							<svg
-								viewBox="0 0 24 24"
-								fill="none"
-								className="size-4"
-								aria-hidden="true"
-							>
-								<title>Arrow Right</title>
-								<path
-									d="M5 12h14M12 5l7 7-7 7"
-									stroke="currentColor"
-									strokeWidth="2"
-									strokeLinecap="round"
-									strokeLinejoin="round"
-								/>
-							</svg>
-						</div>
-					</Link>
-				</div>
-
-				<div className="grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-8 min-h-auto md:min-h-[1200px]">
-					{projects.slice(0, 4).map((project, index) => (
-						<div
-							key={project.title}
-							className={cn(
-								"h-[400px] sm:h-[500px] md:h-[600px] transition-all duration-700 ease-[cubic-bezier(0.23,1,0.32,1)]",
-								index % 2 !== 0 ? "md:mt-32" : "mt-0",
-								hoveredIndex !== null && hoveredIndex !== index
-									? "opacity-30 grayscale scale-[0.98] blur-[2px]"
-									: "opacity-100 grayscale-0 scale-100 blur-0",
-							)}
-						>
-							<ProjectCard
-								project={project}
-								index={index}
-								onHover={() => setHoveredIndex(index)}
-								onBlur={() => setHoveredIndex(null)}
-							/>
-						</div>
-					))}
-				</div>
-
-				<div className="mt-24 flex justify-center md:hidden">
-					<Link
-						href="/work"
-						className={cn(
-							buttonVariants({ variant: "outline", size: "lg" }),
-							"rounded-full px-12 h-14 border-zinc-200 dark:border-zinc-800",
-						)}
-					>
-						View all projects
-					</Link>
-				</div>
+		<section
+			ref={sectionRef}
+			id="work"
+			className="featured-section relative w-full bg-background"
+		>
+			<div className="flex w-full flex-col">
+				{featured.map((project, index) => (
+					<FeaturedItem
+						key={project._id ?? project.slug}
+						project={project}
+						index={index}
+					/>
+				))}
 			</div>
 		</section>
 	);
 }
 
-function ProjectCard({
-	project,
-	index,
-	onHover,
-	onBlur,
-}: {
-	project: Project;
-	index: number;
-	onHover?: () => void;
-	onBlur?: () => void;
-}) {
-	const ref = useFadeInOnScroll<HTMLAnchorElement>({ delay: index * 0.15 });
-	const [isHovered, setIsHovered] = useState(false);
-	const cardRef = useRef<HTMLAnchorElement>(null);
-	const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+function FeaturedItem({ project, index }: { project: Project; index: number }) {
+	const itemRef = useRef<HTMLDivElement>(null);
 
-	const handleMouseMove = (e: React.MouseEvent<HTMLAnchorElement>) => {
-		if (!cardRef.current) return;
-		const rect = cardRef.current.getBoundingClientRect();
-		const x = (e.clientX - rect.left) / rect.width - 0.5;
-		const y = (e.clientY - rect.top) / rect.height - 0.5;
-		setMousePosition({ x, y });
-	};
+	useGSAP(
+		() => {
+			const el = itemRef.current;
+			if (!el) return;
+
+			const inner = el.querySelector(".featured-inner") as HTMLElement | null;
+			const thumb = el.querySelector(".featured-thumb");
+			const titleWords = el.querySelectorAll(".featured-title-word");
+			const tags = el.querySelectorAll(".featured-tag");
+			const indexEl = el.querySelector(".featured-index");
+
+			// Width scrub: card grows from narrow to full-width as it scrolls into
+			// view, plateaus at full scale, then eases back down as it leaves.
+			if (inner) {
+				const isMobile = window.matchMedia("(max-width: 767px)").matches;
+				const minScale = isMobile ? 0.8 : 0.7;
+				const maxScale = isMobile ? 0.95 : 0.9;
+				gsap.set(inner, { scaleX: minScale, scaleY: minScale });
+				gsap.to(inner, {
+					keyframes: [
+						{
+							scaleX: maxScale,
+							scaleY: maxScale,
+							duration: 0.4,
+							ease: "power2.out",
+						},
+						{
+							scaleX: maxScale,
+							scaleY: maxScale,
+							duration: 0.2,
+							ease: "none",
+						},
+						{
+							scaleX: minScale,
+							scaleY: minScale,
+							duration: 0.4,
+							ease: "power2.in",
+						},
+					],
+					scrollTrigger: {
+						trigger: el,
+						start: "top bottom",
+						end: "bottom top",
+						scrub: 1.4,
+					},
+				});
+			}
+
+			// Image fade-in scrubbed alongside the card growing in
+			if (thumb) {
+				gsap.set(thumb, { opacity: 0 });
+				gsap.to(thumb, {
+					opacity: 1,
+					ease: "none",
+					scrollTrigger: {
+						trigger: el,
+						start: "top 90%",
+						end: "top 40%",
+						scrub: true,
+					},
+				});
+			}
+
+			// Index number — quick fade/slide in once card is in view
+			if (indexEl) {
+				gsap.fromTo(
+					indexEl,
+					{ opacity: 0, y: 20 },
+					{
+						opacity: 1,
+						y: 0,
+						duration: 0.6,
+						ease: "power3.out",
+						scrollTrigger: {
+							trigger: el,
+							start: "top 70%",
+							toggleActions: "play none none none",
+						},
+					},
+				);
+			}
+
+			// Title words slide in from 50vw to the right, staggered
+			if (titleWords.length) {
+				gsap.fromTo(
+					titleWords,
+					{ x: "50vw", opacity: 0 },
+					{
+						x: 0,
+						opacity: 1,
+						duration: 1.2,
+						ease: "expo.out",
+						stagger: 0.08,
+						scrollTrigger: {
+							trigger: el,
+							start: "top 70%",
+							toggleActions: "play none none none",
+						},
+					},
+				);
+			}
+
+			// Tags wipe up from below their mask, staggered
+			if (tags.length) {
+				gsap.fromTo(
+					tags,
+					{ yPercent: 120, opacity: 0 },
+					{
+						yPercent: 0,
+						opacity: 1,
+						duration: 0.8,
+						ease: "expo.out",
+						stagger: 0.06,
+						delay: 0.25,
+						scrollTrigger: {
+							trigger: el,
+							start: "top 70%",
+							toggleActions: "play none none none",
+						},
+					},
+				);
+			}
+		},
+		{ scope: itemRef },
+	);
+
+	const tags = (
+		project.techStack?.length ? project.techStack : (project.tools ?? [])
+	).slice(0, 5);
+
+	const titleWords = project.title.split(" ");
 
 	return (
-		<Link
-			ref={(node) => {
-				if (node) {
-					(
-						cardRef as React.MutableRefObject<HTMLAnchorElement | null>
-					).current = node;
-					(ref as React.MutableRefObject<HTMLAnchorElement | null>).current =
-						node;
-				}
-			}}
-			href={project.href || "#"}
-			className="group relative block overflow-hidden  h-full bg-zinc-950 border border-white/5"
-			onMouseEnter={() => {
-				setIsHovered(true);
-				onHover?.();
-			}}
-			onMouseLeave={() => {
-				setIsHovered(false);
-				setMousePosition({ x: 0, y: 0 });
-				onBlur?.();
-			}}
-			onMouseMove={handleMouseMove}
+		<div
+			ref={itemRef}
+			className="featured-element relative h-[100svh] w-full mb-8 md:mb-12 last:mb-0 overflow-hidden"
 		>
-			<div
-				className="absolute inset-0 transition-all duration-1000 ease-[cubic-bezier(0.23,1,0.32,1)]"
-				style={{
-					transform: isHovered
-						? `scale(1.1) translate(${mousePosition.x * -20}px, ${mousePosition.y * -20}px)`
-						: "scale(1.02)",
-				}}
-			>
-				<Image
-					src={project.image}
-					alt={project.title}
-					fill
-					className="object-cover opacity-60 group-hover:opacity-40 transition-opacity duration-700"
-				/>
+			<div className="featured-inner relative size-full origin-center will-change-transform">
+				<Link
+					href={project.href ?? `/work/${project.slug}`}
+					className="group relative block size-full overflow-hidden"
+				>
+					<div className="featured-thumb absolute inset-0 size-full will-change-[opacity]">
+						<Image
+							src={project.image}
+							alt={project.title}
+							fill
+							priority={index === 0}
+							sizes="100vw"
+							className="size-full object-cover"
+						/>
+					</div>
+
+					<div className="absolute inset-0 bg-gradient-to-t from-black/40 via-black/10 to-transparent pointer-events-none" />
+
+					<div className="featured-text absolute bottom-10 left-6 md:left-16 lg:left-32 flex w-[88%] md:w-1/2 lg:w-1/3 flex-col items-start pointer-events-none">
+						<div className="featured-index text-[13px] font-medium uppercase tracking-[0.18em] text-white">
+							{String(index + 1).padStart(2, "0")}
+						</div>
+
+						<h3 className="my-4 md:my-6 overflow-hidden text-[8vw] md:text-[5.5vw] leading-[1] font-extralight tracking-tight text-white font-sans">
+							{titleWords.map((word, i) => (
+								<span
+									// biome-ignore lint/suspicious/noArrayIndexKey: stable per-title order
+									key={`${word}-${i}`}
+									className="featured-title-word inline-block mr-[0.25em] last:mr-0 will-change-transform"
+								>
+									{word}
+								</span>
+							))}
+						</h3>
+
+						{tags.length > 0 && (
+							<div className="hidden md:flex flex-col items-start gap-3">
+								{tags.map((tag) => (
+									<div key={tag} className="overflow-hidden">
+										<div className="featured-tag inline-flex h-[30px] items-center justify-center rounded-full border-2 border-white px-3 text-[13px] font-medium uppercase tracking-wide text-white will-change-transform">
+											{tag}
+										</div>
+									</div>
+								))}
+							</div>
+						)}
+					</div>
+				</Link>
 			</div>
-
-			<div className="absolute inset-0 opacity-[0.02] mix-blend-overlay pointer-events-none bg-[url('https://grainy-gradients.vercel.app/noise.svg')]" />
-
-			<div
-				className={cn(
-					"absolute inset-0 bg-linear-to-t from-zinc-950 via-zinc-950/40 to-transparent transition-opacity duration-700",
-					isHovered ? "opacity-100" : "opacity-80",
-				)}
-			/>
-
-			<div className="relative flex flex-col justify-between p-6 sm:p-10 md:p-14 h-full z-10">
-				<div className="flex items-start justify-between">
-					<div
-						className={cn(
-							"flex flex-col gap-1 transition-all duration-700",
-							isHovered
-								? "opacity-100 translate-y-0"
-								: "opacity-80 -translate-y-2",
-						)}
-					>
-						<span className="text-[10px] font-bold uppercase tracking-[0.3em] text-white/50">
-							{project.category}
-						</span>
-						<span className="text-xs text-primary font-medium tracking-widest">
-							{project.year}
-						</span>
-					</div>
-
-					<div
-						className={cn(
-							"flex size-14 items-center justify-center rounded-full border border-white/10 backdrop-blur-md transition-all duration-700 ease-[cubic-bezier(0.23,1,0.32,1)]",
-							isHovered
-								? "opacity-100 scale-100 bg-white text-black translate-x-0 translate-y-0"
-								: "opacity-0 scale-50 bg-white/5 text-white translate-x-4 -translate-y-4",
-						)}
-					>
-						<svg
-							viewBox="0 0 24 24"
-							fill="none"
-							className="size-6"
-							aria-hidden="true"
-						>
-							<title>Arrow Up Right</title>
-							<path
-								d="M7 17L17 7M17 7H7M17 7V17"
-								stroke="currentColor"
-								strokeWidth="2.5"
-								strokeLinecap="round"
-								strokeLinejoin="round"
-							/>
-						</svg>
-					</div>
-				</div>
-
-				<div className="max-w-xs">
-					<h3
-						className={cn(
-							"font-medium tracking-tighter text-white transition-all duration-700 text-3xl sm:text-5xl md:text-6xl lg:text-7xl",
-							isHovered ? "translate-x-2" : "translate-x-0",
-						)}
-					>
-						{project.title}
-					</h3>
-					<div
-						className={cn(
-							"flex items-center gap-6 mt-8 transition-all duration-700",
-							isHovered
-								? "opacity-100 translate-y-0"
-								: "opacity-0 translate-y-6",
-						)}
-					>
-						<span className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/60">
-							View Project
-						</span>
-						<div className="h-px flex-1 bg-linear-to-r from-white/40 to-transparent" />
-					</div>
-				</div>
-			</div>
-		</Link>
+		</div>
 	);
 }
