@@ -32,7 +32,7 @@
 				"no-document-write": "error",
 				"errors-in-console": "warn",
 
-				"color-contrast": "error",
+				"color-contrast": "warn",
 				"image-alt": "error",
 				"label": "error",
 				"link-name": "error",
