@@ -97,6 +97,14 @@ const nextConfig: NextConfig = {
 				protocol: "https",
 				hostname: "cdn.shopify.com",
 			},
+			{
+				protocol: "https",
+				hostname: "picsum.photos",
+			},
+			{
+				protocol: "https",
+				hostname: "fastly.picsum.photos",
+			},
 		],
 		minimumCacheTTL: 60 * 60 * 24 * 30, // 30 days
 		qualities: [90],

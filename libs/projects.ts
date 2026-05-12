@@ -2,6 +2,26 @@ import { cache } from "react";
 import { fetchSanity, QUERIES, urlFor } from "./sanity";
 import type { PortableTextBlock } from "next-sanity";
 
+// Strip zero-width / invisible Unicode characters that Sanity content sometimes
+// carries (ZWSP, ZWNJ, ZWJ, word joiner, BOM, combining grapheme joiner, etc.).
+// These corrupt rendered widths and break tight layouts.
+const INVISIBLE_CHARS = /­|͏|؜|឴|឵|᠎|[​-‏]|[‪-‮]|[⁠-⁤]|[⁪-⁯]|﻿/g;
+
+const cleanString = (value: unknown): unknown => {
+	if (typeof value === "string") return value.replace(INVISIBLE_CHARS, "");
+	if (Array.isArray(value)) return value.map(cleanString);
+	if (value && typeof value === "object") {
+		const out: Record<string, unknown> = {};
+		for (const [k, v] of Object.entries(value as Record<string, unknown>)) {
+			out[k] = cleanString(v);
+		}
+		return out;
+	}
+	return value;
+};
+
+const sanitize = <T>(value: T): T => cleanString(value) as T;
+
 export interface Project {
 	_id?: string;
 	title: string;
@@ -56,7 +76,8 @@ export const getProjects = cache(async (): Promise<Project[]> => {
 			"project",
 		]);
 		if (sanityProjects && sanityProjects.length > 0) {
-			return sanityProjects.map((p) => {
+			return sanityProjects.map((raw) => {
+				const p = sanitize(raw);
 				const slug = p.slug;
 				return {
 					...p,
@@ -84,17 +105,18 @@ export const getProjectBySlug = cache(
 				[`project:${slug}`],
 			);
 			if (project) {
-				const slugVal = project.slug;
+				const clean = sanitize(project);
+				const slugVal = clean.slug;
 				return {
-					...project,
+					...clean,
 					slug: slugVal,
 					href: `/work/${slugVal}`,
-					image: project.image
-						? urlFor(project.image).url()
+					image: clean.image
+						? urlFor(clean.image).url()
 						: "/projects/placeholder.png",
-					gradient: project.gradient || "from-zinc-900 to-zinc-800",
-					accentColor: project.accentColor || "zinc",
-					branding: project.branding || { colors: [], typography: [] },
+					gradient: clean.gradient || "from-zinc-900 to-zinc-800",
+					accentColor: clean.accentColor || "zinc",
+					branding: clean.branding || { colors: [], typography: [] },
 				};
 			}
 		} catch (error) {
