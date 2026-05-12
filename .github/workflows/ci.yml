@@ -124,4 +124,14 @@ jobs:
         run: bun install --frozen-lockfile
 
       - name: Build
+        env:
+          # Placeholders to satisfy production env validation in CI.
+          # Real values are injected by the hosting platform at deploy time.
+          NEXT_PUBLIC_SANITY_PROJECT_ID: ci-placeholder
+          NEXT_PUBLIC_SANITY_DATASET: production
+          NEXT_PUBLIC_BASE_URL: https://untabstudio.com
+          RESEND_API_KEY: re_ci_placeholder
+          CONTACT_EMAIL: ci@example.com
+          SENDER_EMAIL: ci@example.com
+          ARCJET_API_KEY: ajkey_ci_placeholder
         run: bun run build
