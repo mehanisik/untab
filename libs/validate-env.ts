@@ -10,6 +10,26 @@ interface EnvConfig {
 }
 
 export function validateEnv(): EnvConfig {
+	// Skip validation during CI/static-analysis builds where real secrets are
+	// unavailable. The hosting platform enforces real values at deploy time.
+	if (process.env.SKIP_ENV_VALIDATION === "true") {
+		// Non-empty fallbacks so downstream clients (e.g. Sanity createClient)
+		// don't throw on construction. CI never reaches real network calls.
+		return {
+			NEXT_PUBLIC_SANITY_PROJECT_ID:
+				process.env.NEXT_PUBLIC_SANITY_PROJECT_ID ?? "ci-placeholder",
+			NEXT_PUBLIC_SANITY_DATASET:
+				process.env.NEXT_PUBLIC_SANITY_DATASET ?? "production",
+			NEXT_PUBLIC_BASE_URL:
+				process.env.NEXT_PUBLIC_BASE_URL ?? "http://localhost:3000",
+			RESEND_API_KEY: process.env.RESEND_API_KEY,
+			CONTACT_EMAIL: process.env.CONTACT_EMAIL,
+			SENDER_EMAIL: process.env.SENDER_EMAIL,
+			NEXT_PUBLIC_UMAMI_WEBSITE_ID: process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID,
+			ARCJET_API_KEY: process.env.ARCJET_API_KEY,
+		};
+	}
+
 	const errors: string[] = [];
 
 	const NEXT_PUBLIC_SANITY_PROJECT_ID =

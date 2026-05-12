@@ -71,7 +71,8 @@ export function BlogView({ posts }: BlogViewProps) {
 								"Insights & Stories — From Our Think Tank — Innovation Through Design — ",
 							)
 							.map((t, i) => (
-								<span key={`ticker-${i}-${t.length}`}>{t}</span>
+								// biome-ignore lint/suspicious/noArrayIndexKey: decorative ticker with stable content
+								<span key={i}>{t}</span>
 							))}
 					</div>
 				</div>

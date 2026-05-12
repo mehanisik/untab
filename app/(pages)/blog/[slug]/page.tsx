@@ -9,10 +9,13 @@ interface PageProps {
 	params: Promise<{ slug: string }>;
 }
 
+const CI_PLACEHOLDER_SLUG = "__ci_placeholder__";
+
 export async function generateMetadata({
 	params,
 }: PageProps): Promise<Metadata> {
 	const { slug } = await params;
+	if (slug === CI_PLACEHOLDER_SLUG) return {};
 	const post = await getPostBySlug(slug);
 
 	if (!post) return {};
@@ -26,6 +29,11 @@ export async function generateMetadata({
 
 export default async function BlogPostPage({ params }: PageProps) {
 	const { slug } = await params;
+
+	if (slug === CI_PLACEHOLDER_SLUG) {
+		notFound();
+	}
+
 	const post = await getPostBySlug(slug);
 
 	if (!post) {
@@ -36,10 +44,16 @@ export default async function BlogPostPage({ params }: PageProps) {
 }
 
 export async function generateStaticParams() {
-	const posts = await client.fetch(
-		`*[_type == "post"]{ "slug": slug.current }`,
-	);
-	return posts.map((post: { slug: string }) => ({
-		slug: post.slug,
-	}));
+	try {
+		const posts = await client.fetch<{ slug: string }[]>(
+			`*[_type == "post"]{ "slug": slug.current }`,
+		);
+		if (!posts || posts.length === 0) {
+			return [{ slug: CI_PLACEHOLDER_SLUG }];
+		}
+		return posts.map((post) => ({ slug: post.slug }));
+	} catch {
+		// Sanity unreachable (e.g. CI without real credentials)
+		return [{ slug: CI_PLACEHOLDER_SLUG }];
+	}
 }
