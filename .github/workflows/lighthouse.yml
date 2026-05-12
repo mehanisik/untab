@@ -57,7 +57,9 @@ jobs:
             nextjs-lhci-${{ runner.os }}-${{ runner.arch }}-
 
       - name: Install dependencies
-        run: bun install --frozen-lockfile
+        # Lighthouse is a perf audit, not a lockfile integrity check.
+        # Lockfile integrity is enforced in the main CI workflow.
+        run: bun install
 
       - name: Build
         env:
