@@ -8,13 +8,10 @@ interface PageProps {
 	params: Promise<{ slug: string }>;
 }
 
-const CI_PLACEHOLDER_SLUG = "__ci_placeholder__";
-
 export async function generateMetadata({
 	params,
 }: PageProps): Promise<Metadata> {
 	const { slug } = await params;
-	if (slug === CI_PLACEHOLDER_SLUG) return {};
 	const project = await getProjectBySlug(slug);
 
 	if (!project) return {};
@@ -28,11 +25,6 @@ export async function generateMetadata({
 
 export default async function ProjectPage({ params }: PageProps) {
 	const { slug } = await params;
-
-	if (slug === CI_PLACEHOLDER_SLUG) {
-		notFound();
-	}
-
 	const project = await getProjectBySlug(slug);
 
 	if (!project) {
@@ -49,13 +41,16 @@ export default async function ProjectPage({ params }: PageProps) {
 }
 
 export async function generateStaticParams() {
-	const projects = await getProjects();
-	if (projects.length === 0) {
-		// Cache Components requires at least one result. In CI / when Sanity
-		// is unavailable, return a placeholder that the page resolves to 404.
-		return [{ slug: CI_PLACEHOLDER_SLUG }];
+	// Cache Components requires at least one result. When Sanity is unreachable
+	// at build time (e.g. CI without real credentials) we fall back to a single
+	// placeholder slug; the page handler 404s anything it can't resolve anyway.
+	const fallback = [{ slug: "_" }];
+	try {
+		const projects = await getProjects();
+		return projects.length > 0
+			? projects.map((project) => ({ slug: project.slug }))
+			: fallback;
+	} catch {
+		return fallback;
 	}
-	return projects.map((project) => ({
-		slug: project.slug,
-	}));
 }
