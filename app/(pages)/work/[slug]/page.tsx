@@ -26,6 +26,8 @@ export async function generateMetadata({
 	});
 }
 
+const CI_PLACEHOLDER_SLUG = "__ci_placeholder__";
+
 export default async function ProjectPage({ params }: PageProps) {
 	const { slug } = await params;
 
