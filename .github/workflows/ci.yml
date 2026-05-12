@@ -50,7 +50,7 @@ jobs:
             bun-${{ runner.os }}-${{ runner.arch }}-
 
       - name: Install dependencies
-        run: bun install --frozen-lockfile
+        run: bun install --no-save
 
       - name: Run Biome lint
         run: bun run lint
@@ -80,7 +80,7 @@ jobs:
             bun-${{ runner.os }}-${{ runner.arch }}-
 
       - name: Install dependencies
-        run: bun install --frozen-lockfile
+        run: bun install --no-save
 
       - name: Run TypeScript typecheck
         run: bun run typecheck
@@ -121,7 +121,7 @@ jobs:
             nextjs-${{ runner.os }}-${{ runner.arch }}-
 
       - name: Install dependencies
-        run: bun install --frozen-lockfile
+        run: bun install --no-save
 
       - name: Build
         env:
