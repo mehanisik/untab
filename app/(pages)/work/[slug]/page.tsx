@@ -8,10 +8,13 @@ interface PageProps {
 	params: Promise<{ slug: string }>;
 }
 
+const CI_PLACEHOLDER_SLUG = "__ci_placeholder__";
+
 export async function generateMetadata({
 	params,
 }: PageProps): Promise<Metadata> {
 	const { slug } = await params;
+	if (slug === CI_PLACEHOLDER_SLUG) return {};
 	const project = await getProjectBySlug(slug);
 
 	if (!project) return {};
@@ -22,8 +25,6 @@ export async function generateMetadata({
 		type: "website",
 	});
 }
-
-const CI_PLACEHOLDER_SLUG = "__ci_placeholder__";
 
 export default async function ProjectPage({ params }: PageProps) {
 	const { slug } = await params;
