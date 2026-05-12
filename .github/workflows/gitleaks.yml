@@ -1,0 +1,45 @@
+name: Secret Scan
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  schedule:
+    # Weekly sweep across the full history catches anything that slipped past PR checks.
+    - cron: "0 6 * * 1"
+  workflow_dispatch:
+
+concurrency:
+  group: gitleaks-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+permissions:
+  contents: read
+  # Lets the action post a comment on PRs when leaks are found.
+  pull-requests: write
+
+jobs:
+  gitleaks:
+    name: gitleaks
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          # Full history is required so gitleaks can scan every commit reachable
+          # from the ref, not just the tip.
+          fetch-depth: 0
+          persist-credentials: false
+          show-progress: false
+
+      - name: Run gitleaks
+        # The official action is free for personal accounts and public repos.
+        # Organisation-owned private repos require GITLEAKS_LICENSE — see
+        # https://gitleaks.io/products.html.
+        uses: gitleaks/gitleaks-action@ff98106e4c7b2bc287b24eaf42907196329070c7 # v2.3.9
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITLEAKS_ENABLE_UPLOAD_ARTIFACT: "true"
+          GITLEAKS_ENABLE_SUMMARY: "true"

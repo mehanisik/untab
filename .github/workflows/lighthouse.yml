@@ -1,0 +1,89 @@
+name: Lighthouse
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: lighthouse-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+permissions:
+  contents: read
+  # Lets the action post the audit summary as a PR comment.
+  pull-requests: write
+
+env:
+  CI: true
+  HUSKY: 0
+  NEXT_TELEMETRY_DISABLED: 1
+  DO_NOT_TRACK: 1
+
+jobs:
+  audit:
+    name: Lighthouse audit
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+          show-progress: false
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
+        with:
+          bun-version: latest
+
+      - name: Cache Bun install
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        with:
+          path: ~/.bun/install/cache
+          key: bun-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('bun.lock') }}
+          restore-keys: |
+            bun-${{ runner.os }}-${{ runner.arch }}-
+
+      - name: Cache Next.js build
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        with:
+          path: ${{ github.workspace }}/.next/cache
+          key: nextjs-lhci-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('bun.lock') }}-${{ hashFiles('**/*.[jt]s', '**/*.[jt]sx') }}
+          restore-keys: |
+            nextjs-lhci-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('bun.lock') }}-
+            nextjs-lhci-${{ runner.os }}-${{ runner.arch }}-
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Build
+        env:
+          # Placeholder values to satisfy production env validation in CI.
+          # Real values are injected by the hosting platform at deploy time.
+          NEXT_PUBLIC_SANITY_PROJECT_ID: ci-placeholder
+          NEXT_PUBLIC_SANITY_DATASET: production
+          NEXT_PUBLIC_BASE_URL: http://localhost:3000
+          RESEND_API_KEY: re_ci_placeholder
+          CONTACT_EMAIL: ci@example.com
+          SENDER_EMAIL: ci@example.com
+          ARCJET_API_KEY: ajkey_ci_placeholder
+        run: bun run build
+
+      - name: Run Lighthouse CI
+        uses: treosh/lighthouse-ci-action@3e7e23fb74242897f95c0ba9cabad3d0227b9b18 # 12.6.2
+        env:
+          # Same placeholders are needed at runtime since `next start` re-validates.
+          NEXT_PUBLIC_SANITY_PROJECT_ID: ci-placeholder
+          NEXT_PUBLIC_SANITY_DATASET: production
+          NEXT_PUBLIC_BASE_URL: http://localhost:3000
+          RESEND_API_KEY: re_ci_placeholder
+          CONTACT_EMAIL: ci@example.com
+          SENDER_EMAIL: ci@example.com
+          ARCJET_API_KEY: ajkey_ci_placeholder
+        with:
+          configPath: ./lighthouserc.json
+          uploadArtifacts: true
+          temporaryPublicStorage: true
