@@ -1,12 +1,13 @@
 import type { Metadata } from "next";
-import { Container } from "~/components/container";
 import { Wrapper } from "~/components/wrapper";
 import { generatePageMetadata } from "~/libs/metadata";
 import { Footer, Navbar } from "../_components";
+import { Impact, Manifesto, Studio } from "./_components";
 
 export const metadata: Metadata = generatePageMetadata({
 	title: "About",
-	description: "Who we are.",
+	description:
+		"We exist between what is and what is emerging. Strategy, design, and engineering from one studio — same team from kickoff to ship.",
 });
 
 export default function AboutPage() {
@@ -14,11 +15,9 @@ export default function AboutPage() {
 		<Wrapper>
 			<Navbar />
 			<main className="grow">
-				<Container className="pt-48 pb-32 md:pt-64 md:pb-48">
-					<h1 className="text-5xl md:text-7xl lg:text-8xl font-light tracking-tight text-foreground">
-						About
-					</h1>
-				</Container>
+				<Manifesto />
+				<Studio />
+				<Impact />
 			</main>
 			<Footer />
 		</Wrapper>

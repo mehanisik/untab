@@ -3,46 +3,48 @@
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { useRef } from "react";
+import { withMotion } from "~/libs/gsap/presets";
 
 export function Intro() {
 	const sectionRef = useRef<HTMLElement>(null);
 
 	useGSAP(
-		() => {
-			const root = sectionRef.current;
-			if (!root) return;
+		() =>
+			withMotion(() => {
+				const root = sectionRef.current;
+				if (!root) return;
 
-			const eyebrow = root.querySelector<HTMLElement>(".intro-eyebrow");
-			const lines = root.querySelectorAll<HTMLElement>(".intro-line");
+				const eyebrow = root.querySelector<HTMLElement>(".intro-eyebrow");
+				const lines = root.querySelectorAll<HTMLElement>(".intro-line");
 
-			const trigger = {
-				trigger: root,
-				start: "top 75%",
-				toggleActions: "play none none none",
-			};
+				const trigger = {
+					trigger: root,
+					start: "top 75%",
+					toggleActions: "play none none none",
+				};
 
-			if (eyebrow) {
-				gsap.from(eyebrow, {
-					y: 16,
-					opacity: 0,
-					duration: 0.7,
-					ease: "expo.out",
-					scrollTrigger: trigger,
-				});
-			}
+				if (eyebrow) {
+					gsap.from(eyebrow, {
+						y: 16,
+						opacity: 0,
+						duration: 0.7,
+						ease: "expo.out",
+						scrollTrigger: trigger,
+					});
+				}
 
-			if (lines.length) {
-				gsap.from(lines, {
-					y: 28,
-					opacity: 0,
-					duration: 0.9,
-					ease: "expo.out",
-					stagger: 0.07,
-					delay: 0.1,
-					scrollTrigger: trigger,
-				});
-			}
-		},
+				if (lines.length) {
+					gsap.from(lines, {
+						y: 28,
+						opacity: 0,
+						duration: 0.9,
+						ease: "expo.out",
+						stagger: 0.07,
+						delay: 0.1,
+						scrollTrigger: trigger,
+					});
+				}
+			}),
 		{ scope: sectionRef },
 	);
 

@@ -3,6 +3,8 @@
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { useRef } from "react";
+import { useTempus } from "tempus/react";
+import { withMotion } from "~/libs/gsap/presets";
 
 interface HeroProps {
 	videoUrl?: string;
@@ -24,222 +26,236 @@ const PARALLAX_Y = 10;
 export function Hero({ videoUrl = "/hero.mp4" }: HeroProps) {
 	const containerRef = useRef<HTMLElement>(null);
 	const scrollActiveRef = useRef(false);
+	const quickXRef = useRef<gsap.QuickToFunc | null>(null);
+	const quickYRef = useRef<gsap.QuickToFunc | null>(null);
+	const mouseRef = useRef({ x: 0, y: 0 });
 
 	useGSAP(
-		(_context, contextSafe) => {
-			const root = containerRef.current;
-			if (!(root && contextSafe)) return;
+		(_context, contextSafe) =>
+			withMotion(() => {
+				const root = containerRef.current;
+				if (!(root && contextSafe)) return;
 
-			const lineClips = root.querySelectorAll<HTMLElement>(".hero-line-clip");
-			const float = root.querySelector<HTMLElement>(".hero-float");
-			const stage = root.querySelector<HTMLElement>(".hero-stage");
-			const video = root.querySelector<HTMLElement>(".hero-video");
-			const frame = root.querySelector<HTMLElement>(".echo-frame");
-			const pink = root.querySelector<HTMLElement>(".echo-pink");
-			const purple = root.querySelector<HTMLElement>(".echo-purple");
-			const rotateWords =
-				root.querySelectorAll<HTMLElement>(".hero-rotate-word");
-			if (!(float && stage && video && frame && pink && purple)) return;
+				const lineClips = root.querySelectorAll<HTMLElement>(".hero-line-clip");
+				const float = root.querySelector<HTMLElement>(".hero-float");
+				const stage = root.querySelector<HTMLElement>(".hero-stage");
+				const video = root.querySelector<HTMLElement>(".hero-video");
+				const frame = root.querySelector<HTMLElement>(".echo-frame");
+				const pink = root.querySelector<HTMLElement>(".echo-pink");
+				const purple = root.querySelector<HTMLElement>(".echo-purple");
+				const rotateWords =
+					root.querySelectorAll<HTMLElement>(".hero-rotate-word");
+				if (!(float && stage && video && frame && pink && purple)) return;
 
-			const topClip = lineClips[0];
-			const bottomClip = lineClips[1];
+				const topClip = lineClips[0];
+				const bottomClip = lineClips[1];
 
-			const introTargets = [topClip, float, bottomClip];
-			gsap.set(introTargets, { autoAlpha: 0, y: 18 });
+				const introTargets = [topClip, float, bottomClip];
+				gsap.set(introTargets, { autoAlpha: 0, y: 18 });
 
-			const intro = gsap.timeline({
-				defaults: { ease: "expo.out", duration: 0.9 },
-			});
-			intro.to(
-				introTargets,
-				{
-					autoAlpha: 1,
-					y: 0,
-					stagger: 0.12,
-				},
-				0,
-			);
-
-			const idleFloat = gsap.to(float, {
-				y: 6,
-				duration: 3.4,
-				ease: "sine.inOut",
-				yoyo: true,
-				repeat: -1,
-				paused: true,
-			});
-			intro.call(
-				() => {
-					idleFloat.play();
-				},
-				undefined,
-				">-0.2",
-			);
-
-			const quickX = gsap.quickTo(stage, "x", {
-				duration: 0.9,
-				ease: "power3.out",
-			});
-			const quickY = gsap.quickTo(stage, "y", {
-				duration: 0.9,
-				ease: "power3.out",
-			});
-
-			const mouse = { x: 0, y: 0 };
-
-			const onMove = contextSafe((e: MouseEvent) => {
-				const rect = root.getBoundingClientRect();
-				mouse.x = (e.clientX - rect.left) / rect.width - 0.5;
-				mouse.y = (e.clientY - rect.top) / rect.height - 0.5;
-			});
-
-			const onLeave = contextSafe(() => {
-				mouse.x = 0;
-				mouse.y = 0;
-			});
-
-			const tick = () => {
-				if (scrollActiveRef.current) return;
-				quickX(mouse.x * PARALLAX_X);
-				quickY(mouse.y * PARALLAX_Y);
-			};
-
-			root.addEventListener("mousemove", onMove);
-			root.addEventListener("mouseleave", onLeave);
-			gsap.ticker.add(tick);
-
-			const cleanupParallax = () => {
-				root.removeEventListener("mousemove", onMove);
-				root.removeEventListener("mouseleave", onLeave);
-				gsap.ticker.remove(tick);
-			};
-
-			if (rotateWords.length > 1) {
-				gsap.set(rotateWords, {
-					autoAlpha: 0,
-					scale: 0.94,
-					filter: "blur(14px)",
+				const intro = gsap.timeline({
+					defaults: { ease: "expo.out", duration: 0.9 },
 				});
-				gsap.set(rotateWords[0], {
-					autoAlpha: 1,
-					scale: 1,
-					filter: "blur(0px)",
-				});
-
-				let current = 0;
-				const rotateTl = gsap.timeline({ repeat: -1, delay: 1.4 });
-
-				for (const _ of rotateWords) {
-					const out = rotateWords[current];
-					const next = (current + 1) % rotateWords.length;
-					const incoming = rotateWords[next];
-
-					rotateTl
-						.to(
-							out,
-							{
-								autoAlpha: 0,
-								scale: 1.08,
-								filter: "blur(16px)",
-								duration: 0.55,
-								ease: "power2.in",
-							},
-							"+=2.6",
-						)
-						.fromTo(
-							incoming,
-							{ autoAlpha: 0, scale: 0.94, filter: "blur(14px)" },
-							{
-								autoAlpha: 1,
-								scale: 1,
-								filter: "blur(0px)",
-								duration: 0.75,
-								ease: "power2.out",
-							},
-							"<0.2",
-						);
-					current = next;
-				}
-			}
-
-			const isDesktop = window.matchMedia("(min-width: 768px)").matches;
-			if (!isDesktop) return cleanupParallax;
-
-			gsap
-				.timeline({
-					scrollTrigger: {
-						trigger: root,
-						start: "top top",
-						end: "+=120%",
-						pin: true,
-						pinSpacing: true,
-						scrub: 1.2,
-						anticipatePin: 1,
-						invalidateOnRefresh: true,
-						onEnter: () => {
-							scrollActiveRef.current = true;
-							idleFloat.pause();
-							gsap.to(float, {
-								y: 0,
-								duration: 0.4,
-								overwrite: "auto",
-							});
-							gsap.to(stage, {
-								x: 0,
-								y: 0,
-								duration: 0.4,
-								overwrite: "auto",
-							});
-						},
-						onLeaveBack: () => {
-							scrollActiveRef.current = false;
-							idleFloat.play();
-						},
-					},
-				})
-				.to(
-					[frame, pink, purple],
-					{ autoAlpha: 0, duration: 0.18, ease: "power2.in" },
-					0,
-				)
-				.to(
-					float,
+				intro.to(
+					introTargets,
 					{
-						width: () =>
-							`${Math.min(window.innerWidth - HERO_SIDE_PADDING, HERO_MAX_WIDTH)}px`,
-						height: () => {
-							const w = Math.min(
-								window.innerWidth - HERO_SIDE_PADDING,
-								HERO_MAX_WIDTH,
-							);
-							return `${Math.min(window.innerHeight - 96, (w * 9) / 16)}px`;
-						},
-						maxWidth: "none",
-						ease: "power2.inOut",
-						duration: 1,
+						autoAlpha: 1,
+						y: 0,
+						stagger: 0.12,
 					},
 					0,
-				)
-				.to(
-					video,
-					{
-						rotation: 0,
-						borderRadius: 0,
-						ease: "power2.inOut",
-						duration: 1,
-					},
-					0,
-				)
-				.to(
-					[topClip, bottomClip],
-					{ autoAlpha: 0, duration: 0.35, ease: "power2.in" },
-					0.3,
 				);
 
-			return cleanupParallax;
-		},
+				const idleFloat = gsap.to(float, {
+					y: 6,
+					duration: 3.4,
+					ease: "sine.inOut",
+					yoyo: true,
+					repeat: -1,
+					paused: true,
+				});
+				intro.call(
+					() => {
+						idleFloat.play();
+					},
+					undefined,
+					">-0.2",
+				);
+
+				quickXRef.current = gsap.quickTo(stage, "x", {
+					duration: 0.9,
+					ease: "power3.out",
+				});
+				quickYRef.current = gsap.quickTo(stage, "y", {
+					duration: 0.9,
+					ease: "power3.out",
+				});
+
+				const onMove = contextSafe((e: MouseEvent) => {
+					const rect = root.getBoundingClientRect();
+					mouseRef.current.x = (e.clientX - rect.left) / rect.width - 0.5;
+					mouseRef.current.y = (e.clientY - rect.top) / rect.height - 0.5;
+				});
+
+				const onLeave = contextSafe(() => {
+					mouseRef.current.x = 0;
+					mouseRef.current.y = 0;
+				});
+
+				root.addEventListener("mousemove", onMove);
+				root.addEventListener("mouseleave", onLeave);
+
+				if (rotateWords.length > 1) {
+					gsap.set(rotateWords, {
+						autoAlpha: 0,
+						scale: 0.94,
+						filter: "blur(14px)",
+					});
+					gsap.set(rotateWords[0], {
+						autoAlpha: 1,
+						scale: 1,
+						filter: "blur(0px)",
+					});
+
+					let current = 0;
+					const rotateTl = gsap.timeline({ repeat: -1, delay: 1.4 });
+
+					for (const _ of rotateWords) {
+						const out = rotateWords[current];
+						const next = (current + 1) % rotateWords.length;
+						const incoming = rotateWords[next];
+
+						rotateTl
+							.to(
+								out,
+								{
+									autoAlpha: 0,
+									scale: 1.08,
+									filter: "blur(16px)",
+									duration: 0.55,
+									ease: "power2.in",
+								},
+								"+=2.6",
+							)
+							.fromTo(
+								incoming,
+								{ autoAlpha: 0, scale: 0.94, filter: "blur(14px)" },
+								{
+									autoAlpha: 1,
+									scale: 1,
+									filter: "blur(0px)",
+									duration: 0.75,
+									ease: "power2.out",
+								},
+								"<0.2",
+							);
+						current = next;
+					}
+				}
+
+				const cleanupListeners = () => {
+					root.removeEventListener("mousemove", onMove);
+					root.removeEventListener("mouseleave", onLeave);
+					quickXRef.current = null;
+					quickYRef.current = null;
+				};
+
+				const isDesktop = window.matchMedia("(min-width: 768px)").matches;
+				if (!isDesktop) return cleanupListeners;
+
+				gsap
+					.timeline({
+						scrollTrigger: {
+							trigger: root,
+							start: "top top",
+							end: "+=120%",
+							pin: true,
+							pinSpacing: true,
+							scrub: 1.2,
+							anticipatePin: 1,
+							invalidateOnRefresh: true,
+							onEnter: () => {
+								scrollActiveRef.current = true;
+								idleFloat.pause();
+								gsap.to(float, {
+									y: 0,
+									duration: 0.4,
+									overwrite: "auto",
+								});
+								gsap.to(stage, {
+									x: 0,
+									y: 0,
+									duration: 0.4,
+									overwrite: "auto",
+								});
+							},
+							onLeaveBack: () => {
+								scrollActiveRef.current = false;
+								idleFloat.play();
+							},
+						},
+					})
+					.to(
+						[frame, pink, purple],
+						{ autoAlpha: 0, duration: 0.18, ease: "power2.in" },
+						0,
+					)
+					.to(
+						float,
+						{
+							scaleX: () => {
+								const target = Math.min(
+									window.innerWidth - HERO_SIDE_PADDING,
+									HERO_MAX_WIDTH,
+								);
+								return target / float.offsetWidth;
+							},
+							scaleY: () => {
+								const targetWidth = Math.min(
+									window.innerWidth - HERO_SIDE_PADDING,
+									HERO_MAX_WIDTH,
+								);
+								const targetHeight = Math.min(
+									window.innerHeight - 96,
+									(targetWidth * 9) / 16,
+								);
+								return targetHeight / float.offsetHeight;
+							},
+							transformOrigin: "50% 50%",
+							ease: "power2.inOut",
+							duration: 1,
+						},
+						0,
+					)
+					.to(
+						video,
+						{
+							rotation: 0,
+							borderRadius: 0,
+							ease: "power2.inOut",
+							duration: 1,
+						},
+						0,
+					)
+					.to(
+						[topClip, bottomClip],
+						{ autoAlpha: 0, duration: 0.35, ease: "power2.in" },
+						0.3,
+					);
+
+				return cleanupListeners;
+			}),
 		{ scope: containerRef },
 	);
+
+	useTempus(() => {
+		if (scrollActiveRef.current) return;
+		const qx = quickXRef.current;
+		const qy = quickYRef.current;
+		if (!(qx && qy)) return;
+		qx(mouseRef.current.x * PARALLAX_X);
+		qy(mouseRef.current.y * PARALLAX_Y);
+	});
 
 	const longestWord = ROTATING_WORDS.reduce((a, b) =>
 		a.text.length > b.text.length ? a : b,

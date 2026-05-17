@@ -5,29 +5,31 @@ import gsap from "gsap";
 import { useRef } from "react";
 import { Link } from "~/components/ui/link";
 import { Wrapper } from "~/components/wrapper";
+import { withMotion } from "~/libs/gsap/presets";
 
 export default function NotFound() {
 	const containerRef = useRef<HTMLDivElement>(null);
 	const titleRef = useRef<HTMLHeadingElement>(null);
 
 	useGSAP(
-		() => {
-			gsap.from(".not-found-fade", {
-				opacity: 0,
-				y: 30,
-				duration: 1.2,
-				stagger: 0.2,
-				ease: "power3.out",
-			});
+		() =>
+			withMotion(() => {
+				gsap.from(".not-found-fade", {
+					opacity: 0,
+					y: 30,
+					duration: 1.2,
+					stagger: 0.2,
+					ease: "power3.out",
+				});
 
-			gsap.to(titleRef.current, {
-				y: -20,
-				duration: 2,
-				repeat: -1,
-				yoyo: true,
-				ease: "power1.inOut",
-			});
-		},
+				gsap.to(titleRef.current, {
+					y: -20,
+					duration: 2,
+					repeat: -1,
+					yoyo: true,
+					ease: "power1.inOut",
+				});
+			}),
 		{ scope: containerRef },
 	);
 

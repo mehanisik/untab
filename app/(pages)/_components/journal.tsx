@@ -7,6 +7,7 @@ import gsap from "gsap";
 import { useRef } from "react";
 import { Image } from "~/components/ui/image";
 import { Link } from "~/components/ui/link";
+import { withMotion } from "~/libs/gsap/presets";
 import type { Post } from "~/libs/sanity";
 
 interface JournalProps {
@@ -53,57 +54,58 @@ export function Journal({ posts }: JournalProps) {
 	const items = posts.slice(0, 3);
 
 	useGSAP(
-		() => {
-			const root = sectionRef.current;
-			if (!root) return;
+		() =>
+			withMotion(() => {
+				const root = sectionRef.current;
+				if (!root) return;
 
-			const title = root.querySelector<HTMLElement>(".journal-title");
-			const cta = root.querySelector<HTMLElement>(".journal-cta");
-			const cards = root.querySelectorAll<HTMLElement>(".journal-card");
+				const title = root.querySelector<HTMLElement>(".journal-title");
+				const cta = root.querySelector<HTMLElement>(".journal-cta");
+				const cards = root.querySelectorAll<HTMLElement>(".journal-card");
 
-			const trigger = {
-				trigger: root,
-				start: "top 75%",
-				toggleActions: "play none none none",
-			};
+				const trigger = {
+					trigger: root,
+					start: "top 75%",
+					toggleActions: "play none none none",
+				};
 
-			if (title) {
-				gsap.from(title, {
-					y: 24,
-					opacity: 0,
-					duration: 0.8,
-					ease: "expo.out",
-					scrollTrigger: trigger,
-				});
-			}
+				if (title) {
+					gsap.from(title, {
+						y: 24,
+						opacity: 0,
+						duration: 0.8,
+						ease: "expo.out",
+						scrollTrigger: trigger,
+					});
+				}
 
-			if (cta) {
-				gsap.from(cta, {
-					y: 14,
-					opacity: 0,
-					duration: 0.7,
-					ease: "expo.out",
-					delay: 0.2,
-					scrollTrigger: trigger,
-				});
-			}
+				if (cta) {
+					gsap.from(cta, {
+						y: 14,
+						opacity: 0,
+						duration: 0.7,
+						ease: "expo.out",
+						delay: 0.2,
+						scrollTrigger: trigger,
+					});
+				}
 
-			if (cards.length) {
-				gsap.from(cards, {
-					y: 56,
-					opacity: 0,
-					duration: 0.9,
-					ease: "expo.out",
-					stagger: 0.1,
-					delay: 0.15,
-					scrollTrigger: {
-						trigger: root,
-						start: "top 70%",
-						toggleActions: "play none none none",
-					},
-				});
-			}
-		},
+				if (cards.length) {
+					gsap.from(cards, {
+						y: 56,
+						opacity: 0,
+						duration: 0.9,
+						ease: "expo.out",
+						stagger: 0.1,
+						delay: 0.15,
+						scrollTrigger: {
+							trigger: root,
+							start: "top 70%",
+							toggleActions: "play none none none",
+						},
+					});
+				}
+			}),
 		{ scope: sectionRef, dependencies: [items.length] },
 	);
 

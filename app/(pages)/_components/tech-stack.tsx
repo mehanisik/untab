@@ -1,23 +1,24 @@
 "use client";
 
 import { useGSAP } from "@gsap/react";
+import {
+	AiMagicIcon,
+	CloudServerIcon,
+	CodeIcon,
+	Database01Icon,
+	GlobeIcon,
+	Layout01Icon,
+	Link01Icon,
+	Shield01Icon,
+	SmartPhone01Icon,
+	WorkflowSquare01Icon,
+	ZapIcon,
+} from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 import gsap from "gsap";
 import { useRef, useState } from "react";
 import { Container } from "~/components/container";
-import { HugeiconsIcon } from "@hugeicons/react";
-import {
-	CodeIcon,
-	Layout01Icon,
-	CloudServerIcon,
-	ZapIcon,
-	WorkflowSquare01Icon,
-	Shield01Icon,
-	AiMagicIcon,
-	Database01Icon,
-	Link01Icon,
-	GlobeIcon,
-	SmartPhone01Icon,
-} from "@hugeicons/core-free-icons";
+import { withMotion } from "~/libs/gsap/presets";
 
 interface TechItem {
 	name: string;
@@ -240,8 +241,8 @@ export function TechStack() {
 	const containerRef = useRef<HTMLDivElement>(null);
 
 	useGSAP(
-		() => {
-			if (containerRef.current?.querySelector(".tech-header-text")) {
+		() =>
+			withMotion(() => {
 				gsap.from(".tech-header-text", {
 					opacity: 0,
 					y: 50,
@@ -252,9 +253,7 @@ export function TechStack() {
 						start: "top 80%",
 					},
 				});
-			}
 
-			if (containerRef.current?.querySelectorAll(".tech-category").length) {
 				gsap.from(".tech-category", {
 					opacity: 0,
 					y: 60,
@@ -266,8 +265,7 @@ export function TechStack() {
 						start: "top 70%",
 					},
 				});
-			}
-		},
+			}),
 		{ scope: containerRef },
 	);
 

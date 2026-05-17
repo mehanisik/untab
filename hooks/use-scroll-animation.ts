@@ -5,7 +5,7 @@ import gsap from "gsap";
 import { useRect, useWindowSize } from "hamo";
 import { useLenis } from "lenis/react";
 import { useEffect, useEffectEvent, useRef } from "react";
-import { REVEAL } from "~/libs/gsap/presets";
+import { REVEAL, withMotion } from "~/libs/gsap/presets";
 import { clamp, mapRange } from "~/libs/utils";
 
 export type UseScrollTriggerOptions = {
@@ -132,22 +132,23 @@ export function useFadeInOnScroll<T extends HTMLElement = HTMLDivElement>(
 	const elementRef = useRef<T>(null);
 
 	useGSAP(
-		() => {
-			const el = elementRef.current;
-			if (!el) return;
-			gsap.from(el, {
-				y: REVEAL.y,
-				opacity: 0,
-				duration: REVEAL.duration,
-				ease: REVEAL.ease,
-				delay,
-				scrollTrigger: {
-					trigger: el,
-					start: REVEAL.start,
-					toggleActions: REVEAL.toggleActions,
-				},
-			});
-		},
+		() =>
+			withMotion(() => {
+				const el = elementRef.current;
+				if (!el) return;
+				gsap.from(el, {
+					y: REVEAL.y,
+					opacity: 0,
+					duration: REVEAL.duration,
+					ease: REVEAL.ease,
+					delay,
+					scrollTrigger: {
+						trigger: el,
+						start: REVEAL.start,
+						toggleActions: REVEAL.toggleActions,
+					},
+				});
+			}),
 		{ scope: elementRef, dependencies: [delay] },
 	);
 

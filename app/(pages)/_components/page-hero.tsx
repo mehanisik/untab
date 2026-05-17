@@ -4,6 +4,7 @@ import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { useRef } from "react";
 import { Container } from "~/components/container";
+import { withMotion } from "~/libs/gsap/presets";
 
 interface PageHeroProps {
 	title: string;
@@ -15,42 +16,43 @@ export function PageHero({ title, description, stats }: PageHeroProps) {
 	const containerRef = useRef<HTMLElement>(null);
 
 	useGSAP(
-		() => {
-			const tl = gsap.timeline();
+		() =>
+			withMotion(() => {
+				const tl = gsap.timeline();
 
-			gsap.set(".hero-title-line", { opacity: 0, y: 30 });
-			gsap.set(".hero-desc", { opacity: 0, y: 20 });
-			gsap.set(".hero-stat", { opacity: 0, scale: 0.95 });
+				gsap.set(".hero-title-line", { opacity: 0, y: 30 });
+				gsap.set(".hero-desc", { opacity: 0, y: 20 });
+				gsap.set(".hero-stat", { opacity: 0, scale: 0.95 });
 
-			tl.to(".hero-title-line", {
-				opacity: 1,
-				y: 0,
-				duration: 0.8,
-				stagger: 0.1,
-				ease: "power3.out",
-			})
-				.to(
-					".hero-desc",
-					{
-						opacity: 1,
-						y: 0,
-						duration: 0.8,
-						ease: "power3.out",
-					},
-					"-=0.4",
-				)
-				.to(
-					".hero-stat",
-					{
-						opacity: 1,
-						scale: 1,
-						duration: 0.6,
-						stagger: 0.1,
-						ease: "back.out(1.7)",
-					},
-					"-=0.4",
-				);
-		},
+				tl.to(".hero-title-line", {
+					opacity: 1,
+					y: 0,
+					duration: 0.8,
+					stagger: 0.1,
+					ease: "power3.out",
+				})
+					.to(
+						".hero-desc",
+						{
+							opacity: 1,
+							y: 0,
+							duration: 0.8,
+							ease: "power3.out",
+						},
+						"-=0.4",
+					)
+					.to(
+						".hero-stat",
+						{
+							opacity: 1,
+							scale: 1,
+							duration: 0.6,
+							stagger: 0.1,
+							ease: "back.out(1.7)",
+						},
+						"-=0.4",
+					);
+			}),
 		{ scope: containerRef },
 	);
 

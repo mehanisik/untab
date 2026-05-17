@@ -1,13 +1,13 @@
 "use client";
 
-import { Link } from "~/components/ui/link";
+import { useGSAP } from "@gsap/react";
+import { Cancel01Icon, Menu01Icon } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
+import gsap from "gsap";
+import { useEffect, useEffectEvent, useRef, useState } from "react";
 import { Logo } from "~/components/logo";
 import { ThemeToggle } from "~/components/theme-toggle";
-import { useEffect, useEffectEvent, useRef, useState } from "react";
-import { HugeiconsIcon } from "@hugeicons/react";
-import { Menu01Icon, Cancel01Icon } from "@hugeicons/core-free-icons";
-import gsap from "gsap";
-import { useGSAP } from "@gsap/react";
+import { Link } from "~/components/ui/link";
 
 const leftNavLinks = [
 	{ label: "Services", href: "/services" },
@@ -52,55 +52,56 @@ export function Navbar() {
 
 	useGSAP(
 		() => {
-			const leftItems = containerRef.current?.querySelectorAll(
-				".scroll-nav-left .scroll-nav-item",
-			);
-			const rightItems = containerRef.current?.querySelectorAll(
-				".scroll-nav-right .scroll-nav-item",
-			);
+			const reduced = window.matchMedia(
+				"(prefers-reduced-motion: reduce)",
+			).matches;
+			let duration = 0.3;
+			let stagger: number | { each: number; from: "end" } = {
+				each: 0.04,
+				from: "end",
+			};
+			if (reduced) {
+				duration = 0;
+				stagger = 0;
+			} else if (isScrolled) {
+				duration = 0.5;
+				stagger = 0.06;
+			}
 
 			if (isScrolled) {
-				if (leftItems?.length) {
-					gsap.to(leftItems, {
-						opacity: 1,
-						x: 0,
-						duration: 0.5,
-						stagger: 0.06,
-						ease: "expo.out",
-						pointerEvents: "auto",
-					});
-				}
-				if (rightItems?.length) {
-					gsap.to(rightItems, {
-						opacity: 1,
-						x: 0,
-						duration: 0.5,
-						stagger: 0.06,
-						ease: "expo.out",
-						pointerEvents: "auto",
-					});
-				}
+				gsap.to(".scroll-nav-left .scroll-nav-item", {
+					opacity: 1,
+					x: 0,
+					duration,
+					stagger,
+					ease: "expo.out",
+					pointerEvents: "auto",
+				});
+				gsap.to(".scroll-nav-right .scroll-nav-item", {
+					opacity: 1,
+					x: 0,
+					duration,
+					stagger,
+					ease: "expo.out",
+					pointerEvents: "auto",
+				});
 			} else {
-				if (leftItems?.length) {
-					gsap.to(leftItems, {
-						opacity: 0,
-						x: 12,
-						duration: 0.3,
-						stagger: { each: 0.04, from: "end" },
-						ease: "power2.in",
-						pointerEvents: "none",
-					});
-				}
-				if (rightItems?.length) {
-					gsap.to(rightItems, {
-						opacity: 0,
-						x: -12,
-						duration: 0.3,
-						stagger: { each: 0.04, from: "end" },
-						ease: "power2.in",
-						pointerEvents: "none",
-					});
-				}
+				gsap.to(".scroll-nav-left .scroll-nav-item", {
+					opacity: 0,
+					x: 12,
+					duration,
+					stagger,
+					ease: "power2.in",
+					pointerEvents: "none",
+				});
+				gsap.to(".scroll-nav-right .scroll-nav-item", {
+					opacity: 0,
+					x: -12,
+					duration,
+					stagger,
+					ease: "power2.in",
+					pointerEvents: "none",
+				});
 			}
 		},
 		{ dependencies: [isScrolled], scope: containerRef },
@@ -108,36 +109,35 @@ export function Navbar() {
 
 	useGSAP(
 		() => {
+			const reduced = window.matchMedia(
+				"(prefers-reduced-motion: reduce)",
+			).matches;
 			if (isMenuOpen) {
 				gsap.to(menuRef.current, {
 					height: "100dvh",
-					duration: 0.6,
+					duration: reduced ? 0 : 0.6,
 					ease: "expo.out",
 				});
-				if (containerRef.current?.querySelectorAll(".mobile-nav-item").length) {
-					gsap.to(".mobile-nav-item", {
-						opacity: 1,
-						y: 0,
-						stagger: 0.1,
-						delay: 0.2,
-						duration: 0.6,
-						ease: "power3.out",
-					});
-				}
+				gsap.to(".mobile-nav-item", {
+					opacity: 1,
+					y: 0,
+					stagger: reduced ? 0 : 0.1,
+					delay: reduced ? 0 : 0.2,
+					duration: reduced ? 0 : 0.6,
+					ease: "power3.out",
+				});
 			} else {
-				if (containerRef.current?.querySelectorAll(".mobile-nav-item").length) {
-					gsap.to(".mobile-nav-item", {
-						opacity: 0,
-						y: 20,
-						duration: 0.3,
-						ease: "power3.in",
-					});
-				}
+				gsap.to(".mobile-nav-item", {
+					opacity: 0,
+					y: 20,
+					duration: reduced ? 0 : 0.3,
+					ease: "power3.in",
+				});
 				gsap.to(menuRef.current, {
 					height: 0,
-					duration: 0.5,
+					duration: reduced ? 0 : 0.5,
 					ease: "expo.inOut",
-					delay: 0.1,
+					delay: reduced ? 0 : 0.1,
 				});
 			}
 		},

@@ -5,6 +5,7 @@ import "./globals.css";
 import type { Viewport } from "next";
 import Script from "next/script";
 import { Providers } from "~/components/providers";
+import { RouterTransitionProvider } from "~/components/route-transition";
 import AppData from "~/package.json";
 
 import { Orchestra } from "~/orchestra";
@@ -71,7 +72,7 @@ export default function RootLayout({
 				suppressHydrationWarning
 			>
 				<Providers>
-					{children}
+					<RouterTransitionProvider>{children}</RouterTransitionProvider>
 					<div className="fixed inset-0 pointer-events-none z-[9999]">
 						<Orchestra />
 						<VisualEditingWrapper />

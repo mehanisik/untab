@@ -3,22 +3,23 @@
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { useRef } from "react";
+import { withMotion } from "~/libs/gsap/presets";
 
 export default function Loading() {
 	const containerRef = useRef<HTMLDivElement>(null);
 	const barRef = useRef<HTMLDivElement>(null);
 
 	useGSAP(
-		() => {
-			gsap.to(barRef.current, {
-				scaleX: 1,
-				duration: 2,
-				ease: "power2.inOut",
-				repeat: -1,
-				yoyo: true,
-			});
+		() =>
+			withMotion(() => {
+				gsap.to(barRef.current, {
+					scaleX: 1,
+					duration: 2,
+					ease: "power2.inOut",
+					repeat: -1,
+					yoyo: true,
+				});
 
-			if (containerRef.current?.querySelectorAll(".loading-text").length) {
 				gsap.fromTo(
 					".loading-text",
 					{ opacity: 0, y: 10 },
@@ -33,8 +34,7 @@ export default function Loading() {
 						repeatDelay: 0.5,
 					},
 				);
-			}
-		},
+			}),
 		{ scope: containerRef },
 	);
 

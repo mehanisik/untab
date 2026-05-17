@@ -13,6 +13,7 @@ import gsap from "gsap";
 import { useRef } from "react";
 import { LogoWordmark } from "~/components/logo-wordmark";
 import { Link } from "~/components/ui/link";
+import { withMotion } from "~/libs/gsap/presets";
 
 const studioLinks = [
 	{ label: "Home", href: "/" },
@@ -48,73 +49,74 @@ export function Footer() {
 	const footerRef = useRef<HTMLElement>(null);
 
 	useGSAP(
-		() => {
-			const root = footerRef.current;
-			if (!root) return;
+		() =>
+			withMotion(() => {
+				const root = footerRef.current;
+				if (!root) return;
 
-			const trigger = {
-				trigger: root,
-				start: "top 90%",
-				toggleActions: "play none none none",
-			};
+				const trigger = {
+					trigger: root,
+					start: "top 90%",
+					toggleActions: "play none none none",
+				};
 
-			gsap.from(root.querySelectorAll(".fx-logo"), {
-				y: 24,
-				opacity: 0,
-				duration: 0.9,
-				ease: "expo.out",
-				scrollTrigger: trigger,
-			});
+				gsap.from(root.querySelectorAll(".fx-logo"), {
+					y: 24,
+					opacity: 0,
+					duration: 0.9,
+					ease: "expo.out",
+					scrollTrigger: trigger,
+				});
 
-			gsap.from(root.querySelectorAll(".fx-tagline-line"), {
-				y: 28,
-				opacity: 0,
-				duration: 0.9,
-				ease: "expo.out",
-				stagger: 0.08,
-				delay: 0.1,
-				scrollTrigger: trigger,
-			});
+				gsap.from(root.querySelectorAll(".fx-tagline-line"), {
+					y: 28,
+					opacity: 0,
+					duration: 0.9,
+					ease: "expo.out",
+					stagger: 0.08,
+					delay: 0.1,
+					scrollTrigger: trigger,
+				});
 
-			gsap.from(root.querySelectorAll(".fx-col-label"), {
-				y: 14,
-				opacity: 0,
-				duration: 0.7,
-				ease: "expo.out",
-				stagger: 0.06,
-				delay: 0.15,
-				scrollTrigger: trigger,
-			});
+				gsap.from(root.querySelectorAll(".fx-col-label"), {
+					y: 14,
+					opacity: 0,
+					duration: 0.7,
+					ease: "expo.out",
+					stagger: 0.06,
+					delay: 0.15,
+					scrollTrigger: trigger,
+				});
 
-			gsap.from(root.querySelectorAll(".fx-link"), {
-				y: 10,
-				opacity: 0,
-				duration: 0.5,
-				ease: "expo.out",
-				stagger: { each: 0.04, from: "start" },
-				delay: 0.25,
-				scrollTrigger: trigger,
-			});
+				gsap.from(root.querySelectorAll(".fx-link"), {
+					y: 10,
+					opacity: 0,
+					duration: 0.5,
+					ease: "expo.out",
+					stagger: { each: 0.04, from: "start" },
+					delay: 0.25,
+					scrollTrigger: trigger,
+				});
 
-			gsap.from(root.querySelector(".fx-divider"), {
-				scaleX: 0,
-				transformOrigin: "left center",
-				duration: 1,
-				ease: "expo.out",
-				delay: 0.35,
-				scrollTrigger: trigger,
-			});
+				gsap.from(root.querySelector(".fx-divider"), {
+					scaleX: 0,
+					transformOrigin: "left center",
+					duration: 1,
+					ease: "expo.out",
+					delay: 0.35,
+					scrollTrigger: trigger,
+				});
 
-			gsap.from(root.querySelectorAll(".fx-meta"), {
-				y: 10,
-				opacity: 0,
-				duration: 0.6,
-				ease: "expo.out",
-				stagger: 0.06,
-				delay: 0.45,
-				scrollTrigger: trigger,
-			});
-		},
+				gsap.from(root.querySelectorAll(".fx-meta"), {
+					y: 10,
+					opacity: 0,
+					duration: 0.6,
+					ease: "expo.out",
+					stagger: 0.06,
+					delay: 0.45,
+					scrollTrigger: trigger,
+				});
+			}),
 		{ scope: footerRef },
 	);
 
