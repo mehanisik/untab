@@ -70,7 +70,7 @@
 		"babel-plugin-react-compiler": "^1.0.0",
 		"cross-env": "^10.1.0",
 		"husky": "^9.1.7",
-		"lint-staged": "^16.4.0",
+		"lint-staged": "^17.0.5",
 		"react-email": "^6.1.4",
 		"tailwindcss": "^4.3.0",
 		"typescript": "^5.9.3",
