@@ -74,7 +74,7 @@
 		"react-email": "^6.1.4",
 		"tailwindcss": "^4.3.0",
 		"typescript": "^5.9.3",
-		"uuid": "^13.0.2"
+		"uuid": "^14.0.0"
 	},
 	"lint-staged": {
 		"*.{js,ts,jsx,tsx}": [
