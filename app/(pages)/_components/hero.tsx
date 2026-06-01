@@ -4,18 +4,37 @@ import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { useRef } from "react";
 import { useTempus } from "tempus/react";
+import { Splitter } from "~/components/splitter";
 import { withMotion } from "~/libs/gsap/presets";
 
 interface HeroProps {
 	videoUrl?: string;
 }
 
-const ROTATING_WORDS: { text: string; color: string }[] = [
-	{ text: "Software", color: "#f8a9c8" },
-	{ text: "Products", color: "#a892ff" },
-	{ text: "Interfaces", color: "#d8e85e" },
-	{ text: "Experiences", color: "#7c8df0" },
-	{ text: "Platforms", color: "#f15c7e" },
+// Satoshi stylistic alternates (ss01–ss06) applied per character, matching the
+// reference title. Each array is keyed by non-space character order in its line.
+const TOP_LINE_FEATURES = [
+	undefined,
+	"ss02",
+	undefined,
+	undefined,
+	"ss06",
+	undefined,
+	"ss05",
+	undefined,
+	undefined,
+	"ss05",
+];
+const BOTTOM_LINE_FEATURES = [
+	undefined,
+	"ss04",
+	undefined,
+	undefined,
+	undefined,
+	"ss01",
+	undefined,
+	"ss06",
+	undefined,
 ];
 
 const HERO_MAX_WIDTH = 1440;
@@ -37,34 +56,35 @@ export function Hero({ videoUrl = "/hero.mp4" }: HeroProps) {
 				if (!(root && contextSafe)) return;
 
 				const lineClips = root.querySelectorAll<HTMLElement>(".hero-line-clip");
+				const chars = root.querySelectorAll<HTMLElement>(".split-char");
 				const float = root.querySelector<HTMLElement>(".hero-float");
 				const stage = root.querySelector<HTMLElement>(".hero-stage");
 				const video = root.querySelector<HTMLElement>(".hero-video");
 				const frame = root.querySelector<HTMLElement>(".echo-frame");
 				const pink = root.querySelector<HTMLElement>(".echo-pink");
 				const purple = root.querySelector<HTMLElement>(".echo-purple");
-				const rotateWords =
-					root.querySelectorAll<HTMLElement>(".hero-rotate-word");
 				if (!(float && stage && video && frame && pink && purple)) return;
 
 				const topClip = lineClips[0];
 				const bottomClip = lineClips[1];
 
-				const introTargets = [topClip, float, bottomClip];
-				gsap.set(introTargets, { autoAlpha: 0, y: 18 });
-
+				// The resting DOM is already visible (no inline hiding), so a
+				// JS/animation failure degrades to static text rather than a blank
+				// hero. useGSAP applies these `from` start states before paint.
 				const intro = gsap.timeline({
 					defaults: { ease: "expo.out", duration: 0.9 },
 				});
-				intro.to(
-					introTargets,
-					{
-						autoAlpha: 1,
-						y: 0,
-						stagger: 0.12,
-					},
-					0,
-				);
+				intro
+					.from(
+						chars,
+						{
+							yPercent: 120,
+							autoAlpha: 0,
+							stagger: 0.035,
+						},
+						0,
+					)
+					.from(float, { autoAlpha: 0, y: 18 }, 0.15);
 
 				const idleFloat = gsap.to(float, {
 					y: 6,
@@ -105,54 +125,6 @@ export function Hero({ videoUrl = "/hero.mp4" }: HeroProps) {
 				root.addEventListener("mousemove", onMove);
 				root.addEventListener("mouseleave", onLeave);
 
-				if (rotateWords.length > 1) {
-					gsap.set(rotateWords, {
-						autoAlpha: 0,
-						scale: 0.94,
-						filter: "blur(14px)",
-					});
-					gsap.set(rotateWords[0], {
-						autoAlpha: 1,
-						scale: 1,
-						filter: "blur(0px)",
-					});
-
-					let current = 0;
-					const rotateTl = gsap.timeline({ repeat: -1, delay: 1.4 });
-
-					for (const _ of rotateWords) {
-						const out = rotateWords[current];
-						const next = (current + 1) % rotateWords.length;
-						const incoming = rotateWords[next];
-
-						rotateTl
-							.to(
-								out,
-								{
-									autoAlpha: 0,
-									scale: 1.08,
-									filter: "blur(16px)",
-									duration: 0.55,
-									ease: "power2.in",
-								},
-								"+=2.6",
-							)
-							.fromTo(
-								incoming,
-								{ autoAlpha: 0, scale: 0.94, filter: "blur(14px)" },
-								{
-									autoAlpha: 1,
-									scale: 1,
-									filter: "blur(0px)",
-									duration: 0.75,
-									ease: "power2.out",
-								},
-								"<0.2",
-							);
-						current = next;
-					}
-				}
-
 				const cleanupListeners = () => {
 					root.removeEventListener("mousemove", onMove);
 					root.removeEventListener("mouseleave", onLeave);
@@ -163,6 +135,12 @@ export function Hero({ videoUrl = "/hero.mp4" }: HeroProps) {
 				const isDesktop = window.matchMedia("(min-width: 768px)").matches;
 				if (!isDesktop) return cleanupListeners;
 
+				// The inner <video> carries its own rounded corners; if we only
+				// square the wrapper, the video's corners stay rounded and get
+				// stretched into ellipses by the non-uniform scale.
+				const videoInner = video.querySelector<HTMLElement>("video");
+				const radiusTargets = videoInner ? [video, videoInner] : [video];
+
 				gsap
 					.timeline({
 						scrollTrigger: {
@@ -171,7 +149,7 @@ export function Hero({ videoUrl = "/hero.mp4" }: HeroProps) {
 							end: "+=120%",
 							pin: true,
 							pinSpacing: true,
-							scrub: 1.2,
+							scrub: 1,
 							anticipatePin: 1,
 							invalidateOnRefresh: true,
 							onEnter: () => {
@@ -195,11 +173,37 @@ export function Hero({ videoUrl = "/hero.mp4" }: HeroProps) {
 							},
 						},
 					})
+					// Echo cards drop away immediately.
 					.to(
 						[frame, pink, purple],
-						{ autoAlpha: 0, duration: 0.18, ease: "power2.in" },
+						{ autoAlpha: 0, duration: 0.15, ease: "power2.in" },
 						0,
 					)
+					// Headlines clear early so they never fight the expanding card.
+					.to(
+						[topClip, bottomClip],
+						{ autoAlpha: 0, y: -24, duration: 0.28, ease: "power2.in" },
+						0.04,
+					)
+					// Square corners + drop the shadow up front, while the card is
+					// still small, so the non-uniform scale can't smear either.
+					.to(
+						radiusTargets,
+						{ borderRadius: 0, duration: 0.3, ease: "power2.out" },
+						0,
+					)
+					.to(
+						video,
+						{
+							boxShadow:
+								"0px 0px 0px 0px rgba(0,0,0,0), 0px 0px 0px 0px rgba(0,0,0,0)",
+							duration: 0.3,
+							ease: "power1.out",
+						},
+						0,
+					)
+					// Settle rotation and grow to a framed fullscreen across the scroll.
+					.to(video, { rotation: 0, ease: "power2.inOut", duration: 1 }, 0)
 					.to(
 						float,
 						{
@@ -226,21 +230,6 @@ export function Hero({ videoUrl = "/hero.mp4" }: HeroProps) {
 							duration: 1,
 						},
 						0,
-					)
-					.to(
-						video,
-						{
-							rotation: 0,
-							borderRadius: 0,
-							ease: "power2.inOut",
-							duration: 1,
-						},
-						0,
-					)
-					.to(
-						[topClip, bottomClip],
-						{ autoAlpha: 0, duration: 0.35, ease: "power2.in" },
-						0.3,
 					);
 
 				return cleanupListeners;
@@ -257,55 +246,41 @@ export function Hero({ videoUrl = "/hero.mp4" }: HeroProps) {
 		qy(mouseRef.current.y * PARALLAX_Y);
 	});
 
-	const longestWord = ROTATING_WORDS.reduce((a, b) =>
-		a.text.length > b.text.length ? a : b,
-	).text;
-
 	return (
 		<section
 			ref={containerRef}
 			className="home-hero relative w-full overflow-hidden bg-background h-dvh"
 		>
-			<h1 className="hero-display absolute inset-0 z-10 text-center font-black uppercase leading-[0.86] tracking-[-0.04em] text-foreground text-[clamp(2rem,8vw,7.5rem)]">
+			<h1
+				aria-label="We're built different"
+				className="hero-display absolute inset-0 z-10 text-center font-black uppercase leading-[0.86] tracking-[-0.04em] text-foreground text-[clamp(2rem,8vw,7.5rem)]"
+			>
 				<span
+					aria-hidden
 					className="hero-line-clip absolute top-[var(--site-header-height,3.875rem)] left-0 right-0 px-3 md:px-6 block overflow-hidden pb-[0.06em]"
-					style={{ opacity: 0, visibility: "hidden" }}
 				>
-					<span className="hero-line block whitespace-nowrap">We craft</span>
+					<Splitter
+						text="WE'RE BUILT"
+						features={TOP_LINE_FEATURES}
+						className="hero-line block whitespace-nowrap"
+					/>
 				</span>
 
 				<span
+					aria-hidden
 					className="hero-line-clip absolute bottom-3 md:bottom-6 left-0 right-0 px-3 md:px-6 block overflow-hidden pb-[0.06em]"
-					aria-live="polite"
-					style={{ opacity: 0, visibility: "hidden" }}
 				>
-					<span className="hero-line hero-rotate relative inline-block align-baseline">
-						<span aria-hidden className="invisible block whitespace-nowrap">
-							{longestWord}
-						</span>
-						{ROTATING_WORDS.map((word, i) => (
-							<span
-								key={word.text}
-								className="hero-rotate-word absolute inset-x-0 top-0 block whitespace-nowrap origin-center will-change-[transform,filter,opacity]"
-								style={{
-									color: word.color,
-									...(i === 0
-										? undefined
-										: { opacity: 0, visibility: "hidden" }),
-								}}
-							>
-								{word.text}
-							</span>
-						))}
-					</span>
+					<Splitter
+						text="DIFFERENT"
+						startIndex={10}
+						features={BOTTOM_LINE_FEATURES}
+						className="hero-line block whitespace-nowrap"
+					/>
 				</span>
 			</h1>
 
 			<div className="absolute inset-0 z-20 flex items-center justify-center pointer-events-none">
-				<div
-					className="hero-float relative w-[44vw] sm:w-[34vw] md:w-[26vw] lg:w-[22vw] max-w-[360px] aspect-[3/4] origin-center will-change-transform"
-					style={{ opacity: 0, visibility: "hidden" }}
-				>
+				<div className="hero-float relative w-[44vw] sm:w-[34vw] md:w-[26vw] lg:w-[22vw] max-w-[360px] aspect-[3/4] origin-center will-change-transform">
 					<div className="hero-stage absolute inset-0 will-change-transform">
 						<span
 							aria-hidden

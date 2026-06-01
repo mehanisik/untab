@@ -72,7 +72,7 @@ export const SAMPLE_PROJECTS: CaseStudy[] = [
 	make("WarholArts", "Art Gallery", "2024", "untab-warhol-arts", {
 		about: [
 			"Warhol Arts started as a cheeky Dribbble brainstorm and exploded into a pop-art web experience. We poured bright colors, daring layouts, and punchy animations into a Webflow canvas, then turbocharged it with GSAP magic.",
-			"The site reacts, moves, dances — like an interactive homage to Andy Warhol himself. It's not just a gallery; it's a digital playground where every scroll, hover, and click tells a loud, playful story.",
+			"The site reacts, moves, dances. An interactive homage to Andy Warhol himself. It's not just a gallery; it's a digital playground where every scroll, hover, and click tells a loud, playful story.",
 		],
 		honors: [
 			"FWA x 1",

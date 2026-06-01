@@ -6,6 +6,7 @@ export * from "./case-studies";
 export * from "./pillars";
 export * from "./vision";
 export * from "./journal";
+export * from "./cta-banner";
 export * from "./footer";
 export * from "./navbar";
 export * from "./tech-stack";

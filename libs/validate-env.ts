@@ -5,7 +5,8 @@ interface EnvConfig {
 	RESEND_API_KEY?: string;
 	CONTACT_EMAIL?: string;
 	SENDER_EMAIL?: string;
-	NEXT_PUBLIC_UMAMI_WEBSITE_ID?: string;
+	NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN?: string;
+	NEXT_PUBLIC_POSTHOG_HOST?: string;
 	ARCJET_API_KEY?: string;
 }
 
@@ -29,7 +30,7 @@ export function validateEnv(): EnvConfig {
 			new URL(NEXT_PUBLIC_BASE_URL);
 		} catch {
 			errors.push(
-				"NEXT_PUBLIC_BASE_URL must be a valid URL (e.g., https://untabstudio.com)",
+				"NEXT_PUBLIC_BASE_URL must be a valid URL like https://untabstudio.com",
 			);
 		}
 	}
@@ -74,7 +75,9 @@ export function validateEnv(): EnvConfig {
 		RESEND_API_KEY,
 		CONTACT_EMAIL,
 		SENDER_EMAIL,
-		NEXT_PUBLIC_UMAMI_WEBSITE_ID: process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID,
+		NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN:
+			process.env.NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN,
+		NEXT_PUBLIC_POSTHOG_HOST: process.env.NEXT_PUBLIC_POSTHOG_HOST,
 		ARCJET_API_KEY: process.env.ARCJET_API_KEY,
 	};
 }

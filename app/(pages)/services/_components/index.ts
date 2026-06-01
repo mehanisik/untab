@@ -1,2 +1,2 @@
-export * from "./how-we-work";
-export * from "./workflow";
+export * from "./hero";
+export * from "./process";

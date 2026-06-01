@@ -6,12 +6,13 @@ import type { Viewport } from "next";
 import Script from "next/script";
 import { Providers } from "~/components/providers";
 import { RouterTransitionProvider } from "~/components/route-transition";
+import { PostHogProvider } from "~/components/posthog-provider";
 import AppData from "~/package.json";
 
 import { Orchestra } from "~/orchestra";
 import { VisualEditingWrapper } from "~/components/visual-editing";
-import { Analytics } from "~/components/analytics";
 import { Toaster } from "sonner";
+import { CookieConsentBanner } from "~/components/cookie-consent";
 import { ReactTempus } from "tempus/react";
 
 const satoshi = localFont({
@@ -71,15 +72,17 @@ export default function RootLayout({
 				className={`${geistSans.variable} ${geistMono.variable} antialiased font-sans`}
 				suppressHydrationWarning
 			>
-				<Providers>
-					<RouterTransitionProvider>{children}</RouterTransitionProvider>
-					<div className="fixed inset-0 pointer-events-none z-[9999]">
-						<Orchestra />
-						<VisualEditingWrapper />
-						<Analytics />
-						<Toaster closeButton position="bottom-right" />
-					</div>
-				</Providers>
+				<PostHogProvider>
+					<Providers>
+						<RouterTransitionProvider>{children}</RouterTransitionProvider>
+						<div className="fixed inset-0 pointer-events-none z-[9999]">
+							<Orchestra />
+							<VisualEditingWrapper />
+							<Toaster closeButton position="bottom-right" />
+						</div>
+						<CookieConsentBanner />
+					</Providers>
+				</PostHogProvider>
 				<ReactTempus patch />
 				<script
 					type="application/ld+json"

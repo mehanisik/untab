@@ -2,12 +2,12 @@ import type { Metadata } from "next";
 import { Wrapper } from "~/components/wrapper";
 import { generatePageMetadata } from "~/libs/metadata";
 import { Footer, Navbar } from "../_components";
-import { HowWeWork, Workflow } from "./_components";
+import { Process, ServicesHero } from "./_components";
 
 export const metadata: Metadata = generatePageMetadata({
 	title: "Services",
 	description:
-		"How we work — clarity and impact are non-negotiable. Strategy, design, and development from a senior team that ships.",
+		"Five practices, one studio. Website and platform software, brand strategy, branding, creative content, and design systems. Shipped end-to-end by a senior team.",
 });
 
 export default function ServicesPage() {
@@ -15,8 +15,8 @@ export default function ServicesPage() {
 		<Wrapper>
 			<Navbar />
 			<main className="grow bg-background pt-14">
-				<HowWeWork />
-				<Workflow />
+				<ServicesHero />
+				<Process />
 			</main>
 			<Footer />
 		</Wrapper>

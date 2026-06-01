@@ -20,9 +20,9 @@ export async function generateMetadata({
 	const { slug } = await params;
 	const study = getCaseStudyBySlug(slug);
 	if (!study)
-		return generatePageMetadata({ title: "Case study — Untab Studio" });
+		return generatePageMetadata({ title: "Case study | Untab Studio" });
 	return generatePageMetadata({
-		title: `${study.title} — Untab Studio`,
+		title: `${study.title} | Untab Studio`,
 		description:
 			study.about?.[0] ?? `${study.title} case study by Untab Studio.`,
 		url: `/work/${study.slug}`,

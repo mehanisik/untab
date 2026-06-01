@@ -7,7 +7,7 @@ import { Impact, Manifesto, Studio } from "./_components";
 export const metadata: Metadata = generatePageMetadata({
 	title: "About",
 	description:
-		"We exist between what is and what is emerging. Strategy, design, and engineering from one studio — same team from kickoff to ship.",
+		"We exist between what is and what is emerging. Strategy, design, and engineering from one studio. Same team from kickoff to ship.",
 });
 
 export default function AboutPage() {

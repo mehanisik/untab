@@ -1,24 +1,22 @@
 import type { Metadata } from "next";
-import { Container } from "~/components/container";
 import { Wrapper } from "~/components/wrapper";
 import { generatePageMetadata } from "~/libs/metadata";
 import { Footer, Navbar } from "../_components";
+import { ContactForm, ContactHero } from "./_components";
 
 export const metadata: Metadata = generatePageMetadata({
 	title: "Contact",
-	description: "Get in touch.",
+	description:
+		"Get in touch with Untab Studio. Tell us about your project and we'll get back to you within one business day.",
 });
 
 export default function ContactPage() {
 	return (
 		<Wrapper>
 			<Navbar />
-			<main className="grow">
-				<Container className="pt-48 pb-32 md:pt-64 md:pb-48">
-					<h1 className="text-5xl md:text-7xl lg:text-8xl font-light tracking-tight text-foreground">
-						Contact
-					</h1>
-				</Container>
+			<main className="grow bg-background pt-14">
+				<ContactHero />
+				<ContactForm />
 			</main>
 			<Footer />
 		</Wrapper>

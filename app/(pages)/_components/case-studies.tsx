@@ -103,7 +103,7 @@ function FeaturedItem({ project, index }: { project: Project; index: number }) {
 					});
 				}
 
-				// Index number — quick fade/slide in once card is in view
+				// Index number: quick fade/slide in once card is in view
 				if (indexEl) {
 					gsap.fromTo(
 						indexEl,

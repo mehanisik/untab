@@ -1,6 +1,7 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
+@import "vanilla-cookieconsent/dist/cookieconsent.css";
 
 @custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
 
@@ -56,12 +57,12 @@
   --light: #e4e4e4;
   --dark: #111111;
 
-  /* Aliases — default = dark (no flash before JS) */
+  /* Aliases: default is dark, no flash before JS */
   --background: var(--dark);
   --text: var(--light);
   --foreground: var(--text);
 
-  /* Anchor surfaces — Intro panel + Footer */
+  /* Anchor surfaces: Intro panel, Footer */
   --surface-anchor: #0a0a0a;
   --surface-anchor-foreground: var(--light);
   --surface-deep: #050505;
@@ -110,7 +111,7 @@
   color-scheme: dark;
 }
 
-/* Light theme — invert aliases */
+/* Light theme: invert aliases */
 :root[data-theme="light"],
 html.light {
   --background: var(--light);
@@ -163,7 +164,7 @@ html.light {
   color-scheme: light;
 }
 
-/* Explicit dark selectors (no-op — matches default :root, kept for clarity) */
+/* Explicit dark selectors: matches default :root, kept for clarity */
 :root[data-theme="dark"],
 html.dark {
   color-scheme: dark;

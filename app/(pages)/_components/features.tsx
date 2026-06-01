@@ -27,7 +27,7 @@ const DEFAULT_FEATURES: Feature[] = [
 	{
 		title: "Strategic Blueprinting",
 		description:
-			"We turn ambiguous visions into high-performance architectures — a clear plan, a defensible system, and a product built on foundations designed for scale.",
+			"We turn ambiguous visions into high-performance architectures. A clear plan, a defensible system, and a product built on foundations designed for scale.",
 		poster: {
 			location: "WARSAW, PL",
 			stat: "99%",
@@ -39,7 +39,7 @@ const DEFAULT_FEATURES: Feature[] = [
 	{
 		title: "Technical Risk Management",
 		description:
-			"Early identification and mitigation of technical debt, security risk, and operational fragility — so the system you ship today is the system that holds tomorrow.",
+			"Early identification and mitigation of technical debt, security risk, and operational fragility. The system you ship today is the system that holds tomorrow.",
 		poster: {
 			location: "AUDIT, OPS",
 			stat: "0",
@@ -51,7 +51,7 @@ const DEFAULT_FEATURES: Feature[] = [
 	{
 		title: "Engineering Excellence",
 		description:
-			"The latest in modern web tooling, applied with discipline. Stable, tested, performant code that scales with your growth — not against it.",
+			"The latest in modern web tooling, applied with discipline. Stable, tested, performant code that scales with your growth, not against it.",
 		poster: {
 			location: "SHIP, QA",
 			stat: "100%",
@@ -63,7 +63,7 @@ const DEFAULT_FEATURES: Feature[] = [
 	{
 		title: "Transparent Partnership",
 		description:
-			"An extension of your team — open communication, shared goals, weekly working sessions. Expert guidance at every step, no black boxes.",
+			"An extension of your team. Open communication, shared goals, weekly working sessions. Expert guidance at every step, no black boxes.",
 		poster: {
 			location: "PARTNER, EU",
 			stat: "1:1",
@@ -265,7 +265,7 @@ export function Features({
 								</h2>
 
 								<p className="max-w-[32ch] font-light text-balance text-base text-muted-foreground leading-[1.55] md:text-lg">
-									Strike the balance between investment and impact — a true
+									Strike the balance between investment and impact. A true
 									partner in building not just software, but a sustainable
 									business advantage.
 								</p>

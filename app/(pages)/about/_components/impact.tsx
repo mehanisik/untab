@@ -16,7 +16,7 @@ const STATS: Stat[] = [
 	},
 	{
 		value: "40+",
-		body: "Strategists, designers, and engineers — projects shipped end-to-end as one team, each bringing a perspective that the work is better for.",
+		body: "Strategists, designers, and engineers. Projects shipped end-to-end as one team, each bringing a perspective that the work is better for.",
 	},
 	{
 		value: "$120m+",
@@ -24,7 +24,7 @@ const STATS: Stat[] = [
 	},
 	{
 		value: "8m+",
-		body: "People who interact with the products we've helped design and ship — quietly, every day, in the background of their work.",
+		body: "People who interact with the products we've helped design and ship. Quietly, every day, in the background of their work.",
 	},
 ];
 

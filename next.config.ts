@@ -73,7 +73,7 @@ const nextConfig: NextConfig = {
 	cacheComponents: true,
 	compress: true,
 	experimental: {
-		turbopackFileSystemCacheForDev: true,
+		turbopackFileSystemCacheForDev: process.env.NODE_ENV !== "production",
 		taint: true,
 		browserDebugInfoInTerminal: true,
 		// isolatedDevBuild: true,
@@ -141,6 +141,21 @@ const nextConfig: NextConfig = {
 					value: "max-age=63072000; includeSubDomains; preload",
 				},
 			],
+		},
+	],
+	skipTrailingSlashRedirect: true,
+	rewrites: async () => [
+		{
+			source: "/ingest/static/:path*",
+			destination: "https://eu-assets.i.posthog.com/static/:path*",
+		},
+		{
+			source: "/ingest/array/:path*",
+			destination: "https://eu-assets.i.posthog.com/array/:path*",
+		},
+		{
+			source: "/ingest/:path*",
+			destination: "https://eu.i.posthog.com/:path*",
 		},
 	],
 	redirects: async () => [

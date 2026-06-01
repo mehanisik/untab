@@ -208,7 +208,7 @@ function WorkTile({ project, index }: { project: Project; index: number }) {
 		<Link
 			href={project.href ?? `/work/${project.slug}`}
 			className="group block focus-visible:outline-none"
-			aria-label={`${project.title} — ${project.category}`}
+			aria-label={`${project.title}, ${project.category}`}
 		>
 			<div className="relative aspect-[4/3] w-full overflow-hidden bg-foreground/[0.04]">
 				<Image
@@ -237,7 +237,7 @@ function WorkRow({ project, index }: { project: Project; index: number }) {
 		<Link
 			href={project.href ?? `/work/${project.slug}`}
 			className="group flex items-baseline justify-between gap-4 sm:gap-6 py-5 sm:py-6 md:py-8 transition-colors"
-			aria-label={`${project.title} — ${project.category}`}
+			aria-label={`${project.title}, ${project.category}`}
 		>
 			<div className="flex items-baseline gap-4 sm:gap-5 md:gap-8 min-w-0">
 				<span className="font-mono text-[10px] sm:text-[11px] uppercase tracking-[0.2em] tabular-nums text-foreground/45 shrink-0">

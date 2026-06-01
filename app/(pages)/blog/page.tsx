@@ -1,24 +1,25 @@
 import type { Metadata } from "next";
-import { Container } from "~/components/container";
 import { Wrapper } from "~/components/wrapper";
 import { generatePageMetadata } from "~/libs/metadata";
+import { getPosts } from "~/libs/posts";
 import { Footer, Navbar } from "../_components";
+import { BlogFeed, BlogHero } from "./_components";
 
 export const metadata: Metadata = generatePageMetadata({
 	title: "Blog",
-	description: "Notes from the studio.",
+	description:
+		"Notes from the studio. Design, engineering, and everything in between.",
 });
 
-export default function BlogPage() {
+export default async function BlogPage() {
+	const posts = await getPosts();
+
 	return (
 		<Wrapper>
 			<Navbar />
 			<main className="grow">
-				<Container className="pt-48 pb-32 md:pt-64 md:pb-48">
-					<h1 className="text-5xl md:text-7xl lg:text-8xl font-light tracking-tight text-foreground">
-						Blog
-					</h1>
-				</Container>
+				<BlogHero />
+				{posts.length > 0 ? <BlogFeed posts={posts} /> : null}
 			</main>
 			<Footer />
 		</Wrapper>
