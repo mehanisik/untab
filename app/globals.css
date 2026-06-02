@@ -55,7 +55,7 @@
 :root {
   /* Base palette */
   --light: #e4e4e4;
-  --dark: #111111;
+  --dark: #1d1d1d;
 
   /* Aliases: default is dark, no flash before JS */
   --background: var(--dark);
@@ -65,7 +65,7 @@
   /* Anchor surfaces: Intro panel, Footer */
   --surface-anchor: #0a0a0a;
   --surface-anchor-foreground: var(--light);
-  --surface-deep: #050505;
+  --surface-deep: #181818;
   --surface-deep-foreground: var(--light);
 
   --card: #181818;
@@ -120,7 +120,7 @@ html.light {
 
   --surface-anchor: #dcdcd8;
   --surface-anchor-foreground: var(--dark);
-  --surface-deep: #d2d2cd;
+  --surface-deep: #d6d6d6;
   --surface-deep-foreground: var(--dark);
 
   --card: #ececea;
@@ -181,6 +181,22 @@ html.dark {
   }
   body {
     @apply bg-background text-foreground antialiased;
+  }
+}
+
+/*
+ * Reduced-motion fallback for CSS-driven motion (hover transitions, the
+ * gradient spinner, etc.). GSAP animations are already gated in JS via the
+ * `withMotion` helper / `gsap.matchMedia`; this covers everything else.
+ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }
 
