@@ -47,3 +47,6 @@ next-env.d.ts
 
 # react-email
 .react-email/
+
+# local planning notes (not part of the codebase)
+plans/

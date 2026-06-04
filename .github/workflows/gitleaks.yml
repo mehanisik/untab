@@ -2,9 +2,9 @@ name: Secret Scan
 
 on:
   push:
-    branches: [main]
+    branches: [main, develop]
   pull_request:
-    branches: [main]
+    branches: [main, develop]
   schedule:
     # Weekly sweep across the full history catches anything that slipped past PR checks.
     - cron: "0 6 * * 1"
