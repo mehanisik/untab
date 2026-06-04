@@ -253,7 +253,7 @@ export function Hero({ videoUrl = "/hero.mp4" }: HeroProps) {
 		>
 			<h1
 				aria-label="We're built different"
-				className="hero-display absolute inset-0 z-10 text-center font-black uppercase leading-[0.86] tracking-[-0.04em] text-foreground text-[clamp(2rem,8vw,7.5rem)]"
+				className="hero-display absolute inset-0 z-10 text-center font-black uppercase leading-[0.86] tracking-[-0.04em] text-foreground text-[clamp(2rem,6vw,4rem)]"
 			>
 				<span
 					aria-hidden

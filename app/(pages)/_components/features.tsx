@@ -49,9 +49,9 @@ const DEFAULT_FEATURES: Feature[] = [
 		},
 	},
 	{
-		title: "Engineering Excellence",
+		title: "Technical Pedigree",
 		description:
-			"The latest in modern web tooling, applied with discipline. Stable, tested, performant code that scales with your growth, not against it.",
+			"Years of shipping production systems, distilled into how we build. A senior team with a proven track record - battle-tested patterns and modern tooling applied with discipline, in stable, performant code that scales with your growth, not against it.",
 		poster: {
 			location: "SHIP, QA",
 			stat: "100%",
@@ -260,14 +260,14 @@ export function Features({
 					<div className="relative hidden lg:block">
 						<div className="sticky top-32 flex min-h-[60vh] flex-col justify-center">
 							<div ref={headerRef}>
-								<h2 className="mb-8 font-medium text-foreground leading-[0.95] tracking-[-0.035em] text-[clamp(2.75rem,4.5vw,5rem)]">
+								<h2 className="mb-8 font-medium text-foreground leading-[0.95] tracking-[-0.035em] text-[clamp(2.25rem,4vw,4rem)]">
 									{title}
 								</h2>
 
 								<p className="max-w-[32ch] font-light text-balance text-base text-muted-foreground leading-[1.55] md:text-lg">
-									Strike the balance between investment and impact. A true
-									partner in building not just software, but a sustainable
-									business advantage.
+									Real technical pedigree, focused on the balance between
+									investment and impact. A true partner in building not just
+									software, but a sustainable business advantage.
 								</p>
 
 								<div className="mt-12 font-mono text-[11px] text-muted-foreground tracking-[0.2em] uppercase tabular-nums">

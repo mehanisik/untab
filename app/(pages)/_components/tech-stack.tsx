@@ -284,7 +284,7 @@ export function TechStack() {
 					<div className="inline-flex items-center gap-3 px-4 py-2 rounded-full border border-primary/20 bg-primary/5 mb-10">
 						<div className="size-1.5 bg-primary rounded-full animate-pulse shadow-[0_0_8px_rgba(var(--color-primary-rgb),1)]" />
 						<span className="text-[10px] font-black uppercase tracking-[0.3em] text-primary">
-							Capabilities Matrix
+							Technical Pedigree
 						</span>
 					</div>
 

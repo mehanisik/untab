@@ -3,6 +3,7 @@ import { getPosts } from "~/libs/posts";
 import { getProjects } from "~/libs/projects";
 import {
 	CaseStudies,
+	CtaBanner,
 	Features,
 	Footer,
 	Hero,
@@ -30,6 +31,7 @@ export default async function Page() {
 				<Vision />
 				<Journal posts={posts} />
 			</main>
+			<CtaBanner />
 			<Footer />
 		</Wrapper>
 	);

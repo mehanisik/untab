@@ -10,11 +10,10 @@ import {
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import gsap from "gsap";
-import { useRef } from "react";
+import { useId, useRef } from "react";
 import { LogoWordmark } from "~/components/logo-wordmark";
 import { Link } from "~/components/ui/link";
 import { withMotion } from "~/libs/gsap/presets";
-import { CtaBanner } from "./cta-banner";
 
 const studioLinks = [
 	{ label: "Home", href: "/" },
@@ -48,6 +47,7 @@ const LINK =
 export function Footer() {
 	const year = new Date().getFullYear();
 	const footerRef = useRef<HTMLElement>(null);
+	const grainId = useId();
 
 	useGSAP(
 		() =>
@@ -122,104 +122,122 @@ export function Footer() {
 	);
 
 	return (
-		<>
-			<CtaBanner />
-			<footer
-				ref={footerRef}
-				className="w-full bg-surface-deep text-surface-deep-foreground"
+		<footer
+			ref={footerRef}
+			className="relative isolate w-full overflow-hidden bg-surface-deep text-surface-deep-foreground"
+		>
+			<svg
+				aria-hidden
+				className="pointer-events-none absolute inset-0 -z-10 size-full opacity-[0.12] mix-blend-soft-light"
+				preserveAspectRatio="none"
 			>
-				<div className="mx-auto max-w-[1440px] px-6 md:px-12 lg:px-16 py-20 md:py-24">
-					<div className="grid grid-cols-1 gap-16 md:grid-cols-12 md:gap-10 lg:gap-12">
-						<div className="flex flex-col items-start gap-6 md:col-span-6 lg:col-span-5">
-							<LogoWordmark
-								aria-label="Untab Studio"
-								className="fx-logo block h-10 md:h-12 w-auto text-surface-deep-foreground"
-							/>
-							<p className="fx-tagline-line max-w-sm text-pretty text-[15px] font-light leading-[1.6] text-surface-deep-foreground/70">
-								An independent software studio in Warsaw, building brand-led
-								websites, platforms, and digital products with ambitious teams
-								around the world.
-							</p>
-							<p className="fx-tagline-line text-[11px] font-medium uppercase tracking-[0.22em] text-surface-deep-foreground/45">
-								Software Studio
-							</p>
-						</div>
+				<title>texture</title>
+				<filter id={grainId}>
+					<feTurbulence
+						type="fractalNoise"
+						baseFrequency="0.72"
+						numOctaves="3"
+						stitchTiles="stitch"
+					/>
+					<feColorMatrix
+						type="matrix"
+						values="0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0.45 0.45 0.45 0 0"
+					/>
+				</filter>
+				<rect width="100%" height="100%" filter={`url(#${grainId})`} />
+			</svg>
 
-						<nav
-							aria-label="Studio"
-							className="md:col-span-3 md:col-start-7 lg:col-span-2 lg:col-start-7"
-						>
-							<h3 className={`fx-col-label ${SECTION_LABEL}`}>Untab</h3>
-							<ul className="mt-6 flex flex-col gap-3">
-								{studioLinks.map((link) => (
-									<li key={link.label} className="fx-link">
-										<Link href={link.href} className={LINK}>
-											{link.label}
-										</Link>
-									</li>
-								))}
-							</ul>
-						</nav>
+			<div className="relative mx-auto max-w-[1440px] px-6 md:px-12 lg:px-24 py-20 md:py-24">
+				<div className="grid grid-cols-1 gap-16 md:grid-cols-12 md:gap-10 lg:gap-12">
+					<div className="flex flex-col items-start gap-6 md:col-span-6 lg:col-span-5">
+						<LogoWordmark
+							aria-label="Untab Studio"
+							className="fx-logo block h-10 md:h-12 w-auto text-surface-deep-foreground"
+						/>
+						<p className="fx-tagline-line max-w-sm text-pretty text-[15px] font-light leading-[1.6] text-surface-deep-foreground/70">
+							An independent software studio in Warsaw, building brand-led
+							websites, platforms, and digital products with ambitious teams
+							around the world.
+						</p>
+						<p className="fx-tagline-line text-[11px] font-medium uppercase tracking-[0.22em] text-surface-deep-foreground/45">
+							Software Studio
+						</p>
+					</div>
 
-						<div className="md:col-span-3 lg:col-span-2 lg:col-start-9">
-							<h3 className={`fx-col-label ${SECTION_LABEL}`}>Contact</h3>
-							<ul className="mt-6 flex flex-col gap-3">
-								{contactLinks.map((item) =>
-									item.href ? (
-										<li key={item.label} className="fx-link">
-											<Link href={item.href} className={LINK}>
-												{item.label}
-											</Link>
-										</li>
-									) : (
-										<li
-											key={item.label}
-											className="fx-link text-[15px] text-surface-deep-foreground/55"
-										>
+					<nav
+						aria-label="Studio"
+						className="md:col-span-3 md:col-start-7 lg:col-span-2 lg:col-start-7"
+					>
+						<h3 className={`fx-col-label ${SECTION_LABEL}`}>Untab</h3>
+						<ul className="mt-6 flex flex-col gap-3">
+							{studioLinks.map((link) => (
+								<li key={link.label} className="fx-link">
+									<Link href={link.href} className={LINK}>
+										{link.label}
+									</Link>
+								</li>
+							))}
+						</ul>
+					</nav>
+
+					<div className="md:col-span-3 lg:col-span-2 lg:col-start-9">
+						<h3 className={`fx-col-label ${SECTION_LABEL}`}>Contact</h3>
+						<ul className="mt-6 flex flex-col gap-3">
+							{contactLinks.map((item) =>
+								item.href ? (
+									<li key={item.label} className="fx-link">
+										<Link href={item.href} className={LINK}>
 											{item.label}
-										</li>
-									),
-								)}
-							</ul>
-						</div>
-
-						<nav
-							aria-label="Social"
-							className="md:col-span-3 md:col-start-10 lg:col-span-2 lg:col-start-11"
-						>
-							<h3 className={`fx-col-label ${SECTION_LABEL}`}>Follow us</h3>
-							<ul className="mt-6 flex flex-col gap-3">
-								{socialLinks.map((social) => (
-									<li key={social.label} className="fx-link">
-										<Link
-											href={social.href}
-											className={`${LINK} group inline-flex items-center gap-2.5`}
-										>
-											<HugeiconsIcon
-												icon={social.icon}
-												className="size-4 text-surface-deep-foreground/55 transition-colors duration-200 group-hover:text-surface-deep-foreground"
-												strokeWidth={1.5}
-											/>
-											<span>{social.label}</span>
 										</Link>
 									</li>
-								))}
-							</ul>
-						</nav>
+								) : (
+									<li
+										key={item.label}
+										className="fx-link text-[15px] text-surface-deep-foreground/55"
+									>
+										{item.label}
+									</li>
+								),
+							)}
+						</ul>
 					</div>
 
-					<div className="fx-divider mt-20 md:mt-24 h-px w-full bg-surface-deep-foreground/12" />
-
-					<div className="mt-6 flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
-						<p className="fx-meta text-xs text-surface-deep-foreground/50">
-							© {year} Untab Studio. All rights reserved.
-						</p>
-						<p className="fx-meta text-xs text-surface-deep-foreground/50">
-							Crafted in Warsaw, Poland.
-						</p>
-					</div>
+					<nav
+						aria-label="Social"
+						className="md:col-span-3 md:col-start-10 lg:col-span-2 lg:col-start-11"
+					>
+						<h3 className={`fx-col-label ${SECTION_LABEL}`}>Follow us</h3>
+						<ul className="mt-6 flex flex-col gap-3">
+							{socialLinks.map((social) => (
+								<li key={social.label} className="fx-link">
+									<Link
+										href={social.href}
+										className={`${LINK} group inline-flex items-center gap-2.5`}
+									>
+										<HugeiconsIcon
+											icon={social.icon}
+											className="size-4 text-surface-deep-foreground/55 transition-colors duration-200 group-hover:text-surface-deep-foreground"
+											strokeWidth={1.5}
+										/>
+										<span>{social.label}</span>
+									</Link>
+								</li>
+							))}
+						</ul>
+					</nav>
 				</div>
-			</footer>
-		</>
+
+				<div className="fx-divider mt-20 md:mt-24 h-px w-full bg-surface-deep-foreground/12" />
+
+				<div className="mt-6 flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+					<p className="fx-meta text-xs text-surface-deep-foreground/50">
+						© {year} Untab Studio. All rights reserved.
+					</p>
+					<p className="fx-meta text-xs text-surface-deep-foreground/50">
+						Crafted in Warsaw, Poland.
+					</p>
+				</div>
+			</div>
+		</footer>
 	);
 }

@@ -61,7 +61,7 @@ export function ContactHero() {
 					<p className="contact-eyebrow text-[11px] sm:text-xs font-medium uppercase tracking-[0.28em] opacity-60">
 						Contact
 					</p>
-					<h1 className="mt-6 sm:mt-8 font-medium leading-[0.95] tracking-[-0.035em] text-[clamp(2.75rem,7vw,6.5rem)]">
+					<h1 className="mt-6 sm:mt-8 font-medium leading-[0.95] tracking-[-0.035em] text-[clamp(2.25rem,5vw,4rem)]">
 						<span className="contact-title block">Let&apos;s build</span>
 						<span className="contact-title block">something great.</span>
 					</h1>

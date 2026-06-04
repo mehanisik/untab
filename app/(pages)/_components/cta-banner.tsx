@@ -74,9 +74,9 @@ export function CtaBanner() {
 		<section
 			ref={sectionRef}
 			aria-label="Get started"
-			className="w-full bg-surface-deep"
+			className="w-full bg-background"
 		>
-			<div className="mx-auto max-w-[1440px] px-6 pt-20 md:px-12 md:pt-24 lg:px-16">
+			<div className="mx-auto max-w-[1440px] px-6 py-20 md:px-12 md:py-24 lg:px-24">
 				<div className="cta-card relative isolate overflow-hidden rounded-2xl bg-[#E83A50] p-8 sm:p-12 md:p-16 lg:px-20 lg:py-16 xl:py-20">
 					<div className="flex flex-col gap-10 lg:flex-row lg:items-center lg:justify-between lg:gap-16">
 						{/* Copy */}
