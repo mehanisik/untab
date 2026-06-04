@@ -1,8 +1,8 @@
-import { cacheSignal } from "react";
 import { createImageUrlBuilder } from "@sanity/image-url";
-import { createClient } from "next-sanity";
-import { getEnv } from "./validate-env";
 import type { PortableTextBlock } from "next-sanity";
+import { createClient } from "next-sanity";
+import { cacheSignal } from "react";
+import { getEnv } from "./validate-env";
 
 export interface Post {
 	_id: string;
@@ -115,6 +115,10 @@ export const QUERIES = {
     "category": category->title,
     year,
     description,
+    about,
+    services,
+    timeline,
+    honors,
     "image": image.asset->url,
     "gallery": gallery[].asset->url,
     client {

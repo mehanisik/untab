@@ -8,7 +8,7 @@ import { Link } from "~/components/ui/link";
 import { REVEAL } from "~/libs/gsap/presets";
 import type { Project } from "~/libs/projects";
 
-const PAGE_PADDING = "px-5 sm:px-6 md:px-8 lg:px-12";
+const PAGE_PADDING = "px-6 md:px-12 lg:px-24";
 
 interface WorkListProps {
 	projects: Project[];
@@ -132,13 +132,12 @@ export function WorkList({ projects }: WorkListProps) {
 
 	if (projects.length === 0) {
 		return (
-			<section
-				ref={rootRef}
-				className={`w-full pt-32 md:pt-44 pb-24 md:pb-32 ${PAGE_PADDING}`}
-			>
-				<p className="text-center text-sm text-foreground/55">
-					New work is on the way.
-				</p>
+			<section ref={rootRef} className="w-full pt-32 md:pt-44 pb-24 md:pb-32">
+				<div className={`mx-auto w-full max-w-[1440px] ${PAGE_PADDING}`}>
+					<p className="text-center text-sm text-foreground/55">
+						New work is on the way.
+					</p>
+				</div>
 			</section>
 		);
 	}
@@ -146,58 +145,60 @@ export function WorkList({ projects }: WorkListProps) {
 	return (
 		<section
 			ref={rootRef}
-			className={`w-full pt-24 sm:pt-28 md:pt-36 lg:pt-44 pb-20 md:pb-32 ${PAGE_PADDING}`}
+			className="w-full pt-24 sm:pt-28 md:pt-36 lg:pt-44 pb-20 md:pb-32"
 			aria-label="Case studies"
 		>
-			<header className="grid grid-cols-1 items-end gap-x-8 gap-y-8 md:grid-cols-12 md:gap-y-10">
-				<h1 className="reveal-intro md:col-span-8 text-[clamp(2.75rem,9.5vw,9.5rem)] font-medium leading-[0.88] tracking-[-0.045em] text-foreground">
-					Case studies
-					<sup className="ml-1 align-super text-[0.2em] font-medium tabular-nums text-foreground/55">
-						({String(projects.length).padStart(2, "0")})
-					</sup>
-				</h1>
+			<div className={`mx-auto w-full max-w-[1440px] ${PAGE_PADDING}`}>
+				<header className="grid grid-cols-1 items-end gap-x-8 gap-y-8 md:grid-cols-12 md:gap-y-10">
+					<h1 className="reveal-intro md:col-span-8 text-[clamp(2.25rem,6vw,4rem)] font-medium leading-[0.88] tracking-[-0.045em] text-foreground">
+						Case studies
+						<sup className="ml-1 align-super text-[0.2em] font-medium tabular-nums text-foreground/55">
+							({String(projects.length).padStart(2, "0")})
+						</sup>
+					</h1>
 
-				<div className="reveal-intro md:col-span-4 flex flex-col items-start gap-5 sm:gap-6 md:items-end md:text-right">
-					<p className="max-w-xs text-pretty text-[13px] md:text-sm leading-[1.55] text-foreground/65">
-						Creative software studio building timeless brands and digital
-						products for the brave and the brilliant.
-					</p>
-					<button
-						type="button"
-						onClick={() => setView((v) => (v === "grid" ? "list" : "grid"))}
-						className="group inline-flex min-h-11 items-center gap-2 text-[11px] font-medium uppercase tracking-[0.18em] text-foreground/60 transition-colors hover:text-foreground"
-						aria-pressed={view === "list"}
-					>
-						<span
-							aria-hidden
-							className="inline-block size-1.5 rounded-full bg-foreground/40 transition-colors group-hover:bg-foreground"
-						/>
-						{view === "grid" ? "List View" : "Grid View"}
-					</button>
+					<div className="reveal-intro md:col-span-4 flex flex-col items-start gap-5 sm:gap-6 md:items-end md:text-right">
+						<p className="max-w-xs text-pretty text-[13px] md:text-sm leading-[1.55] text-foreground/65">
+							Creative software studio building timeless brands and digital
+							products for the brave and the brilliant.
+						</p>
+						<button
+							type="button"
+							onClick={() => setView((v) => (v === "grid" ? "list" : "grid"))}
+							className="group inline-flex min-h-11 items-center gap-2 text-[11px] font-medium uppercase tracking-[0.18em] text-foreground/60 transition-colors hover:text-foreground"
+							aria-pressed={view === "list"}
+						>
+							<span
+								aria-hidden
+								className="inline-block size-1.5 rounded-full bg-foreground/40 transition-colors group-hover:bg-foreground"
+							/>
+							{view === "grid" ? "List View" : "Grid View"}
+						</button>
+					</div>
+				</header>
+
+				<div ref={bodyRef}>
+					{view === "grid" ? (
+						<ul className="mt-10 sm:mt-14 md:mt-20 grid grid-cols-1 gap-x-3 gap-y-8 sm:grid-cols-2 sm:gap-y-10 md:grid-cols-3 md:gap-x-4 md:gap-y-14 lg:gap-x-5">
+							{projects.map((project, index) => (
+								<li key={project._id ?? project.slug} className="work-item">
+									<WorkTile project={project} index={index} />
+								</li>
+							))}
+						</ul>
+					) : (
+						<ul className="mt-10 sm:mt-14 md:mt-20 border-y border-foreground/15">
+							{projects.map((project, index) => (
+								<li
+									key={project._id ?? project.slug}
+									className="work-item border-b border-foreground/15 last:border-b-0"
+								>
+									<WorkRow project={project} index={index} />
+								</li>
+							))}
+						</ul>
+					)}
 				</div>
-			</header>
-
-			<div ref={bodyRef}>
-				{view === "grid" ? (
-					<ul className="mt-10 sm:mt-14 md:mt-20 grid grid-cols-1 gap-x-3 gap-y-8 sm:grid-cols-2 sm:gap-y-10 md:grid-cols-3 md:gap-x-4 md:gap-y-14 lg:gap-x-5">
-						{projects.map((project, index) => (
-							<li key={project._id ?? project.slug} className="work-item">
-								<WorkTile project={project} index={index} />
-							</li>
-						))}
-					</ul>
-				) : (
-					<ul className="mt-10 sm:mt-14 md:mt-20 border-y border-foreground/15">
-						{projects.map((project, index) => (
-							<li
-								key={project._id ?? project.slug}
-								className="work-item border-b border-foreground/15 last:border-b-0"
-							>
-								<WorkRow project={project} index={index} />
-							</li>
-						))}
-					</ul>
-				)}
 			</div>
 		</section>
 	);

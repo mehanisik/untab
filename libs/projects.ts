@@ -1,6 +1,6 @@
-import { cache } from "react";
-import { fetchSanity, QUERIES, urlFor } from "./sanity";
 import type { PortableTextBlock } from "next-sanity";
+import { cache } from "react";
+import { fetchSanity, QUERIES } from "./sanity";
 
 // Strip zero-width / invisible Unicode characters that Sanity content sometimes
 // carries (ZWSP, ZWNJ, ZWJ, word joiner, BOM, combining grapheme joiner, etc.).
@@ -21,6 +21,10 @@ const cleanString = (value: unknown): unknown => {
 };
 
 const sanitize = <T>(value: T): T => cleanString(value) as T;
+
+export type MediaItem =
+	| { kind: "image"; src: string; alt?: string; aspect?: number }
+	| { kind: "video"; src: string; poster?: string; aspect?: number };
 
 export interface Project {
 	_id?: string;
@@ -68,6 +72,16 @@ export interface Project {
 		appStore?: string;
 	};
 	featured?: boolean;
+	// Case study (detail page) fields. `about`/`services`/`timeline`/`honors`
+	// come straight from Sanity; `stack`/`visitUrl`/`media` are derived from
+	// existing fields (techStack, links/client, image+gallery) in the loader.
+	about?: string[];
+	services?: string[];
+	timeline?: string;
+	honors?: string[];
+	stack?: string[];
+	visitUrl?: string;
+	media?: MediaItem[];
 }
 
 export const getProjects = cache(async (): Promise<Project[]> => {
@@ -83,7 +97,8 @@ export const getProjects = cache(async (): Promise<Project[]> => {
 					...p,
 					slug,
 					href: `/work/${slug}`,
-					image: p.image ? urlFor(p.image).url() : "/projects/placeholder.png",
+					// GROQ already resolves image to a URL string (image.asset->url).
+					image: p.image || "/projects/placeholder.png",
 					gradient: p.gradient || "from-zinc-900 to-zinc-800",
 					accentColor: p.accentColor || "zinc",
 					branding: p.branding || { colors: [], typography: [] },
@@ -107,16 +122,28 @@ export const getProjectBySlug = cache(
 			if (project) {
 				const clean = sanitize(project);
 				const slugVal = clean.slug;
+				// GROQ already resolves image/gallery to URL strings.
+				const image = clean.image || "/projects/placeholder.png";
+				const gallery = clean.gallery ?? [];
+				const media: MediaItem[] = [
+					{ kind: "image", src: image, alt: `${clean.title} hero` },
+					...gallery.map((src, i) => ({
+						kind: "image" as const,
+						src,
+						alt: `${clean.title} ${String(i + 2).padStart(2, "0")}`,
+					})),
+				];
 				return {
 					...clean,
 					slug: slugVal,
 					href: `/work/${slugVal}`,
-					image: clean.image
-						? urlFor(clean.image).url()
-						: "/projects/placeholder.png",
+					image,
 					gradient: clean.gradient || "from-zinc-900 to-zinc-800",
 					accentColor: clean.accentColor || "zinc",
 					branding: clean.branding || { colors: [], typography: [] },
+					stack: clean.techStack ?? [],
+					visitUrl: clean.links?.live ?? clean.client?.website,
+					media,
 				};
 			}
 		} catch (error) {

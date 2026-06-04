@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import { Wrapper } from "~/components/wrapper";
 import { generatePageMetadata } from "~/libs/metadata";
+import { getProjects } from "~/libs/projects";
 import { Footer, Navbar } from "../_components";
 import { WorkList } from "./_components";
-import { SAMPLE_PROJECTS } from "./_data";
 
 export const metadata: Metadata = generatePageMetadata({
 	title: "Case studies | Untab Studio",
@@ -13,7 +13,7 @@ export const metadata: Metadata = generatePageMetadata({
 });
 
 export default async function WorkPage() {
-	const projects = SAMPLE_PROJECTS;
+	const projects = await getProjects();
 
 	return (
 		<Wrapper>

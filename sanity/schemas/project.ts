@@ -1,5 +1,5 @@
-import { defineField, defineType } from "sanity";
 import { CaseIcon } from "@sanity/icons";
+import { defineField, defineType } from "sanity";
 
 export default defineType({
 	name: "project",
@@ -10,6 +10,7 @@ export default defineType({
 		{ name: "general", title: "General" },
 		{ name: "client", title: "Client" },
 		{ name: "content", title: "Content" },
+		{ name: "caseStudy", title: "Case Study" },
 		{ name: "media", title: "Media" },
 		{ name: "branding", title: "Branding" },
 		{ name: "tech", title: "Tech & Tools" },
@@ -105,6 +106,8 @@ export default defineType({
 			type: "array",
 			group: "media",
 			of: [{ type: "image", options: { hotspot: true } }],
+			description:
+				"Shown as the case study media column, after the hero image.",
 		}),
 		defineField({
 			name: "content",
@@ -137,6 +140,38 @@ export default defineType({
 					of: [{ type: "string" }],
 				}),
 			],
+		}),
+		defineField({
+			name: "about",
+			title: "About (paragraphs)",
+			type: "array",
+			group: "caseStudy",
+			of: [{ type: "string" }],
+			description:
+				"Each entry is one paragraph shown in the case study sidebar.",
+		}),
+		defineField({
+			name: "services",
+			title: "Services",
+			type: "array",
+			group: "caseStudy",
+			of: [{ type: "string" }],
+			description: "e.g. Design Site, Animations, Webflow.",
+		}),
+		defineField({
+			name: "timeline",
+			title: "Timeline",
+			type: "string",
+			group: "caseStudy",
+			description: "e.g. 2 months.",
+		}),
+		defineField({
+			name: "honors",
+			title: "Honors / Awards",
+			type: "array",
+			group: "caseStudy",
+			of: [{ type: "string" }],
+			description: "e.g. Awwwards x 1, CSSDA x 1.",
 		}),
 		defineField({
 			name: "testimonial",
@@ -205,6 +240,8 @@ export default defineType({
 			type: "array",
 			group: "tech",
 			of: [{ type: "string" }],
+			description:
+				'Powers the case study "Stack" list and the featured-work tags.',
 		}),
 		defineField({
 			name: "tools",
