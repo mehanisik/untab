@@ -77,13 +77,7 @@ const nextConfig: NextConfig = {
 		taint: true,
 		browserDebugInfoInTerminal: true,
 		// isolatedDevBuild: true,
-		optimizePackageImports: [
-			"gsap",
-			"postprocessing",
-			"@base-ui-components/react",
-			"lenis",
-			"zustand",
-		],
+		optimizePackageImports: ["gsap", "@base-ui/react", "lenis"],
 	},
 	devIndicators: false,
 	images: {
@@ -104,6 +98,10 @@ const nextConfig: NextConfig = {
 			{
 				protocol: "https",
 				hostname: "fastly.picsum.photos",
+			},
+			{
+				protocol: "https",
+				hostname: "cdn.prod.website-files.com",
 			},
 		],
 		minimumCacheTTL: 60 * 60 * 24 * 30, // 30 days
