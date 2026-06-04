@@ -1,0 +1,84 @@
+# Dependabot keeps GitHub Actions and npm dependencies up to date.
+# The Bun lockfile (bun.lock) is updated through the npm ecosystem since
+# Dependabot has no native Bun support yet — package.json remains the
+# source of truth, which is what we want.
+#
+# Strategy: collapse all minor/patch updates into a single weekly PR per
+# ecosystem. Auto-merge handles those once CI passes (see
+# .github/workflows/dependabot-auto-merge.yml). Major bumps still come
+# individually so they get a real human review.
+#
+# Reference: https://docs.github.com/en/code-security/dependabot/dependabot-version-updates
+version: 2
+
+updates:
+  # ---------------------------------------------------------------------------
+  # GitHub Actions — keep workflow action SHAs current.
+  # One grouped PR per week for any minor/patch action bump.
+  # ---------------------------------------------------------------------------
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: "06:00"
+      timezone: Etc/UTC
+    open-pull-requests-limit: 3
+    labels:
+      - dependencies
+      - github-actions
+    commit-message:
+      prefix: ci
+      include: scope
+    groups:
+      actions:
+        patterns:
+          - "*"
+        update-types:
+          - minor
+          - patch
+
+  # ---------------------------------------------------------------------------
+  # npm / Bun — application dependencies.
+  # All minor/patch bumps land in a single grouped PR (auto-merged on green
+  # CI). Majors arrive individually for manual review.
+  # ---------------------------------------------------------------------------
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: "06:00"
+      timezone: Etc/UTC
+    open-pull-requests-limit: 5
+    labels:
+      - dependencies
+    commit-message:
+      prefix: chore
+      prefix-development: chore
+      include: scope
+    versioning-strategy: increase
+    groups:
+      npm-minor-and-patch:
+        patterns:
+          - "*"
+        update-types:
+          - minor
+          - patch
+    ignore:
+      # React / Next majors are coordinated upgrades — gate manually.
+      - dependency-name: react
+        update-types:
+          - version-update:semver-major
+      - dependency-name: react-dom
+        update-types:
+          - version-update:semver-major
+      - dependency-name: next
+        update-types:
+          - version-update:semver-major
+      # Sanity 5.7+ regresses /studio prerender (window-not-defined).
+      # Pinned to 5.6.0 in package.json; unblock by either making /studio
+      # dynamic or upgrading Studio dependencies together.
+      - dependency-name: sanity
+      - dependency-name: "@sanity/vision"
+      - dependency-name: next-sanity

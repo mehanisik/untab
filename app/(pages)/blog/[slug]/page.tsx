@@ -12,12 +12,18 @@ interface PageProps {
 
 export async function generateStaticParams() {
 	// Cache Components requires generateStaticParams to return at least one
-	// entry. When Sanity has no posts (unseeded dataset, or CI without network),
-	// emit a placeholder slug the page resolves to notFound(), so the route
-	// still builds. Mirrors darkroomengineering/satus.
-	const posts = await getPosts();
-	const params = posts.map((post) => ({ slug: post.slug }));
-	return params.length > 0 ? params : [{ slug: "post-not-found" }];
+	// entry. When Sanity has no posts (unseeded dataset) or is unreachable at
+	// build time (CI without real credentials), emit a placeholder slug the
+	// page resolves to notFound(), so the route still builds.
+	// Mirrors darkroomengineering/satus.
+	const fallback = [{ slug: "post-not-found" }];
+	try {
+		const posts = await getPosts();
+		const params = posts.map((post) => ({ slug: post.slug }));
+		return params.length > 0 ? params : fallback;
+	} catch {
+		return fallback;
+	}
 }
 
 export async function generateMetadata({

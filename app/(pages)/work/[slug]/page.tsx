@@ -12,12 +12,18 @@ interface PageProps {
 
 export async function generateStaticParams() {
 	// Cache Components requires generateStaticParams to return at least one
-	// entry. When Sanity has no projects (unseeded dataset, or CI without
-	// network), emit a placeholder slug the page resolves to notFound(), so the
-	// route still builds. Mirrors darkroomengineering/satus.
-	const projects = await getProjects();
-	const params = projects.map((p) => ({ slug: p.slug }));
-	return params.length > 0 ? params : [{ slug: "project-not-found" }];
+	// entry. When Sanity has no projects (unseeded dataset) or is unreachable at
+	// build time (CI without real credentials), emit a placeholder slug the page
+	// resolves to notFound(), so the route still builds.
+	// Mirrors darkroomengineering/satus.
+	const fallback = [{ slug: "project-not-found" }];
+	try {
+		const projects = await getProjects();
+		const params = projects.map((p) => ({ slug: p.slug }));
+		return params.length > 0 ? params : fallback;
+	} catch {
+		return fallback;
+	}
 }
 
 export async function generateMetadata({

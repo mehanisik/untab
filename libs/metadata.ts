@@ -41,12 +41,15 @@ const DEFAULT_KEYWORDS = [
 function getBaseUrl(): string {
 	const url = process.env.NEXT_PUBLIC_BASE_URL;
 	if (!url) {
-		if (process.env.NODE_ENV === "production") {
+		if (
+			process.env.NODE_ENV === "production" &&
+			process.env.SKIP_ENV_VALIDATION !== "true"
+		) {
 			throw new Error(
 				"NEXT_PUBLIC_BASE_URL environment variable is required in production. Please set it to your production URL.",
 			);
 		}
-		// In development, use localhost
+		// Dev/CI fallback
 		return "http://localhost:3000";
 	}
 	return url;
