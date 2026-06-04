@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Wrapper } from "~/components/wrapper";
 import { generatePageMetadata } from "~/libs/metadata";
 import { Footer, Navbar } from "../_components";
-import { Process, ServicesHero } from "./_components";
+import { Capabilities, ServicesHero } from "./_components";
 
 export const metadata: Metadata = generatePageMetadata({
 	title: "Services",
@@ -16,7 +16,7 @@ export default function ServicesPage() {
 			<Navbar />
 			<main className="grow bg-background pt-14">
 				<ServicesHero />
-				<Process />
+				<Capabilities />
 			</main>
 			<Footer />
 		</Wrapper>

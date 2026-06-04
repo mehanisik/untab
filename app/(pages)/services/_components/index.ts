@@ -1,2 +1,2 @@
+export * from "./capabilities";
 export * from "./hero";
-export * from "./process";
