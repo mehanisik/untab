@@ -75,9 +75,9 @@ export function BlogFeed({ posts }: BlogFeedProps) {
 	return (
 		<section
 			ref={sectionRef}
-			className="w-full bg-background px-5 py-16 sm:px-6 sm:py-20 md:px-8 md:py-24 lg:px-12"
+			className="w-full bg-background py-16 sm:py-20 md:py-24"
 		>
-			<div className="mx-auto max-w-[1440px]">
+			<div className="mx-auto w-full max-w-[1440px] px-6 md:px-12 lg:px-24">
 				{/* Intro */}
 				<div className="feed-intro mb-12 max-w-2xl md:mb-16">
 					<p className="text-[11px] font-medium uppercase tracking-[0.28em] text-foreground/50">
