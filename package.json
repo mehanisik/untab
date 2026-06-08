@@ -71,7 +71,7 @@
 		"cross-env": "^10.1.0",
 		"husky": "^9.1.7",
 		"lint-staged": "^16.4.0",
-		"react-email": "^6.1.4",
+		"react-email": "^6.5.0",
 		"tailwindcss": "^4.3.0",
 		"typescript": "^5.9.3",
 		"uuid": "^13.0.2"
