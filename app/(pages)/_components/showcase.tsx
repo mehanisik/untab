@@ -124,7 +124,7 @@ export function Showcase({
 
 	return (
 		<section id="showcase" className="relative min-h-dvh bg-background py-24">
-			<div className="mx-auto flex max-w-[1440px] justify-between px-6 md:px-12 lg:px-24">
+			<div className="container flex justify-between px-6 md:px-12 lg:px-24">
 				<h2
 					ref={titleRef}
 					className="text-3xl font-medium tracking-tight text-foreground md:text-4xl"

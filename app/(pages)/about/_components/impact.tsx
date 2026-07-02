@@ -99,7 +99,7 @@ export function Impact() {
 			className="w-full bg-surface-deep text-surface-deep-foreground py-20 md:py-28 lg:py-32 px-6 md:px-12 lg:px-24"
 			aria-label="Untab's technical pedigree in numbers"
 		>
-			<div className="mx-auto w-full max-w-[1440px]">
+			<div className="container">
 				<div className="grid grid-cols-1 gap-10 md:grid-cols-12 md:gap-10">
 					<div className="md:col-span-3 lg:col-span-3">
 						<p className="impact-eyebrow text-[11px] font-medium uppercase tracking-[0.28em] opacity-60">

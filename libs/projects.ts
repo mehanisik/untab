@@ -1,6 +1,7 @@
 import type { PortableTextBlock } from "next-sanity";
 import { cache } from "react";
-import { fetchSanity, QUERIES } from "./sanity";
+import { fetchSanity } from "./live";
+import { QUERIES } from "./sanity";
 
 // Strip zero-width / invisible Unicode characters that Sanity content sometimes
 // carries (ZWSP, ZWNJ, ZWJ, word joiner, BOM, combining grapheme joiner, etc.).
@@ -37,6 +38,9 @@ export interface Project {
 	description: string;
 	accentColor?: string;
 	image: string;
+	// Normalised 0–1 focal point set in Sanity Studio. When present the hero
+	// mosaic crops around it; otherwise it falls back to a content-aware crop.
+	imageHotspot?: { x: number; y: number };
 	gallery?: string[];
 	client?: {
 		name?: string;

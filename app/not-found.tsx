@@ -4,7 +4,6 @@ import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { useRef } from "react";
 import { Link } from "~/components/ui/link";
-import { Wrapper } from "~/components/wrapper";
 import { withMotion } from "~/libs/gsap/presets";
 
 export default function NotFound() {
@@ -34,7 +33,7 @@ export default function NotFound() {
 	);
 
 	return (
-		<Wrapper>
+		<div className="container relative flex flex-col bg-background text-foreground">
 			<main
 				ref={containerRef}
 				className="grow bg-background text-foreground min-h-screen relative overflow-hidden flex flex-col items-center justify-center"
@@ -82,6 +81,6 @@ export default function NotFound() {
 					<span>Status: Drifted</span>
 				</div>
 			</main>
-		</Wrapper>
+		</div>
 	);
 }

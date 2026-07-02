@@ -5,7 +5,10 @@ export const REVEAL = {
 	duration: 0.9,
 	y: 32,
 	start: "top 80%",
-	toggleActions: "play none none none",
+	// Play on enter, reverse out when scrolling back above the section so
+	// every reveal has a matching exit (GSAP toggleActions: onEnter onLeave
+	// onEnterBack onLeaveBack).
+	toggleActions: "play none none reverse",
 } as const;
 
 /**

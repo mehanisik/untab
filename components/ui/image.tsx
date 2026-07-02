@@ -93,9 +93,17 @@ export function Image({
   aspectRatio,
   placeholder = "blur",
   priority = false,
+  preload,
+  fetchPriority,
   ...props
 }: ImageProps) {
-  const finalLoading = loading ?? (priority ? "eager" : "lazy");
+  // Next 16 deprecated `priority` in favor of `preload`. Keep accepting
+  // `priority` from call sites but translate it to the modern equivalents:
+  // a <link rel="preload"> in <head>, eager loading, and high fetch priority.
+  const shouldPreload = preload ?? priority;
+  const finalLoading = loading ?? (shouldPreload ? "eager" : "lazy");
+  const finalFetchPriority =
+    fetchPriority ?? (shouldPreload ? "high" : undefined);
 
   const finalSizes =
     sizes || `(max-width: ${breakpoints.dt}px) ${mobileSize}, ${desktopSize}`;
@@ -141,7 +149,8 @@ export function Image({
       onDragStart={(e) => e.preventDefault()}
       placeholder={finalPlaceholder}
       blurDataURL={blurDataURL}
-      priority={priority}
+      preload={shouldPreload}
+      fetchPriority={finalFetchPriority}
       {...props}
     />
   );

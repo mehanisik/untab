@@ -1,5 +1,6 @@
 import { cache } from "react";
-import { fetchSanity, QUERIES, type Post } from "./sanity";
+import { fetchSanity } from "./live";
+import { type Post, QUERIES } from "./sanity";
 
 /**
  * Fetches all blog posts, ordered by publishedAt desc.

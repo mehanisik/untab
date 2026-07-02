@@ -55,68 +55,69 @@ export function Footer() {
 				const root = footerRef.current;
 				if (!root) return;
 
-				const trigger = {
-					trigger: root,
-					start: "top 90%",
-					toggleActions: "play none none none",
-				};
+				// Curtain reveal: the whole footer body eases down into place as
+				// the footer scrolls in. Scroll-linked, so scrub + ease "none",
+				// clamped so short pages don't start mid-animation.
+				gsap.fromTo(
+					root.querySelector(".fx-inner"),
+					{ yPercent: -10 },
+					{
+						yPercent: 0,
+						ease: "none",
+						scrollTrigger: {
+							trigger: root,
+							start: "clamp(top bottom)",
+							end: "clamp(top 25%)",
+							scrub: true,
+						},
+					},
+				);
 
-				gsap.from(root.querySelectorAll(".fx-logo"), {
-					y: 24,
-					opacity: 0,
-					duration: 0.9,
-					ease: "expo.out",
-					scrollTrigger: trigger,
+				// Entrance: one timeline, one ScrollTrigger; reverses out when
+				// scrolling back up.
+				const tl = gsap.timeline({
+					defaults: { ease: "expo.out" },
+					scrollTrigger: {
+						trigger: root,
+						start: "top 85%",
+						toggleActions: "play none none reverse",
+					},
 				});
 
-				gsap.from(root.querySelectorAll(".fx-tagline-line"), {
-					y: 28,
-					opacity: 0,
-					duration: 0.9,
-					ease: "expo.out",
-					stagger: 0.08,
-					delay: 0.1,
-					scrollTrigger: trigger,
-				});
-
-				gsap.from(root.querySelectorAll(".fx-col-label"), {
-					y: 14,
-					opacity: 0,
-					duration: 0.7,
-					ease: "expo.out",
-					stagger: 0.06,
-					delay: 0.15,
-					scrollTrigger: trigger,
-				});
-
-				gsap.from(root.querySelectorAll(".fx-link"), {
-					y: 10,
-					opacity: 0,
-					duration: 0.5,
-					ease: "expo.out",
-					stagger: { each: 0.04, from: "start" },
-					delay: 0.25,
-					scrollTrigger: trigger,
-				});
-
-				gsap.from(root.querySelector(".fx-divider"), {
-					scaleX: 0,
-					transformOrigin: "left center",
-					duration: 1,
-					ease: "expo.out",
-					delay: 0.35,
-					scrollTrigger: trigger,
-				});
-
-				gsap.from(root.querySelectorAll(".fx-meta"), {
-					y: 10,
-					opacity: 0,
-					duration: 0.6,
-					ease: "expo.out",
-					stagger: 0.06,
-					delay: 0.45,
-					scrollTrigger: trigger,
-				});
+				tl.from(
+					root.querySelectorAll(".fx-logo"),
+					{ y: 24, autoAlpha: 0, duration: 0.9 },
+					0,
+				)
+					.from(
+						root.querySelectorAll(".fx-tagline-line"),
+						{ y: 28, autoAlpha: 0, duration: 0.9, stagger: 0.08 },
+						0.1,
+					)
+					.from(
+						root.querySelectorAll(".fx-col-label"),
+						{ y: 14, autoAlpha: 0, duration: 0.7, stagger: 0.06 },
+						0.15,
+					)
+					.from(
+						root.querySelectorAll(".fx-link"),
+						{ y: 10, autoAlpha: 0, duration: 0.5, stagger: 0.04 },
+						0.25,
+					)
+					.from(
+						root.querySelector(".fx-divider"),
+						{
+							scaleX: 0,
+							transformOrigin: "left center",
+							duration: 1,
+						},
+						0.35,
+					)
+					.from(
+						root.querySelectorAll(".fx-meta"),
+						{ y: 10, autoAlpha: 0, duration: 0.6, stagger: 0.06 },
+						0.45,
+					);
 			}),
 		{ scope: footerRef },
 	);
@@ -124,30 +125,41 @@ export function Footer() {
 	return (
 		<footer
 			ref={footerRef}
-			className="relative isolate w-full overflow-hidden bg-surface-deep text-surface-deep-foreground"
+			className="relative isolate w-full text-surface-deep-foreground"
+			// Fixed magenta surface in both themes, so pin the foreground to the
+			// cream base token instead of the theme-flipping surface foreground.
+			style={
+				{ "--surface-deep-foreground": "var(--light)" } as React.CSSProperties
+			}
 		>
-			<svg
-				aria-hidden
-				className="pointer-events-none absolute inset-0 -z-10 size-full opacity-[0.12] mix-blend-soft-light"
-				preserveAspectRatio="none"
-			>
-				<title>texture</title>
-				<filter id={grainId}>
-					<feTurbulence
-						type="fractalNoise"
-						baseFrequency="0.72"
-						numOctaves="3"
-						stitchTiles="stitch"
-					/>
-					<feColorMatrix
-						type="matrix"
-						values="0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0.45 0.45 0.45 0 0"
-					/>
-				</filter>
-				<rect width="100%" height="100%" filter={`url(#${grainId})`} />
-			</svg>
+			{/* Full-bleed magenta surface: spans the viewport width (like a proper
+			    footer) while the content below keeps the shared max-width rails.
+			    left-1/2 + -ml-[50vw] + w-screen resolves to the viewport edges
+			    because the footer is centered in the page container. */}
+			<div className="pointer-events-none absolute inset-y-0 left-1/2 -z-10 -ml-[50vw] w-screen overflow-hidden bg-[var(--brand-magenta)]">
+				<svg
+					aria-hidden
+					className="size-full opacity-[0.12] mix-blend-soft-light"
+					preserveAspectRatio="none"
+				>
+					<title>texture</title>
+					<filter id={grainId}>
+						<feTurbulence
+							type="fractalNoise"
+							baseFrequency="0.72"
+							numOctaves="3"
+							stitchTiles="stitch"
+						/>
+						<feColorMatrix
+							type="matrix"
+							values="0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0.45 0.45 0.45 0 0"
+						/>
+					</filter>
+					<rect width="100%" height="100%" filter={`url(#${grainId})`} />
+				</svg>
+			</div>
 
-			<div className="relative mx-auto max-w-[1440px] px-6 md:px-12 lg:px-24 py-20 md:py-24">
+			<div className="fx-inner container relative px-6 py-20 md:px-12 md:py-24 lg:px-24">
 				<div className="grid grid-cols-1 gap-16 md:grid-cols-12 md:gap-10 lg:gap-12">
 					<div className="flex flex-col items-start gap-6 md:col-span-6 lg:col-span-5">
 						<LogoWordmark

@@ -88,7 +88,7 @@ export function Manifesto() {
 			id="about-manifesto"
 			className="relative w-full bg-background text-foreground pt-32 pb-20 md:pt-40 md:pb-28 lg:pt-48"
 		>
-			<div className="mx-auto w-full max-w-[1440px] px-6 md:px-12 lg:px-24">
+			<div className="container px-6 md:px-12 lg:px-24">
 				<h1 className="font-medium leading-[0.95] tracking-[-0.035em] text-foreground text-[clamp(2.25rem,5vw,4rem)] max-w-[14ch]">
 					<span className="about-line block">We exist between</span>
 					<span className="about-line block">what is and what</span>

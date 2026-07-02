@@ -2,27 +2,28 @@
 
 import { useGSAP } from "@gsap/react";
 import {
-	Mail01Icon,
-	SentIcon,
+	DribbbleIcon,
+	GithubIcon,
+	InstagramIcon,
+	Linkedin01Icon,
 	Loading03Icon,
+	NewTwitterIcon,
+	SentIcon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import gsap from "gsap";
 import { useEffect, useRef, useState } from "react";
 import { sendContactEmail } from "~/app/actions/contact";
 import { Container } from "~/components/container";
+import { LogoWordmark } from "~/components/logo-wordmark";
+import { Link } from "~/components/ui/link";
 import { withMotion } from "~/libs/gsap/presets";
 
 const COOLDOWN_MS = 10_000;
 
-const PROJECT_TYPES = [
-	"Website & Platform",
-	"Brand Strategy",
-	"Branding",
-	"Creative Content",
-	"Design System",
-	"Other",
-] as const;
+// The contact surface is a fixed warm orange in both themes; its foreground
+// uses the cream base token (var(--light)) and ink for the form fields.
+const ORANGE = "#ec5a29";
 
 type FormState =
 	| { status: "idle" }
@@ -30,10 +31,16 @@ type FormState =
 	| { status: "success" }
 	| { status: "error"; message: string };
 
-const LABEL =
-	"text-[11px] font-medium uppercase tracking-[0.22em] text-foreground/60";
-const INPUT =
-	"w-full border-b border-foreground/15 bg-transparent py-3 text-[15px] text-foreground outline-none transition-colors duration-200 placeholder:text-foreground/30 focus:border-foreground/50";
+const FIELD =
+	"form-field w-full rounded-lg bg-[var(--light)] px-5 py-4 text-[15px] text-[#141311] outline-none ring-2 ring-transparent transition duration-200 placeholder:text-[#141311]/45 focus-visible:ring-[#141311]/30";
+
+const socialLinks = [
+	{ label: "LinkedIn", icon: Linkedin01Icon, href: "https://linkedin.com" },
+	{ label: "Instagram", icon: InstagramIcon, href: "https://instagram.com" },
+	{ label: "Twitter", icon: NewTwitterIcon, href: "https://twitter.com" },
+	{ label: "Dribbble", icon: DribbbleIcon, href: "https://dribbble.com" },
+	{ label: "GitHub", icon: GithubIcon, href: "https://github.com" },
+];
 
 export function ContactForm() {
 	const sectionRef = useRef<HTMLElement>(null);
@@ -52,30 +59,37 @@ export function ContactForm() {
 				const root = sectionRef.current;
 				if (!root) return;
 
-				const trigger = {
-					trigger: root,
-					start: "top 85%",
-					toggleActions: "play none none none",
-				} as const;
-
-				gsap.from(root.querySelectorAll(".form-field"), {
-					y: 24,
-					opacity: 0,
-					duration: 0.8,
-					ease: "expo.out",
-					stagger: 0.08,
-					scrollTrigger: trigger,
+				// One timeline, one ScrollTrigger; reverses out on scroll-up to match
+				// the rest of the site's reveal behaviour.
+				const tl = gsap.timeline({
+					defaults: { ease: "expo.out" },
+					scrollTrigger: {
+						trigger: root,
+						start: "top 80%",
+						toggleActions: "play none none reverse",
+					},
 				});
 
-				gsap.from(root.querySelectorAll(".form-sidebar"), {
-					y: 24,
-					opacity: 0,
-					duration: 0.8,
-					ease: "expo.out",
-					stagger: 0.08,
-					delay: 0.15,
-					scrollTrigger: trigger,
-				});
+				tl.from(
+					root.querySelectorAll(".contact-aside"),
+					{ y: 20, autoAlpha: 0, duration: 0.7, stagger: 0.08 },
+					0,
+				)
+					.from(
+						root.querySelectorAll(".contact-headline-line"),
+						{ yPercent: 110, duration: 0.9, stagger: 0.12 },
+						0.05,
+					)
+					.from(
+						root.querySelectorAll(".contact-copy"),
+						{ y: 18, autoAlpha: 0, duration: 0.7, stagger: 0.1 },
+						0.35,
+					)
+					.from(
+						root.querySelectorAll(".form-field"),
+						{ y: 18, autoAlpha: 0, duration: 0.6, stagger: 0.06 },
+						0.3,
+					);
 			}),
 		{ scope: sectionRef },
 	);
@@ -111,28 +125,105 @@ export function ContactForm() {
 	return (
 		<section
 			ref={sectionRef}
-			className="w-full bg-background pb-24 sm:pb-32 md:pb-40"
+			aria-label="Contact"
+			className="relative isolate flex min-h-[calc(100dvh-3.5rem)] items-center py-16 text-[var(--light)] md:py-20"
 		>
-			<Container className="grid grid-cols-12 gap-x-6 gap-y-16 sm:gap-x-8">
-				{/* Form */}
-				<div className="col-span-12 lg:col-span-7">
+			{/* Full-bleed orange surface: spans the viewport width while the content
+			    keeps the shared max-width rails. */}
+			<div
+				aria-hidden
+				className="pointer-events-none absolute inset-y-0 left-1/2 -z-10 -ml-[50vw] w-screen"
+				style={{ backgroundColor: ORANGE }}
+			/>
+
+			<Container className="grid grid-cols-1 gap-x-8 gap-y-14 lg:grid-cols-12 lg:items-start">
+				{/* Left: brand, address, socials */}
+				<div className="flex flex-col gap-10 lg:col-span-3 lg:border-r lg:border-[var(--light)]/20 lg:pr-8">
+					<Link
+						href="/"
+						aria-label="Untab Studio home"
+						className="contact-aside"
+					>
+						<LogoWordmark className="h-12 w-auto text-[var(--light)] md:h-14" />
+					</Link>
+
+					<address className="contact-aside space-y-1 text-[15px] not-italic leading-relaxed text-[var(--light)]/85">
+						<p>Warsaw, Poland</p>
+						<p>CET · UTC+1</p>
+						<a
+							href="mailto:hello@untabstudio.com"
+							className="mt-2 inline-block underline-offset-4 transition-colors hover:text-[var(--light)] hover:underline"
+						>
+							hello@untabstudio.com
+						</a>
+					</address>
+
+					<ul className="contact-aside flex flex-wrap gap-3">
+						{socialLinks.map((social) => (
+							<li key={social.label}>
+								<Link
+									href={social.href}
+									aria-label={social.label}
+									className="flex size-11 items-center justify-center rounded-full border border-[var(--light)]/35 text-[var(--light)] transition-colors duration-200 hover:bg-[var(--light)] hover:text-[#ec5a29]"
+								>
+									<HugeiconsIcon
+										icon={social.icon}
+										className="size-[18px]"
+										strokeWidth={1.5}
+									/>
+								</Link>
+							</li>
+						))}
+					</ul>
+				</div>
+
+				{/* Middle: headline + intro */}
+				<div className="lg:col-span-4">
+					<h1 className="font-serif font-medium leading-[0.95] tracking-[-0.01em] text-[clamp(2.75rem,5vw,4rem)]">
+						<span className="block overflow-hidden pb-1">
+							<span className="contact-headline-line block">Accepting new</span>
+						</span>
+						<span className="block overflow-hidden pb-1">
+							<span className="contact-headline-line block">
+								business &amp;
+							</span>
+						</span>
+						<span className="block overflow-hidden pb-1">
+							<span className="contact-headline-line block">good ideas</span>
+						</span>
+					</h1>
+
+					<p className="contact-copy mt-8 max-w-md text-pretty text-[15px] leading-relaxed text-[var(--light)]/85">
+						If you&apos;ve got an ambitious idea and you&apos;re not afraid to
+						make moves, tell us about it. We&apos;ll get back within one
+						business day to see how we can help exceed your expectations.
+					</p>
+
+					<p className="contact-copy mt-6 text-[15px] leading-relaxed text-[var(--light)]/70">
+						(We typically book new projects a few weeks out — the sooner you
+						reach out, the better.)
+					</p>
+				</div>
+
+				{/* Right: form */}
+				<div className="lg:col-span-5">
 					{formState.status === "success" ? (
 						<SuccessMessage />
 					) : (
-						<form ref={formRef} onSubmit={handleSubmit} className="space-y-10">
+						<form ref={formRef} onSubmit={handleSubmit} className="space-y-4">
 							<input
 								type="text"
 								name="_honeypot"
 								tabIndex={-1}
 								autoComplete="off"
-								className="absolute opacity-0 pointer-events-none h-0 w-0"
+								className="pointer-events-none absolute h-0 w-0 opacity-0"
 								aria-hidden="true"
 							/>
 							<input type="hidden" name="_t" value={renderTimestamp} />
 
-							<div className="form-field space-y-2">
-								<label htmlFor="name" className={LABEL}>
-									Name
+							<div>
+								<label htmlFor="name" className="sr-only">
+									Full name
 								</label>
 								<input
 									id="name"
@@ -142,13 +233,28 @@ export function ContactForm() {
 									minLength={2}
 									maxLength={100}
 									autoComplete="name"
-									placeholder="Your name"
-									className={INPUT}
+									placeholder="Full name"
+									className={FIELD}
 								/>
 							</div>
 
-							<div className="form-field space-y-2">
-								<label htmlFor="email" className={LABEL}>
+							<div>
+								<label htmlFor="company" className="sr-only">
+									Your company
+								</label>
+								<input
+									id="company"
+									name="company"
+									type="text"
+									maxLength={120}
+									autoComplete="organization"
+									placeholder="Your company"
+									className={FIELD}
+								/>
+							</div>
+
+							<div>
+								<label htmlFor="email" className="sr-only">
 									Email
 								</label>
 								<input
@@ -158,34 +264,28 @@ export function ContactForm() {
 									required
 									maxLength={255}
 									autoComplete="email"
-									placeholder="you@company.com"
-									className={INPUT}
+									placeholder="Email"
+									className={FIELD}
 								/>
 							</div>
 
-							<div className="form-field space-y-2">
-								<label htmlFor="projectType" className={LABEL}>
-									What can we help with?
+							<div>
+								<label htmlFor="phone" className="sr-only">
+									Phone
 								</label>
-								<select
-									id="projectType"
-									name="projectType"
-									className={`${INPUT} cursor-pointer appearance-none`}
-									defaultValue=""
-								>
-									<option value="" disabled>
-										Select a service
-									</option>
-									{PROJECT_TYPES.map((type) => (
-										<option key={type} value={type}>
-											{type}
-										</option>
-									))}
-								</select>
+								<input
+									id="phone"
+									name="phone"
+									type="tel"
+									maxLength={40}
+									autoComplete="tel"
+									placeholder="Phone"
+									className={FIELD}
+								/>
 							</div>
 
-							<div className="form-field space-y-2">
-								<label htmlFor="message" className={LABEL}>
+							<div>
+								<label htmlFor="message" className="sr-only">
 									Message
 								</label>
 								<textarea
@@ -195,20 +295,34 @@ export function ContactForm() {
 									minLength={10}
 									maxLength={5000}
 									rows={5}
-									placeholder="Tell us about your project, goals, and timeline..."
-									className={`${INPUT} resize-none`}
+									placeholder="Message"
+									className={`${FIELD} resize-y`}
 								/>
 							</div>
 
+							<label className="form-field flex items-center gap-3 pt-1 text-[13px] text-[var(--light)]/85">
+								<input
+									type="checkbox"
+									name="awesome"
+									className="size-4 shrink-0 rounded-sm border border-[var(--light)]/50 bg-transparent accent-[var(--light)]"
+								/>
+								I&apos;m aware that Untab is extremely good at this
+							</label>
+
 							{formState.status === "error" && (
-								<p className="text-sm text-destructive">{formState.message}</p>
+								<p
+									className="form-field rounded-md bg-[#0a0a0a]/20 px-4 py-2.5 text-[13px] text-[var(--light)]"
+									role="alert"
+								>
+									{formState.message}
+								</p>
 							)}
 
-							<div className="form-field">
+							<div className="form-field pt-2">
 								<button
 									type="submit"
 									disabled={formState.status === "submitting"}
-									className="inline-flex items-center gap-3 rounded-full border border-foreground/20 px-8 py-3.5 text-[11px] font-medium uppercase tracking-[0.2em] text-foreground transition-colors duration-200 hover:bg-primary hover:text-primary-foreground hover:border-transparent disabled:opacity-50 disabled:pointer-events-none"
+									className="inline-flex items-center gap-3 rounded-full bg-[#0a0a0a] px-9 py-4 text-[12px] font-semibold uppercase tracking-[0.18em] text-[var(--light)] transition-colors duration-200 hover:bg-[#0a0a0a]/85 disabled:pointer-events-none disabled:opacity-50"
 								>
 									{formState.status === "submitting" ? (
 										<>
@@ -217,7 +331,7 @@ export function ContactForm() {
 												className="size-4 animate-spin"
 												strokeWidth={1.5}
 											/>
-											Sending...
+											Sending
 										</>
 									) : (
 										<>
@@ -234,41 +348,6 @@ export function ContactForm() {
 						</form>
 					)}
 				</div>
-
-				{/* Sidebar */}
-				<aside className="col-span-12 lg:col-span-4 lg:col-start-9">
-					<div className="form-sidebar space-y-10">
-						<div>
-							<p className={LABEL}>Email</p>
-							<a
-								href="mailto:hello@untabstudio.com"
-								className="mt-3 inline-flex items-center gap-2.5 text-[15px] text-foreground transition-colors duration-200 hover:text-foreground/70"
-							>
-								<HugeiconsIcon
-									icon={Mail01Icon}
-									className="size-4 text-foreground/55"
-									strokeWidth={1.5}
-								/>
-								hello@untabstudio.com
-							</a>
-						</div>
-
-						<div>
-							<p className={LABEL}>Location</p>
-							<p className="mt-3 text-[15px] text-foreground/75">
-								Warsaw, Poland
-							</p>
-							<p className="mt-1 text-[13px] text-foreground/45">CET · UTC+1</p>
-						</div>
-
-						<div>
-							<p className={LABEL}>Response time</p>
-							<p className="mt-3 text-[15px] text-foreground/75">
-								Within one business day
-							</p>
-						</div>
-					</div>
-				</aside>
 			</Container>
 		</section>
 	);
@@ -285,7 +364,7 @@ function SuccessMessage() {
 
 				gsap.from(root.querySelectorAll(".success-el"), {
 					y: 20,
-					opacity: 0,
+					autoAlpha: 0,
 					duration: 0.8,
 					ease: "expo.out",
 					stagger: 0.1,
@@ -295,18 +374,14 @@ function SuccessMessage() {
 	);
 
 	return (
-		<div ref={ref} className="flex flex-col items-start gap-6 py-8">
-			<div className="success-el flex size-16 items-center justify-center rounded-full bg-primary/10">
-				<HugeiconsIcon
-					icon={SentIcon}
-					className="size-7 text-primary"
-					strokeWidth={1.5}
-				/>
+		<div ref={ref} className="flex flex-col items-start gap-6 py-4">
+			<div className="success-el flex size-16 items-center justify-center rounded-full bg-[var(--light)]/15 text-[var(--light)]">
+				<HugeiconsIcon icon={SentIcon} className="size-7" strokeWidth={1.5} />
 			</div>
-			<h2 className="success-el text-[clamp(1.75rem,3vw,2.5rem)] font-medium leading-[1.1] tracking-[-0.02em] text-foreground">
+			<h2 className="success-el font-serif font-medium leading-[1.05] tracking-[-0.01em] text-[var(--light)] text-[clamp(1.75rem,3vw,2.5rem)]">
 				Message sent.
 			</h2>
-			<p className="success-el max-w-md text-base leading-[1.65] text-foreground/75">
+			<p className="success-el max-w-md text-[15px] leading-relaxed text-[var(--light)]/85">
 				Thanks for reaching out. We&apos;ll review your message and get back to
 				you within one business day.
 			</p>

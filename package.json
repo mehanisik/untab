@@ -3,7 +3,7 @@
 	"version": "1.0.0",
 	"private": true,
 	"scripts": {
-		"dev": "next dev --turbopack",
+		"dev": "next dev --turbopack -p 3000",
 		"build:analyze": "cross-env SOURCE_MAPS=true bun run build && source-map-explorer .next/static/chunks/*.js",
 		"build:profile": "cross-env NEXT_BUILD_PROFILE=true next build",
 		"build": "next build",

@@ -149,7 +149,7 @@ export function Navbar() {
 			ref={containerRef}
 			className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md"
 		>
-			<nav className="mx-auto grid h-14 max-w-[1440px] grid-cols-[1fr_auto_1fr] items-center px-6 md:px-12 lg:px-24">
+			<nav className="container grid h-14 grid-cols-[1fr_auto_1fr] items-center px-6 md:px-12 lg:px-24">
 				<div className="flex items-center justify-between gap-6">
 					<Link href="/" className="flex items-center gap-2" aria-label="Home">
 						<Logo showText={false} />

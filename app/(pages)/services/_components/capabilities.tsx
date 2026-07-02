@@ -413,7 +413,7 @@ export function Capabilities() {
 			aria-label="Capabilities"
 			className="w-full bg-background pb-24 pt-4 text-foreground sm:pb-28 md:pb-36"
 		>
-			<div className={`mx-auto max-w-[1440px] ${PAGE_PADDING}`}>
+			<div className={`container ${PAGE_PADDING}`}>
 				<header className="max-w-3xl">
 					<p className="cap-head text-[11px] font-medium uppercase tracking-[0.28em] text-foreground/50">
 						What we do

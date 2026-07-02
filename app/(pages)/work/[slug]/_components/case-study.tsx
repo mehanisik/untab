@@ -122,7 +122,7 @@ export function CaseStudy({ study }: CaseStudyProps) {
 			className="w-full pt-24 sm:pt-28 md:pt-32 lg:pt-36 pb-20 sm:pb-24 md:pb-32"
 			aria-label={`${study.title} case study`}
 		>
-			<div className={`mx-auto w-full max-w-[1440px] ${PAGE_PADDING}`}>
+			<div className={`container ${PAGE_PADDING}`}>
 				<div className="grid grid-cols-1 gap-x-10 gap-y-10 sm:gap-y-12 lg:grid-cols-[1.35fr_1fr] lg:gap-x-14 xl:gap-x-20">
 					<div className="min-w-0 order-2 lg:order-1">
 						<ul ref={mediaRef} className="flex flex-col gap-3 md:gap-4">

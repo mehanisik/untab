@@ -1,13 +1,11 @@
 "use server";
 
-import { Resend } from "resend";
-import { escapeHtml, sanitizeInput } from "~/libs/escape-html";
-
-import { aj } from "~/libs/arcjet";
-import { request } from "@arcjet/next";
 import { isSpoofedBot } from "@arcjet/inspect";
-
+import { request } from "@arcjet/next";
+import { Resend } from "resend";
 import { UntabContactEmail } from "~/emails/untab-contact";
+import { aj } from "~/libs/arcjet";
+import { escapeHtml, sanitizeInput } from "~/libs/escape-html";
 import { getEnv } from "~/libs/validate-env";
 
 const env = getEnv();
@@ -27,6 +25,8 @@ const MAX_NAME_LENGTH = 100;
 const MAX_EMAIL_LENGTH = 255;
 const MAX_MESSAGE_LENGTH = 5000;
 const MAX_PROJECT_TYPE_LENGTH = 50;
+const MAX_COMPANY_LENGTH = 120;
+const MAX_PHONE_LENGTH = 40;
 
 const ALLOWED_PROJECT_TYPES = new Set([
 	"Website & Platform",
@@ -122,6 +122,8 @@ export async function sendContactEmail(formData: FormData) {
 
 	const rawName = formData.get("name") as string;
 	const rawProjectType = formData.get("projectType") as string;
+	const rawCompany = formData.get("company") as string;
+	const rawPhone = formData.get("phone") as string;
 
 	if (!rawName) {
 		return { error: "Name is required." };
@@ -138,6 +140,10 @@ export async function sendContactEmail(formData: FormData) {
 	const projectType = rawProjectType
 		? sanitizeInput(rawProjectType, MAX_PROJECT_TYPE_LENGTH)
 		: "";
+	const company = rawCompany
+		? sanitizeInput(rawCompany, MAX_COMPANY_LENGTH)
+		: "";
+	const phone = rawPhone ? sanitizeInput(rawPhone, MAX_PHONE_LENGTH) : "";
 	const message = sanitizeInput(rawMessage, MAX_MESSAGE_LENGTH);
 
 	if (name.length < 2) {
@@ -157,10 +163,21 @@ export async function sendContactEmail(formData: FormData) {
 	}
 
 	try {
+		// Company/phone are optional, so fold them into the message body (the
+		// email template renders it with `whitespace-pre-wrap`, preserving the
+		// newlines) rather than widening the email template's props.
+		const detailLines = [
+			company ? `Company: ${company}` : null,
+			phone ? `Phone: ${phone}` : null,
+		].filter(Boolean);
+		const fullMessage = detailLines.length
+			? `${detailLines.join("\n")}\n\n${message}`
+			: message;
+
 		const escapedName = escapeHtml(name);
 		const escapedEmail = escapeHtml(email);
-		const escapedProjectType = escapeHtml(projectType || "N/A");
-		const escapedMessage = escapeHtml(message);
+		const escapedProjectType = escapeHtml(projectType || "General inquiry");
+		const escapedMessage = escapeHtml(fullMessage);
 
 		const recipientEmail = CONTACT_EMAIL!;
 

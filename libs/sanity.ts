@@ -1,7 +1,6 @@
 import { createImageUrlBuilder } from "@sanity/image-url";
 import type { PortableTextBlock } from "next-sanity";
 import { createClient } from "next-sanity";
-import { cacheSignal } from "react";
 import { getEnv } from "./validate-env";
 
 export interface Post {
@@ -56,31 +55,6 @@ export function urlFor(source: any) {
 	return builder.image(source);
 }
 
-export async function fetchSanity<T>(
-	query: string,
-	params: Record<string, unknown> = {},
-	tags?: string[],
-): Promise<T> {
-	const signal = cacheSignal();
-
-	return client.fetch<T>(query, params, {
-		next: { tags, revalidate: 3600 },
-		// biome-ignore lint/suspicious/noExplicitAny: cacheSignal cast is required for fetch compatibility
-		signal: signal as any,
-	});
-}
-
-export async function getSettings() {
-	return fetchSanity<{ logo: string }>(`*[_type == "settings"][0]{
-    ...,
-    "logo": logo.asset->url
-  }`);
-}
-
-export async function getAuthors() {
-	return fetchSanity<Author[]>(QUERIES.authors);
-}
-
 export const QUERIES = {
 	authors: `*[_type == "author"] | order(name asc) {
     _id,
@@ -94,6 +68,8 @@ export const QUERIES = {
     title,
     "slug": slug.current,
     "image": image.asset->url,
+    "imageHotspot": image.hotspot{x, y},
+    "gallery": gallery[].asset->url,
     "category": category->title,
     year,
     description,

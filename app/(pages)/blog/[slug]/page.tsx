@@ -1,9 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { Wrapper } from "~/components/wrapper";
 import { generatePageMetadata } from "~/libs/metadata";
 import { getPostBySlug, getPosts } from "~/libs/posts";
-import { Footer, Navbar } from "../../_components";
 import { Article } from "./_components";
 
 interface PageProps {
@@ -57,12 +55,8 @@ export default async function BlogPostPage({ params }: PageProps) {
 	if (!post) notFound();
 
 	return (
-		<Wrapper>
-			<Navbar />
-			<main className="grow bg-background pt-14">
-				<Article post={post} />
-			</main>
-			<Footer />
-		</Wrapper>
+		<main className="grow bg-background pt-14">
+			<Article post={post} />
+		</main>
 	);
 }

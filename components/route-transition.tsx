@@ -5,7 +5,13 @@ import gsap from "gsap";
 import { useLenis } from "lenis/react";
 import type { Route } from "next";
 import { usePathname, useRouter } from "next/navigation";
-import { createContext, useCallback, useEffect, useRef } from "react";
+import {
+	createContext,
+	startTransition,
+	useCallback,
+	useEffect,
+	useRef,
+} from "react";
 import { PageTransition } from "~/components/page-transition";
 
 interface RouterTransition {
@@ -22,8 +28,13 @@ export const RouterTransitionContext = createContext<RouterTransition>({
 	},
 });
 
-const DURATION = 0.7;
-const EASE = "power3.inOut";
+// Wipe is dead time (waiting to leave) so it's the shortest, with an
+// accelerating ease that snaps the cover shut. Reveal is the entrance, so it's
+// a touch longer with a decelerating ease for a graceful exit. Both move up.
+const WIPE_DURATION = 0.4;
+const WIPE_EASE = "power2.in";
+const REVEAL_DURATION = 0.5;
+const REVEAL_EASE = "power3.out";
 
 interface RouterTransitionProviderProps {
 	children: React.ReactNode;
@@ -41,7 +52,6 @@ export function RouterTransitionProvider({
 	const isAnimating = useRef(false);
 	const pendingPathname = useRef<string | null>(null);
 	const reducedMotion = useRef(false);
-	const hasIntroPlayed = useRef(false);
 
 	const revealRef = useRef<(() => void) | null>(null);
 	const wipeRef = useRef<((onComplete: () => void) => void) | null>(null);
@@ -67,6 +77,13 @@ export function RouterTransitionProvider({
 				"(prefers-reduced-motion: reduce)",
 			).matches;
 
+			// The overlay ships with an inline `translateY(100%)` so it's parked
+			// off-screen before hydration. GSAP parses that computed matrix as a
+			// pixel `y`, which would silently offset every yPercent tween below
+			// (the wipe would never reach the viewport, and the reveal would end
+			// covering the page). Normalize to pure yPercent once up front.
+			gsap.set(overlayRef.current, { y: 0, yPercent: 100 });
+
 			const reveal = contextSafe(() => {
 				const overlay = overlayRef.current;
 				if (!overlay) return;
@@ -81,8 +98,8 @@ export function RouterTransitionProvider({
 					{ yPercent: 0 },
 					{
 						yPercent: -100,
-						duration: DURATION,
-						ease: EASE,
+						duration: REVEAL_DURATION,
+						ease: REVEAL_EASE,
 						onComplete: () => {
 							if (!overlayRef.current) return;
 							gsap.set(overlayRef.current, { yPercent: 100 });
@@ -105,8 +122,8 @@ export function RouterTransitionProvider({
 					{ yPercent: 100 },
 					{
 						yPercent: 0,
-						duration: DURATION,
-						ease: EASE,
+						duration: WIPE_DURATION,
+						ease: WIPE_EASE,
 						onComplete,
 					},
 				);
@@ -115,14 +132,8 @@ export function RouterTransitionProvider({
 			revealRef.current = reveal;
 			wipeRef.current = wipe;
 
-			if (!hasIntroPlayed.current) {
-				hasIntroPlayed.current = true;
-				if (!reducedMotion.current) {
-					isAnimating.current = true;
-					lenisRef.current?.stop();
-				}
-				reveal();
-			}
+			// No intro animation: the overlay rests off-screen (below) and only
+			// wipes/reveals when the user clicks through to a new route.
 
 			return () => {
 				lenisRef.current?.start();
@@ -136,6 +147,15 @@ export function RouterTransitionProvider({
 			if (isAnimating.current) return;
 			if (href === pathname) return;
 
+			// Same route, different query/hash: pathname never changes, so the
+			// commit effect would never fire the reveal and the cover would get
+			// stuck. Navigate without the transition instead.
+			const targetPath = href.split(/[?#]/)[0] ?? href;
+			if (targetPath === pathname) {
+				router[method](href as Route);
+				return;
+			}
+
 			if (reducedMotion.current) {
 				router[method](href as Route);
 				return;
@@ -145,9 +165,17 @@ export function RouterTransitionProvider({
 			pendingPathname.current = href;
 			lenisRef.current?.stop();
 
+			// Cover the screen FIRST, then navigate. Navigating before the wipe
+			// fully covers would let the new page paint under a half-covered overlay
+			// (the "see page, then animation" flash). startTransition keeps the
+			// new route's render non-urgent so it can't jank the reveal. The reveal
+			// fires from the route-commit effect once the new page mounts behind the
+			// cover, so a slow route just holds the cover until it's ready.
 			wipeRef.current?.(() => {
 				resetScroll();
-				router[method](href as Route);
+				startTransition(() => {
+					router[method](href as Route);
+				});
 			});
 		},
 		[router, pathname, resetScroll],
@@ -167,6 +195,7 @@ export function RouterTransitionProvider({
 		if (pendingPathname.current !== pathname) return;
 		pendingPathname.current = null;
 
+		// New route has committed behind the cover; slide the overlay away.
 		resetScroll();
 		revealRef.current?.();
 	}, [pathname, resetScroll]);

@@ -133,7 +133,7 @@ export function WorkList({ projects }: WorkListProps) {
 	if (projects.length === 0) {
 		return (
 			<section ref={rootRef} className="w-full pt-32 md:pt-44 pb-24 md:pb-32">
-				<div className={`mx-auto w-full max-w-[1440px] ${PAGE_PADDING}`}>
+				<div className={`container ${PAGE_PADDING}`}>
 					<p className="text-center text-sm text-foreground/55">
 						New work is on the way.
 					</p>
@@ -148,7 +148,7 @@ export function WorkList({ projects }: WorkListProps) {
 			className="w-full pt-24 sm:pt-28 md:pt-36 lg:pt-44 pb-20 md:pb-32"
 			aria-label="Case studies"
 		>
-			<div className={`mx-auto w-full max-w-[1440px] ${PAGE_PADDING}`}>
+			<div className={`container ${PAGE_PADDING}`}>
 				<header className="grid grid-cols-1 items-end gap-x-8 gap-y-8 md:grid-cols-12 md:gap-y-10">
 					<h1 className="reveal-intro md:col-span-8 text-[clamp(2.25rem,6vw,4rem)] font-medium leading-[0.88] tracking-[-0.045em] text-foreground">
 						Case studies

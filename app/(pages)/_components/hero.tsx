@@ -4,50 +4,123 @@ import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { useRef } from "react";
 import { useTempus } from "tempus/react";
-import { Splitter } from "~/components/splitter";
+import { Image } from "~/components/ui/image";
 import { withMotion } from "~/libs/gsap/presets";
+import type { Project } from "~/libs/projects";
 
 interface HeroProps {
 	videoUrl?: string;
+	projects?: Project[];
 }
 
-// Satoshi stylistic alternates (ss01–ss06) applied per character, matching the
-// reference title. Each array is keyed by non-space character order in its line.
-const TOP_LINE_FEATURES = [
-	undefined,
-	"ss02",
-	undefined,
-	undefined,
-	"ss06",
-	undefined,
-	"ss05",
-	undefined,
-	undefined,
-	"ss05",
-];
-const BOTTOM_LINE_FEATURES = [
-	undefined,
-	"ss04",
-	undefined,
-	undefined,
-	undefined,
-	"ss01",
-	undefined,
-	"ss06",
-	undefined,
-];
-
-const HERO_MAX_WIDTH = 1440;
-const HERO_SIDE_PADDING = 48;
 const PARALLAX_X = 14;
 const PARALLAX_Y = 10;
 
-export function Hero({ videoUrl = "/hero.mp4" }: HeroProps) {
+// Masonry wall on a 5-column × 12-row grid. Each tile spans a VARYING number of
+// rows (3–5) so column heights stagger like a deuxhuithuit poster wall instead
+// of a uniform mosaic. Every column packs top-to-bottom (rows 1→13, bleeding one
+// past the bottom edge). The center cell (col 3, rows 5–8) is reserved: the hero
+// video settles there and stays the centerpiece. Cells are ordered by distance
+// from the center so the scroll stagger blooms outward.
+const TILE_CELLS = [
+	{ col: 3, rowStart: 1, span: 4 },
+	{ col: 3, rowStart: 9, span: 5 },
+	{ col: 2, rowStart: 5, span: 5 },
+	{ col: 4, rowStart: 6, span: 3 },
+	{ col: 2, rowStart: 1, span: 4 },
+	{ col: 4, rowStart: 1, span: 5 },
+	{ col: 2, rowStart: 10, span: 4 },
+	{ col: 4, rowStart: 9, span: 5 },
+	{ col: 1, rowStart: 6, span: 4 },
+	{ col: 5, rowStart: 5, span: 4 },
+	{ col: 1, rowStart: 1, span: 5 },
+	{ col: 5, rowStart: 1, span: 4 },
+	{ col: 1, rowStart: 10, span: 4 },
+	{ col: 5, rowStart: 9, span: 5 },
+] as const;
+
+// Tile rendition: ~280px rendered width at 2x retina, 5:6 portrait like the
+// grid cells. Sanity's image CDN crops server-side (focal point or entropy),
+// so each poster arrives already framed for the portrait tile instead of being
+// blindly object-cover cropped, and nobody downloads a 4000px original.
+const TILE_W = 640;
+const TILE_H = 760;
+
+function tileSrc(src: string, hotspot?: { x: number; y: number }): string {
+	if (!src.includes("cdn.sanity.io")) return src;
+	const sep = src.includes("?") ? "&" : "?";
+	// Honour the focal point an editor set in Sanity Studio; otherwise let the
+	// CDN pick the most detailed region instead of a blind centre crop, so a
+	// landscape cover keeps its subject when squeezed into a 5:6 portrait tile.
+	const crop = hotspot
+		? `crop=focalpoint&fp-x=${hotspot.x}&fp-y=${hotspot.y}`
+		: "crop=entropy";
+	return `${src}${sep}w=${TILE_W}&h=${TILE_H}&fit=crop&${crop}&auto=format&q=90`;
+}
+
+interface TileImage {
+	src: string;
+	hotspot?: { x: number; y: number };
+}
+
+const isUsable = (src: string | undefined): src is string =>
+	Boolean(src) && !src?.endsWith("placeholder.png");
+
+// The hero is a poster wall, so it wants portrait art that fills a 5:6 tile
+// without a brutal crop. The Poster Series project is exactly that — a set of
+// purpose-made posters — so its cover + gallery feed the wall directly. We
+// fall back to one cover per project (deduped) and finally to seeded picsum
+// mocks so the mosaic always renders even before the CMS has real imagery.
+function collectPool(projects: Project[]): TileImage[] {
+	const posterProject =
+		projects.find((p) => /poster/i.test(p.title)) ??
+		// No dedicated poster set — use whichever project actually has gallery art.
+		projects.find((p) => (p.gallery?.length ?? 0) > 0);
+
+	if (posterProject) {
+		const pool: TileImage[] = [];
+		if (isUsable(posterProject.image)) {
+			pool.push({
+				src: posterProject.image,
+				hotspot: posterProject.imageHotspot,
+			});
+		}
+		// Gallery shots come back as plain URLs (no hotspot); these posters are
+		// already portrait, so an entropy crop barely trims them.
+		for (const src of posterProject.gallery ?? []) {
+			if (isUsable(src)) pool.push({ src });
+		}
+		if (pool.length > 0) return pool;
+	}
+
+	const seen = new Set<string>();
+	return projects
+		.filter((p) => isUsable(p.image) && !seen.has(p.image) && seen.add(p.image))
+		.map((p) => ({ src: p.image, hotspot: p.imageHotspot }));
+}
+
+function collectTileImages(projects: Project[] | undefined): string[] {
+	const pool = collectPool(projects ?? []);
+	if (pool.length === 0) {
+		return TILE_CELLS.map(
+			(_, i) =>
+				`https://picsum.photos/seed/untab-work-${i}/${TILE_W}/${TILE_H}`,
+		);
+	}
+	return TILE_CELLS.map((_, i) => {
+		const img = pool[i % pool.length];
+		return img ? tileSrc(img.src, img.hotspot) : "";
+	});
+}
+
+export function Hero({ videoUrl = "/hero.mp4", projects }: HeroProps) {
 	const containerRef = useRef<HTMLElement>(null);
 	const scrollActiveRef = useRef(false);
 	const quickXRef = useRef<gsap.QuickToFunc | null>(null);
 	const quickYRef = useRef<gsap.QuickToFunc | null>(null);
 	const mouseRef = useRef({ x: 0, y: 0 });
+
+	const tileImages = collectTileImages(projects);
 
 	useGSAP(
 		(_context, contextSafe) =>
@@ -55,18 +128,11 @@ export function Hero({ videoUrl = "/hero.mp4" }: HeroProps) {
 				const root = containerRef.current;
 				if (!(root && contextSafe)) return;
 
-				const lineClips = root.querySelectorAll<HTMLElement>(".hero-line-clip");
-				const chars = root.querySelectorAll<HTMLElement>(".split-char");
+				const frame = root.querySelector<HTMLElement>(".hero-frame");
 				const float = root.querySelector<HTMLElement>(".hero-float");
+				const bob = root.querySelector<HTMLElement>(".hero-bob");
 				const stage = root.querySelector<HTMLElement>(".hero-stage");
-				const video = root.querySelector<HTMLElement>(".hero-video");
-				const frame = root.querySelector<HTMLElement>(".echo-frame");
-				const pink = root.querySelector<HTMLElement>(".echo-pink");
-				const purple = root.querySelector<HTMLElement>(".echo-purple");
-				if (!(float && stage && video && frame && pink && purple)) return;
-
-				const topClip = lineClips[0];
-				const bottomClip = lineClips[1];
+				if (!(frame && float && bob && stage)) return;
 
 				// The resting DOM is already visible (no inline hiding), so a
 				// JS/animation failure degrades to static text rather than a blank
@@ -74,19 +140,13 @@ export function Hero({ videoUrl = "/hero.mp4" }: HeroProps) {
 				const intro = gsap.timeline({
 					defaults: { ease: "expo.out", duration: 0.9 },
 				});
-				intro
-					.from(
-						chars,
-						{
-							yPercent: 120,
-							autoAlpha: 0,
-							stagger: 0.035,
-						},
-						0,
-					)
-					.from(float, { autoAlpha: 0, y: 18 }, 0.15);
+				intro.from(float, { autoAlpha: 0, scale: 0.96, duration: 1.1 }, 0);
 
-				const idleFloat = gsap.to(float, {
+				// The bob lives on its own wrapper so it never shares a transform
+				// with the scroll scrub, which exclusively owns .hero-float. A
+				// shared `y` would let the onEnter reset overwrite the scrub's
+				// landing tween and drop the card out of its grid slot.
+				const idleFloat = gsap.to(bob, {
 					y: 6,
 					duration: 3.4,
 					ease: "sine.inOut",
@@ -135,11 +195,26 @@ export function Hero({ videoUrl = "/hero.mp4" }: HeroProps) {
 				const isDesktop = window.matchMedia("(min-width: 768px)").matches;
 				if (!isDesktop) return cleanupListeners;
 
-				// The inner <video> carries its own rounded corners; if we only
-				// square the wrapper, the video's corners stay rounded and get
-				// stretched into ellipses by the non-uniform scale.
-				const videoInner = video.querySelector<HTMLElement>("video");
-				const radiusTargets = videoInner ? [video, videoInner] : [video];
+				const grid = root.querySelector<HTMLElement>(".hero-grid");
+				const centerCell = root.querySelector<HTMLElement>(".hero-grid-center");
+				const tiles = root.querySelectorAll<HTMLElement>(".hero-tile");
+				if (!(grid && centerCell && tiles.length)) return cleanupListeners;
+
+				// Untransformed center of a grid cell in hero coordinates. Built on
+				// offset* (which ignores transforms) so invalidateOnRefresh can safely
+				// re-measure mid-animation on resize.
+				const cellCenter = (el: HTMLElement) => ({
+					x: grid.offsetLeft + el.offsetLeft + el.offsetWidth / 2,
+					y: grid.offsetTop + el.offsetTop + el.offsetHeight / 2,
+				});
+
+				// Untransformed center of the poster. The frame flex-centers the
+				// float inside its padded box, so this stays constant even while
+				// the width/height tween below is mid-flight on a refresh.
+				const floatCenter = () => ({
+					x: frame.offsetLeft + float.offsetLeft + float.offsetWidth / 2,
+					y: frame.offsetTop + float.offsetTop + float.offsetHeight / 2,
+				});
 
 				gsap
 					.timeline({
@@ -155,7 +230,7 @@ export function Hero({ videoUrl = "/hero.mp4" }: HeroProps) {
 							onEnter: () => {
 								scrollActiveRef.current = true;
 								idleFloat.pause();
-								gsap.to(float, {
+								gsap.to(bob, {
 									y: 0,
 									duration: 0.4,
 									overwrite: "auto",
@@ -173,63 +248,42 @@ export function Hero({ videoUrl = "/hero.mp4" }: HeroProps) {
 							},
 						},
 					})
-					// Echo cards drop away immediately.
-					.to(
-						[frame, pink, purple],
-						{ autoAlpha: 0, duration: 0.15, ease: "power2.in" },
-						0,
-					)
-					// Headlines clear early so they never fight the expanding card.
-					.to(
-						[topClip, bottomClip],
-						{ autoAlpha: 0, y: -24, duration: 0.28, ease: "power2.in" },
-						0.04,
-					)
-					// Square corners + drop the shadow up front, while the card is
-					// still small, so the non-uniform scale can't smear either.
-					.to(
-						radiusTargets,
-						{ borderRadius: 0, duration: 0.3, ease: "power2.out" },
-						0,
-					)
-					.to(
-						video,
-						{
-							boxShadow:
-								"0px 0px 0px 0px rgba(0,0,0,0), 0px 0px 0px 0px rgba(0,0,0,0)",
-							duration: 0.3,
-							ease: "power1.out",
-						},
-						0,
-					)
-					// Settle rotation and grow to a framed fullscreen across the scroll.
-					.to(video, { rotation: 0, ease: "power2.inOut", duration: 1 }, 0)
+					// The big poster shrinks into its reserved slot and STAYS the
+					// centerpiece of the wall. Width/height (not scale) so the rounded
+					// corners never smear under a non-uniform transform.
 					.to(
 						float,
 						{
-							scaleX: () => {
-								const target = Math.min(
-									window.innerWidth - HERO_SIDE_PADDING,
-									HERO_MAX_WIDTH,
-								);
-								return target / float.offsetWidth;
-							},
-							scaleY: () => {
-								const targetWidth = Math.min(
-									window.innerWidth - HERO_SIDE_PADDING,
-									HERO_MAX_WIDTH,
-								);
-								const targetHeight = Math.min(
-									window.innerHeight - 96,
-									(targetWidth * 9) / 16,
-								);
-								return targetHeight / float.offsetHeight;
-							},
-							transformOrigin: "50% 50%",
+							width: () => centerCell.offsetWidth,
+							height: () => centerCell.offsetHeight,
+							x: () => cellCenter(centerCell).x - floatCenter().x,
+							y: () => cellCenter(centerCell).y - floatCenter().y,
 							ease: "power2.inOut",
 							duration: 1,
 						},
 						0,
+					)
+					// Tiles bloom outward from behind the poster into the wall.
+					.fromTo(
+						tiles,
+						{
+							x: (_i: number, el: Element) =>
+								root.offsetWidth / 2 - cellCenter(el as HTMLElement).x,
+							y: (_i: number, el: Element) =>
+								root.offsetHeight / 2 - cellCenter(el as HTMLElement).y,
+							scale: 0.2,
+							autoAlpha: 0,
+						},
+						{
+							x: 0,
+							y: 0,
+							scale: 1,
+							autoAlpha: 1,
+							duration: 0.8,
+							ease: "power3.inOut",
+							stagger: 0.04,
+						},
+						0.1,
 					);
 
 				return cleanupListeners;
@@ -251,80 +305,61 @@ export function Hero({ videoUrl = "/hero.mp4" }: HeroProps) {
 			ref={containerRef}
 			className="home-hero relative w-full overflow-hidden bg-background h-dvh"
 		>
-			<h1
-				aria-label="We're built different"
-				className="hero-display absolute inset-0 z-10 text-center font-black uppercase leading-[0.86] tracking-[-0.04em] text-foreground text-[clamp(2rem,6vw,4rem)]"
+			{/* Poster-wall mosaic: hidden at rest, bloomed open by the scroll scrub.
+			    Bleeds past the top/bottom edges like an endless wall of work. */}
+			<div
+				aria-hidden
+				className="hero-grid pointer-events-none absolute inset-x-0 -inset-y-10 z-15 hidden gap-3 px-6 md:grid md:px-12 grid-cols-5 grid-rows-12 lg:gap-4 lg:px-24"
 			>
-				<span
-					aria-hidden
-					className="hero-line-clip absolute top-[var(--site-header-height,3.875rem)] left-0 right-0 px-3 md:px-6 block overflow-hidden pb-[0.06em]"
-				>
-					<Splitter
-						text="WE'RE BUILT"
-						features={TOP_LINE_FEATURES}
-						className="hero-line block whitespace-nowrap"
-					/>
-				</span>
-
-				<span
-					aria-hidden
-					className="hero-line-clip absolute bottom-3 md:bottom-6 left-0 right-0 px-3 md:px-6 block overflow-hidden pb-[0.06em]"
-				>
-					<Splitter
-						text="DIFFERENT"
-						startIndex={10}
-						features={BOTTOM_LINE_FEATURES}
-						className="hero-line block whitespace-nowrap"
-					/>
-				</span>
-			</h1>
-
-			<div className="absolute inset-0 z-20 flex items-center justify-center pointer-events-none">
-				<div className="hero-float relative w-[44vw] sm:w-[34vw] md:w-[26vw] lg:w-[22vw] max-w-[360px] aspect-[3/4] origin-center will-change-transform">
-					<div className="hero-stage absolute inset-0 will-change-transform">
-						<span
-							aria-hidden
-							className="echo-frame pointer-events-none absolute inset-0 rounded-md md:rounded-xl border border-foreground/15"
-							style={{
-								transform: "translate(-9%, -8%) rotate(5deg) scale(1.04)",
-								zIndex: 0,
-							}}
-						/>
-						<span
-							aria-hidden
-							className="echo-pink pointer-events-none absolute inset-0 rounded-md md:rounded-xl bg-[#f8a9c8]"
-							style={{
-								transform: "translate(8%, -7%) rotate(8deg)",
-								zIndex: 1,
-							}}
-						/>
-						<span
-							aria-hidden
-							className="echo-purple pointer-events-none absolute inset-0 rounded-md md:rounded-xl bg-[#a892ff]"
-							style={{
-								transform: "translate(-7%, 9%) rotate(-9deg)",
-								zIndex: 2,
-							}}
-						/>
+				{TILE_CELLS.map((cell, i) => {
+					const src = tileImages[i];
+					return (
 						<div
-							className="hero-video relative size-full will-change-transform"
+							key={`${cell.col}-${cell.rowStart}`}
+							className="hero-tile relative overflow-hidden rounded-md bg-muted opacity-0 will-change-transform md:rounded-xl"
 							style={{
-								zIndex: 3,
-								transform: "rotate(-3deg)",
-								boxShadow:
-									"0 30px 60px -20px rgba(0,0,0,0.55), 0 12px 24px -12px rgba(0,0,0,0.35)",
+								gridColumn: cell.col,
+								gridRow: `${cell.rowStart} / span ${cell.span}`,
 							}}
 						>
-							<video
-								autoPlay
-								loop
-								muted
-								playsInline
-								suppressHydrationWarning
-								className="block size-full rounded-md md:rounded-xl object-cover [backface-visibility:hidden]"
-							>
-								<source src={videoUrl} type="video/mp4" />
-							</video>
+							{src ? (
+								<Image
+									src={src}
+									alt=""
+									fill
+									sizes="(max-width: 768px) 45vw, 20vw"
+									aspectRatio={TILE_W / TILE_H}
+									className="object-cover"
+								/>
+							) : null}
+						</div>
+					);
+				})}
+				<div
+					className="hero-grid-center"
+					style={{ gridColumn: 3, gridRow: "5 / span 4" }}
+				/>
+			</div>
+
+			{/* One big video poster aligned with the site container (the same
+			    container + px rails as every other section). On scroll it
+			    shrinks into the reserved center cell of the mosaic. */}
+			<div className="hero-frame absolute inset-0 z-20 pointer-events-none pt-[calc(var(--site-header-height,3.875rem)+0.75rem)] pb-4 md:pb-6">
+				<div className="container flex size-full items-center justify-center px-6 md:px-12 lg:px-24">
+					<div className="hero-float relative size-full will-change-transform">
+						<div className="hero-bob absolute inset-0 will-change-transform">
+							<div className="hero-stage absolute inset-0 will-change-transform">
+								<video
+									autoPlay
+									loop
+									muted
+									playsInline
+									suppressHydrationWarning
+									className="block size-full rounded-md md:rounded-xl object-cover [backface-visibility:hidden]"
+								>
+									<source src={videoUrl} type="video/mp4" />
+								</video>
+							</div>
 						</div>
 					</div>
 				</div>

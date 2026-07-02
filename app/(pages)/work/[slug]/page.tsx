@@ -1,9 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { Wrapper } from "~/components/wrapper";
 import { generatePageMetadata } from "~/libs/metadata";
 import { getProjectBySlug, getProjects } from "~/libs/projects";
-import { Footer, Navbar } from "../../_components";
 import { CaseStudy } from "./_components";
 
 interface PageProps {
@@ -49,12 +47,8 @@ export default async function CaseStudyPage({ params }: PageProps) {
 	if (!study) notFound();
 
 	return (
-		<Wrapper>
-			<Navbar />
-			<main className="grow bg-background pt-14">
-				<CaseStudy study={study} />
-			</main>
-			<Footer />
-		</Wrapper>
+		<main className="grow bg-background pt-14">
+			<CaseStudy study={study} />
+		</main>
 	);
 }

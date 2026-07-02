@@ -143,7 +143,7 @@ export function Article({ post }: { post: Post }) {
 			ref={rootRef}
 			className="w-full bg-background pt-8 pb-24 text-foreground sm:pt-12 md:pb-32"
 		>
-			<div className={`mx-auto w-full max-w-[1440px] ${PAGE_PADDING}`}>
+			<div className={`container ${PAGE_PADDING}`}>
 				{/* Back link */}
 				<Link
 					href="/blog"

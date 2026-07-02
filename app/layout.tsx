@@ -1,19 +1,19 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
 import localFont from "next/font/local";
 import "./globals.css";
 import type { Viewport } from "next";
 import Script from "next/script";
+import { Toaster } from "sonner";
+import { ReactTempus } from "tempus/react";
+import { CookieConsentBanner } from "~/components/cookie-consent";
+import { IntroPreloader } from "~/components/intro-preloader";
+import { PostHogProvider } from "~/components/posthog-provider";
 import { Providers } from "~/components/providers";
 import { RouterTransitionProvider } from "~/components/route-transition";
-import { PostHogProvider } from "~/components/posthog-provider";
-import AppData from "~/package.json";
-
-import { Orchestra } from "~/orchestra";
 import { VisualEditingWrapper } from "~/components/visual-editing";
-import { Toaster } from "sonner";
-import { CookieConsentBanner } from "~/components/cookie-consent";
-import { ReactTempus } from "tempus/react";
+import { SanityLive } from "~/libs/live";
+import { Orchestra } from "~/orchestra";
+import AppData from "~/package.json";
 
 const satoshi = localFont({
 	src: [
@@ -31,14 +31,21 @@ const satoshi = localFont({
 	variable: "--font-satoshi",
 });
 
-const geistSans = Geist({
-	variable: "--font-geist-sans",
-	subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-	variable: "--font-geist-mono",
-	subsets: ["latin"],
+const switzer = localFont({
+	src: [
+		{
+			path: "../public/fonts/Switzer-Variable.woff2",
+			style: "normal",
+			weight: "100 900",
+		},
+		{
+			path: "../public/fonts/Switzer-VariableItalic.woff2",
+			style: "italic",
+			weight: "100 900",
+		},
+	],
+	variable: "--font-switzer",
+	display: "swap",
 });
 
 import { generatePageMetadata } from "~/libs/metadata";
@@ -66,15 +73,20 @@ export default function RootLayout({
 	children: React.ReactNode;
 }>) {
 	return (
-		<html lang="en" className={satoshi.variable} suppressHydrationWarning>
+		<html
+			lang="en"
+			className={`${satoshi.variable} ${switzer.variable}`}
+			suppressHydrationWarning
+		>
 			<Script async>{`window.satusVersion = '${AppData.version}';`}</Script>
 			<body
-				className={`${geistSans.variable} ${geistMono.variable} antialiased font-sans`}
+				className="antialiased w-full font-normal font-[family-name:var(--font-switzer),sans-serif]"
 				suppressHydrationWarning
 			>
 				<PostHogProvider>
 					<Providers>
 						<RouterTransitionProvider>{children}</RouterTransitionProvider>
+						<IntroPreloader />
 						<div className="fixed inset-0 pointer-events-none z-[9999]">
 							<Orchestra />
 							<VisualEditingWrapper />
@@ -83,6 +95,7 @@ export default function RootLayout({
 						<CookieConsentBanner />
 					</Providers>
 				</PostHogProvider>
+				<SanityLive includeDrafts={false} />
 				<ReactTempus patch />
 				<script
 					type="application/ld+json"

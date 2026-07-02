@@ -63,47 +63,31 @@ export function Journal({ posts }: JournalProps) {
 				const cta = root.querySelector<HTMLElement>(".journal-cta");
 				const cards = root.querySelectorAll<HTMLElement>(".journal-card");
 
-				const trigger = {
-					trigger: root,
-					start: "top 75%",
-					toggleActions: "play none none none",
-				};
+				// One timeline, one ScrollTrigger; reverses out when scrolling
+				// back above the section.
+				const tl = gsap.timeline({
+					defaults: { ease: "expo.out" },
+					scrollTrigger: {
+						trigger: root,
+						start: "top 75%",
+						toggleActions: "play none none reverse",
+					},
+				});
 
 				if (title) {
-					gsap.from(title, {
-						y: 24,
-						opacity: 0,
-						duration: 0.8,
-						ease: "expo.out",
-						scrollTrigger: trigger,
-					});
-				}
-
-				if (cta) {
-					gsap.from(cta, {
-						y: 14,
-						opacity: 0,
-						duration: 0.7,
-						ease: "expo.out",
-						delay: 0.2,
-						scrollTrigger: trigger,
-					});
+					tl.from(title, { y: 24, autoAlpha: 0, duration: 0.8 }, 0);
 				}
 
 				if (cards.length) {
-					gsap.from(cards, {
-						y: 56,
-						opacity: 0,
-						duration: 0.9,
-						ease: "expo.out",
-						stagger: 0.1,
-						delay: 0.15,
-						scrollTrigger: {
-							trigger: root,
-							start: "top 70%",
-							toggleActions: "play none none none",
-						},
-					});
+					tl.from(
+						cards,
+						{ y: 56, autoAlpha: 0, duration: 0.9, stagger: 0.1 },
+						0.15,
+					);
+				}
+
+				if (cta) {
+					tl.from(cta, { y: 14, autoAlpha: 0, duration: 0.7 }, 0.2);
 				}
 			}),
 		{ scope: sectionRef, dependencies: [items.length] },
@@ -118,7 +102,7 @@ export function Journal({ posts }: JournalProps) {
 			aria-labelledby="journal-title"
 			className="relative w-full bg-background py-24 md:py-32 lg:py-40"
 		>
-			<div className="mx-auto w-full max-w-[1440px] px-6 md:px-12 lg:px-24">
+			<div className="container px-6 md:px-12 lg:px-24">
 				<div className="flex items-end justify-between gap-6">
 					<h2
 						id="journal-title"

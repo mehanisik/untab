@@ -1,5 +1,6 @@
 import bundleAnalyzer from "@next/bundle-analyzer";
 import type { NextConfig } from "next";
+import { sanity } from "next-sanity/live/cache-life";
 
 const nextConfig: NextConfig = {
 	reactStrictMode: true,
@@ -71,6 +72,8 @@ const nextConfig: NextConfig = {
 		reactRemoveProperties: true,
 	},
 	cacheComponents: true,
+	// Sanity Live revalidates on demand, so cached Sanity data can live long.
+	cacheLife: { default: sanity },
 	compress: true,
 	experimental: {
 		turbopackFileSystemCacheForDev: process.env.NODE_ENV !== "production",

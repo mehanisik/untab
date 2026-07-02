@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
-import { Wrapper } from "~/components/wrapper";
 import { generatePageMetadata } from "~/libs/metadata";
-import { Footer, Navbar } from "../_components";
-import { ContactForm, ContactHero } from "./_components";
+import { ContactForm } from "./_components";
 
 export const metadata: Metadata = generatePageMetadata({
 	title: "Contact",
@@ -12,13 +10,8 @@ export const metadata: Metadata = generatePageMetadata({
 
 export default function ContactPage() {
 	return (
-		<Wrapper>
-			<Navbar />
-			<main className="grow bg-background pt-14">
-				<ContactHero />
-				<ContactForm />
-			</main>
-			<Footer />
-		</Wrapper>
+		<main className="grow pt-14">
+			<ContactForm />
+		</main>
 	);
 }

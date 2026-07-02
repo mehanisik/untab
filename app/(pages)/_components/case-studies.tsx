@@ -14,218 +14,166 @@ interface CaseStudiesProps {
 
 export function CaseStudies({ projects }: CaseStudiesProps) {
 	const sectionRef = useRef<HTMLElement>(null);
+	const viewportRef = useRef<HTMLDivElement>(null);
+	const trackRef = useRef<HTMLDivElement>(null);
 
-	const featured = projects.slice(0, 5);
+	const featured = projects.slice(0, 6);
+
+	useGSAP(
+		() =>
+			withMotion(() => {
+				const section = sectionRef.current;
+				const viewport = viewportRef.current;
+				const track = trackRef.current;
+				if (!(section && viewport && track)) return;
+
+				// Desktop only: turn vertical scroll into a pinned horizontal scrub.
+				// On mobile (and when skipped for reduced motion) the viewport keeps
+				// its default `overflow-x-auto`, so it stays a native swipe scroll.
+				if (!window.matchMedia("(min-width: 768px)").matches) return;
+
+				// Measure travel against the VIEWPORT (the rail-inset content
+				// column), not the window — the viewport has no padding of its own,
+				// so clientWidth is the exact clip width and the track lands with the
+				// last card flush to the right rail.
+				const distance = () =>
+					Math.max(0, track.scrollWidth - viewport.clientWidth);
+
+				gsap.set(viewport, { overflow: "hidden" });
+
+				const tween = gsap.to(track, {
+					x: () => -distance(),
+					ease: "none",
+					scrollTrigger: {
+						trigger: section,
+						start: "top top",
+						end: () => `+=${distance()}`,
+						pin: true,
+						scrub: 1,
+						anticipatePin: 1,
+						invalidateOnRefresh: true,
+					},
+				});
+
+				return () => {
+					tween.scrollTrigger?.kill();
+					tween.kill();
+					gsap.set(viewport, { clearProps: "overflow" });
+				};
+			}),
+		{ scope: sectionRef },
+	);
 
 	return (
 		<section
 			ref={sectionRef}
 			id="work"
-			className="featured-section relative w-full bg-background"
+			className="relative w-full overflow-hidden bg-background py-20 md:py-0"
 		>
-			<div className="flex w-full flex-col">
-				{featured.map((project, index) => (
-					<FeaturedItem
-						key={project._id ?? project.slug}
-						project={project}
-						index={index}
-					/>
-				))}
+			<header className="container flex items-end justify-between gap-6 px-6 md:absolute md:inset-x-0 md:top-12 md:z-10 md:px-12 lg:px-24">
+				<div>
+					<p className="text-[11px] font-medium uppercase tracking-[0.28em] text-foreground/50">
+						Selected Work
+					</p>
+					<p className="mt-3 max-w-xl text-pretty text-[clamp(1.25rem,2.4vw,1.875rem)] font-medium leading-[1.2] tracking-[-0.02em] text-foreground">
+						A few projects we&apos;re proud of.
+					</p>
+				</div>
+
+				<Link
+					href="/work"
+					className="group inline-flex shrink-0 items-center gap-2 rounded-full border border-foreground/20 bg-foreground/[0.03] px-5 py-2.5 text-[13px] font-medium text-foreground transition-colors hover:bg-foreground hover:text-background"
+				>
+					View all
+					<span
+						aria-hidden
+						className="transition-transform duration-300 ease-out group-hover:translate-x-0.5"
+					>
+						&rarr;
+					</span>
+				</Link>
+			</header>
+
+			{/* Rail column owns the max-width + side rails; the viewport clips to
+			    this column, so cards start at the left rail, end at the right rail,
+			    and never bleed past the site max-width while scrubbing. */}
+			<div className="container flex flex-col justify-center px-6 md:h-[100svh] md:px-12 md:pt-16 lg:px-24">
+				<div
+					ref={viewportRef}
+					className="w-full overflow-x-auto snap-x snap-mandatory [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden md:snap-none"
+				>
+					<div ref={trackRef} className="flex w-max items-start gap-5 md:gap-8">
+						{featured.map((project, index) => (
+							<ProjectCard
+								key={project._id ?? project.slug}
+								project={project}
+								index={index}
+							/>
+						))}
+					</div>
+				</div>
 			</div>
 		</section>
 	);
 }
 
-function FeaturedItem({ project, index }: { project: Project; index: number }) {
-	const itemRef = useRef<HTMLDivElement>(null);
+// The card art is a fixed 4:5 portrait. Sanity originals arrive at arbitrary
+// native ratios, so `object-cover` was hard-cropping them (awkward framing) and
+// the browser was upscaling too-small candidates (soft on retina). For Sanity
+// CDN sources, ask Sanity itself for a sharp 4:5 crop — honouring the focal
+// point when the project defines one — in a modern format at high quality.
+const CARD_W = 1200;
+const CARD_H = 1500;
 
-	useGSAP(
-		() =>
-			withMotion(() => {
-				const el = itemRef.current;
-				if (!el) return;
+function cardImage(src: string, hotspot?: { x: number; y: number }): string {
+	if (!src.includes("cdn.sanity.io")) return src;
+	const params = new URLSearchParams({
+		w: String(CARD_W),
+		h: String(CARD_H),
+		fit: "crop",
+		auto: "format",
+		q: "90",
+	});
+	if (typeof hotspot?.x === "number" && typeof hotspot?.y === "number") {
+		params.set("crop", "focalpoint");
+		params.set("fp-x", hotspot.x.toFixed(4));
+		params.set("fp-y", hotspot.y.toFixed(4));
+	} else {
+		params.set("crop", "entropy");
+	}
+	return `${src}${src.includes("?") ? "&" : "?"}${params.toString()}`;
+}
 
-				const inner = el.querySelector(".featured-inner") as HTMLElement | null;
-				const thumb = el.querySelector(".featured-thumb");
-				const titleWords = el.querySelectorAll(".featured-title-word");
-				const tags = el.querySelectorAll(".featured-tag");
-				const indexEl = el.querySelector(".featured-index");
-
-				// Width scrub: card grows from narrow to full-width as it scrolls into
-				// view, plateaus at full scale, then eases back down as it leaves.
-				if (inner) {
-					const isMobile = window.matchMedia("(max-width: 767px)").matches;
-					const minScale = isMobile ? 0.8 : 0.7;
-					const maxScale = isMobile ? 0.95 : 0.9;
-					gsap.set(inner, { scaleX: minScale, scaleY: minScale });
-					gsap.to(inner, {
-						keyframes: [
-							{
-								scaleX: maxScale,
-								scaleY: maxScale,
-								duration: 0.4,
-								ease: "power2.out",
-							},
-							{
-								scaleX: maxScale,
-								scaleY: maxScale,
-								duration: 0.2,
-								ease: "none",
-							},
-							{
-								scaleX: minScale,
-								scaleY: minScale,
-								duration: 0.4,
-								ease: "power2.in",
-							},
-						],
-						scrollTrigger: {
-							trigger: el,
-							start: "top bottom",
-							end: "bottom top",
-							scrub: 1.4,
-						},
-					});
-				}
-
-				// Image fade-in scrubbed alongside the card growing in
-				if (thumb) {
-					gsap.set(thumb, { opacity: 0 });
-					gsap.to(thumb, {
-						opacity: 1,
-						ease: "none",
-						scrollTrigger: {
-							trigger: el,
-							start: "top 90%",
-							end: "top 40%",
-							scrub: true,
-						},
-					});
-				}
-
-				// Index number: quick fade/slide in once card is in view
-				if (indexEl) {
-					gsap.fromTo(
-						indexEl,
-						{ opacity: 0, y: 20 },
-						{
-							opacity: 1,
-							y: 0,
-							duration: 0.6,
-							ease: "power3.out",
-							scrollTrigger: {
-								trigger: el,
-								start: "top 70%",
-								toggleActions: "play none none none",
-							},
-						},
-					);
-				}
-
-				// Title words slide in from 50vw to the right, staggered
-				if (titleWords.length) {
-					gsap.fromTo(
-						titleWords,
-						{ x: "50vw", opacity: 0 },
-						{
-							x: 0,
-							opacity: 1,
-							duration: 1.2,
-							ease: "expo.out",
-							stagger: 0.08,
-							scrollTrigger: {
-								trigger: el,
-								start: "top 70%",
-								toggleActions: "play none none none",
-							},
-						},
-					);
-				}
-
-				// Tags wipe up from below their mask, staggered
-				if (tags.length) {
-					gsap.fromTo(
-						tags,
-						{ yPercent: 120, opacity: 0 },
-						{
-							yPercent: 0,
-							opacity: 1,
-							duration: 0.8,
-							ease: "expo.out",
-							stagger: 0.06,
-							delay: 0.25,
-							scrollTrigger: {
-								trigger: el,
-								start: "top 70%",
-								toggleActions: "play none none none",
-							},
-						},
-					);
-				}
-			}),
-		{ scope: itemRef },
-	);
-
-	const tags = (
-		project.techStack?.length ? project.techStack : (project.tools ?? [])
-	).slice(0, 5);
-
-	const titleWords = project.title.split(" ");
+function ProjectCard({ project, index }: { project: Project; index: number }) {
+	const subtitle = project.description || project.category || "";
 
 	return (
-		<div
-			ref={itemRef}
-			className="featured-element relative h-[100svh] w-full mb-8 md:mb-12 last:mb-0 overflow-hidden"
+		<Link
+			href={project.href ?? `/work/${project.slug}`}
+			className="group flex shrink-0 snap-start flex-col w-[72vw] sm:w-[52vw] md:w-[34vw] lg:w-[28vw]"
 		>
-			<div className="featured-inner relative size-full origin-center will-change-transform">
-				<Link
-					href={project.href ?? `/work/${project.slug}`}
-					className="group relative block size-full overflow-hidden"
-				>
-					<div className="featured-thumb absolute inset-0 size-full will-change-[opacity]">
-						<Image
-							src={project.image}
-							alt={project.title}
-							fill
-							priority={index === 0}
-							sizes="100vw"
-							className="size-full object-cover"
-						/>
-					</div>
-
-					<div className="absolute inset-0 bg-gradient-to-t from-black/40 via-black/10 to-transparent pointer-events-none" />
-
-					<div className="featured-text absolute bottom-10 left-6 md:left-16 lg:left-32 flex w-[88%] md:w-1/2 lg:w-1/3 flex-col items-start pointer-events-none">
-						<div className="featured-index text-[13px] font-medium uppercase tracking-[0.18em] text-white">
-							{String(index + 1).padStart(2, "0")}
-						</div>
-
-						<h3 className="my-4 md:my-6 overflow-hidden text-[8vw] md:text-[5.5vw] leading-[1] font-extralight tracking-tight text-white font-sans">
-							{titleWords.map((word, i) => (
-								<span
-									// biome-ignore lint/suspicious/noArrayIndexKey: stable per-title order
-									key={`${word}-${i}`}
-									className="featured-title-word inline-block mr-[0.25em] last:mr-0 will-change-transform"
-								>
-									{word}
-								</span>
-							))}
-						</h3>
-
-						{tags.length > 0 && (
-							<div className="hidden md:flex flex-col items-start gap-3">
-								{tags.map((tag) => (
-									<div key={tag} className="overflow-hidden">
-										<div className="featured-tag inline-flex h-[30px] items-center justify-center rounded-full border-2 border-white px-3 text-[13px] font-medium uppercase tracking-wide text-white will-change-transform">
-											{tag}
-										</div>
-									</div>
-								))}
-							</div>
-						)}
-					</div>
-				</Link>
+			<div className="relative aspect-[4/5] w-full overflow-hidden rounded-2xl bg-foreground/[0.05]">
+				<Image
+					src={cardImage(project.image, project.imageHotspot)}
+					alt={project.title}
+					fill
+					priority={index === 0}
+					sizes="(max-width: 640px) 72vw, (max-width: 768px) 52vw, (max-width: 1024px) 34vw, 28vw"
+					quality={90}
+					className="size-full object-cover transition-transform duration-[1200ms] ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.04]"
+				/>
 			</div>
-		</div>
+
+			<div className="mt-4 md:mt-5">
+				<h3 className="text-[clamp(1.35rem,1.8vw,2rem)] font-semibold leading-tight tracking-tight text-foreground">
+					{project.title}
+				</h3>
+				{subtitle ? (
+					<p className="mt-1 line-clamp-1 text-[15px] text-foreground/55">
+						{subtitle}
+					</p>
+				) : null}
+			</div>
+		</Link>
 	);
 }

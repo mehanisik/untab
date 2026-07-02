@@ -1,7 +1,5 @@
 import type { Metadata } from "next";
-import { Wrapper } from "~/components/wrapper";
 import { generatePageMetadata } from "~/libs/metadata";
-import { Footer, Navbar } from "../_components";
 import { Capabilities, ServicesHero } from "./_components";
 
 export const metadata: Metadata = generatePageMetadata({
@@ -12,13 +10,9 @@ export const metadata: Metadata = generatePageMetadata({
 
 export default function ServicesPage() {
 	return (
-		<Wrapper>
-			<Navbar />
-			<main className="grow bg-background pt-14">
-				<ServicesHero />
-				<Capabilities />
-			</main>
-			<Footer />
-		</Wrapper>
+		<main className="grow bg-background pt-14">
+			<ServicesHero />
+			<Capabilities />
+		</main>
 	);
 }

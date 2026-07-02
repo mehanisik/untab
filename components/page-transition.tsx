@@ -12,7 +12,7 @@ export const PageTransition = forwardRef<HTMLDivElement, PageTransitionProps>(
 			<div
 				ref={ref}
 				aria-hidden
-				style={{ transform: "translateY(0)" }}
+				style={{ transform: "translateY(100%)" }}
 				className={
 					className ??
 					"fixed inset-0 z-[200] pointer-events-none bg-foreground will-change-transform"

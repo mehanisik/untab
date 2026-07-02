@@ -92,7 +92,7 @@ export function ServicesHero() {
 			aria-label="Services overview"
 			className="w-full bg-background pt-24 sm:pt-32 md:pt-40 pb-16 sm:pb-20 md:pb-24 text-foreground"
 		>
-			<div className={`mx-auto w-full max-w-[1440px] ${PAGE_PADDING}`}>
+			<div className={`container ${PAGE_PADDING}`}>
 				<div className="grid grid-cols-12 gap-x-6 sm:gap-x-8">
 					<div className="col-span-12 lg:col-span-7">
 						<p className="hero-eyebrow text-[11px] sm:text-xs font-medium uppercase tracking-[0.28em] opacity-60">
