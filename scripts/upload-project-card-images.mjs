@@ -86,7 +86,9 @@ async function uploadImage({ projectId, dataset, slug }) {
 
 	const assetId = response.document?._id;
 	if (!assetId) {
-		throw new Error(`Sanity upload response did not include an asset id for ${slug}`);
+		throw new Error(
+			`Sanity upload response did not include an asset id for ${slug}`,
+		);
 	}
 
 	return assetId;
@@ -133,7 +135,9 @@ async function verifyProjects({ projectId, dataset }) {
 		'{_id,title,"slug":slug.current,"hasCardImage":defined(cardImage.asset),"cardRef":cardImage.asset._ref}',
 	].join(" ");
 
-	const url = new URL(`https://${projectId}.api.sanity.io/${API_VERSION}/data/query/${dataset}`);
+	const url = new URL(
+		`https://${projectId}.api.sanity.io/${API_VERSION}/data/query/${dataset}`,
+	);
 	url.searchParams.set("query", query);
 
 	const response = await sanityFetch(url, { method: "GET" });
@@ -157,7 +161,9 @@ async function main() {
 		const projects = await verifyProjects({ projectId, dataset });
 		for (const project of projects) {
 			const status = project.hasCardImage ? "yes" : "no ";
-			console.log(`${status}  ${project.title}  ${project.cardRef ?? "fallback"}`);
+			console.log(
+				`${status}  ${project.title}  ${project.cardRef ?? "fallback"}`,
+			);
 		}
 		return;
 	}
@@ -175,8 +181,17 @@ async function main() {
 			continue;
 		}
 
-		const assetId = await uploadImage({ projectId, dataset, slug: project.slug });
-		patches.push({ id: project.id, assetId, title: project.title, slug: project.slug });
+		const assetId = await uploadImage({
+			projectId,
+			dataset,
+			slug: project.slug,
+		});
+		patches.push({
+			id: project.id,
+			assetId,
+			title: project.title,
+			slug: project.slug,
+		});
 		console.log(`uploaded ${project.slug} -> ${assetId}`);
 	}
 

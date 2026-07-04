@@ -331,7 +331,10 @@ async function roundedPng(input, width, height, radius, position = "top") {
 			<rect width="${width}" height="${height}" rx="${radius}" fill="#fff" />
 		</svg>
 	`);
-	return sharp(image).composite([{ input: mask, blend: "dest-in" }]).png().toBuffer();
+	return sharp(image)
+		.composite([{ input: mask, blend: "dest-in" }])
+		.png()
+		.toBuffer();
 }
 
 function splitTitle(title) {
@@ -429,7 +432,9 @@ async function main() {
 		process.stdout.write(`Capturing ${project.slug}... `);
 		const hero = path.join(IMAGE_ROOT, project.slug, "hero.png");
 		try {
-			const capturePath = PREFER_HERO.has(project.slug) ? hero : await capture(project);
+			const capturePath = PREFER_HERO.has(project.slug)
+				? hero
+				: await capture(project);
 			const cardPath = await compose(project, capturePath);
 			console.log(path.relative(ROOT, cardPath));
 		} catch (error) {
