@@ -1,12 +1,11 @@
 name: CodeQL
 
+# Weekly sweep only — per-push analysis is overkill for a solo marketing
+# site and was the most expensive job in the pipeline.
 on:
-  push:
-    branches: [main, develop]
-  pull_request:
-    branches: [main, develop]
   schedule:
     - cron: "27 6 * * 1"
+  workflow_dispatch:
 
 permissions:
   contents: read
