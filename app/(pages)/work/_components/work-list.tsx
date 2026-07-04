@@ -6,6 +6,7 @@ import { useRef, useState } from "react";
 import { Image } from "~/components/ui/image";
 import { Link } from "~/components/ui/link";
 import { REVEAL } from "~/libs/gsap/presets";
+import { projectCardImage, sanityFitMax } from "~/libs/project-media";
 import type { Project } from "~/libs/projects";
 
 const PAGE_PADDING = "px-6 md:px-12 lg:px-24";
@@ -99,7 +100,7 @@ export function WorkList({ projects }: WorkListProps) {
 								scrollTrigger: {
 									trigger: item,
 									start: "top 92%",
-									toggleActions: "play none none none",
+									toggleActions: "play reverse play reverse",
 								},
 							},
 						);
@@ -205,28 +206,44 @@ export function WorkList({ projects }: WorkListProps) {
 }
 
 function WorkTile({ project, index }: { project: Project; index: number }) {
+	const cardImage = projectCardImage(project);
+
 	return (
 		<Link
 			href={project.href ?? `/work/${project.slug}`}
 			className="group block focus-visible:outline-none"
 			aria-label={`${project.title}, ${project.category}`}
 		>
-			<div className="relative aspect-[4/3] w-full overflow-hidden bg-foreground/[0.04]">
+			<div className="relative aspect-[16/10] w-full overflow-hidden rounded-lg bg-foreground/[0.035]">
 				<Image
-					src={project.image}
+					src={sanityFitMax(cardImage, 1600)}
 					alt=""
 					fill
 					priority={index < 3}
 					sizes="(min-width: 1024px) 30vw, (min-width: 640px) 50vw, 100vw"
-					className="work-img size-full object-cover transition-transform duration-[1400ms] ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform group-hover:scale-[1.04]"
+					objectFit="cover"
+					className="work-img size-full transition-transform duration-[1400ms] ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform group-hover:scale-[1.035]"
 				/>
+				{project.previewVideo ? (
+					<video
+						aria-hidden
+						className="absolute inset-0 size-full object-cover opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+						src={project.previewVideo}
+						poster={sanityFitMax(cardImage, 1600)}
+						autoPlay
+						muted
+						loop
+						playsInline
+						preload="metadata"
+					/>
+				) : null}
 			</div>
 			<div className="mt-3 sm:mt-4 flex items-baseline justify-between gap-4 sm:gap-6">
 				<span className="text-[14px] sm:text-[15px] md:text-base font-medium leading-tight tracking-[-0.01em] text-foreground">
 					{project.title}
 				</span>
 				<span className="shrink-0 text-[12px] sm:text-[13px] md:text-sm text-foreground/55">
-					{project.category}
+					{project.year}
 				</span>
 			</div>
 		</Link>
@@ -249,7 +266,7 @@ function WorkRow({ project, index }: { project: Project; index: number }) {
 				</span>
 			</div>
 			<span className="shrink-0 text-[12px] sm:text-[13px] md:text-sm text-foreground/55">
-				{project.category}
+				{project.year}
 			</span>
 		</Link>
 	);

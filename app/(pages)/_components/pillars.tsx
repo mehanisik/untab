@@ -5,7 +5,7 @@ import gsap from "gsap";
 import { Fragment, useRef } from "react";
 import { withMotion } from "~/libs/gsap/presets";
 
-const ACCENT = "var(--brand-coral)";
+const ACCENT = "var(--brand-coral-accent)";
 
 const DEFAULT_PILLARS = [
 	{
@@ -64,7 +64,7 @@ function ArrowPill() {
 				rx="20.5"
 				stroke="currentColor"
 				strokeWidth="2"
-				className="fill-transparent transition-[fill] duration-300 group-hover:fill-[var(--brand-coral)]"
+				className="fill-transparent transition-[fill] duration-300 group-hover:fill-[var(--brand-coral-accent)]"
 			/>
 			<path
 				d="M28 13 Q37.5 18 37.5 22 Q37.5 26 28 31"
@@ -116,7 +116,7 @@ export function Pillars({
 							scrollTrigger: {
 								trigger: root,
 								start: "top 70%",
-								toggleActions: "play none none none",
+								toggleActions: "play reverse play reverse",
 							},
 						},
 					);
@@ -137,7 +137,7 @@ export function Pillars({
 							scrollTrigger: {
 								trigger: root,
 								start: "top 70%",
-								toggleActions: "play none none none",
+								toggleActions: "play reverse play reverse",
 							},
 						},
 					);
@@ -160,7 +160,7 @@ export function Pillars({
 						scrollTrigger: {
 							trigger: row,
 							start: "top 85%",
-							toggleActions: "play none none none",
+							toggleActions: "play reverse play reverse",
 						},
 					});
 					tl.fromTo(

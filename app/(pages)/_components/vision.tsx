@@ -63,7 +63,7 @@ export function Vision({
 					scrollTrigger: {
 						trigger: root,
 						start: "top 70%",
-						toggleActions: "play none none reverse",
+						toggleActions: "play reverse play reverse",
 					},
 				});
 

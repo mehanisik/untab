@@ -75,10 +75,12 @@ const nextConfig: NextConfig = {
 	// Sanity Live revalidates on demand, so cached Sanity data can live long.
 	cacheLife: { default: sanity },
 	compress: true,
+	logging: {
+		browserToTerminal: true,
+	},
 	experimental: {
 		turbopackFileSystemCacheForDev: process.env.NODE_ENV !== "production",
 		taint: true,
-		browserDebugInfoInTerminal: true,
 		// isolatedDevBuild: true,
 		optimizePackageImports: ["gsap", "@base-ui/react", "lenis"],
 	},
@@ -108,7 +110,9 @@ const nextConfig: NextConfig = {
 			},
 		],
 		minimumCacheTTL: 60 * 60 * 24 * 30, // 30 days
-		qualities: [90],
+		// 75 is the wrapper default (AVIF q75 is visually near-lossless for
+		// photos); 90 stays allowlisted for hero/detail shots that opt in.
+		qualities: [75, 90],
 		formats: ["image/avif", "image/webp"],
 		deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
 		imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],

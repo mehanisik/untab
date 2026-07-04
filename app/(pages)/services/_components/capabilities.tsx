@@ -2,14 +2,9 @@
 
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
-import {
-	type ReactNode,
-	useEffect,
-	useEffectEvent,
-	useId,
-	useRef,
-	useState,
-} from "react";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { useLenis } from "lenis/react";
+import { type ReactNode, useId, useRef, useState } from "react";
 import { withMotion } from "~/libs/gsap/presets";
 import { cn } from "~/libs/utils";
 
@@ -300,36 +295,13 @@ function Poster({ service }: { service: Service }) {
 	);
 }
 
-function ServicePanel({
-	service,
-	index,
-	onVisible,
-}: {
-	service: Service;
-	index: number;
-	onVisible: (index: number) => void;
-}) {
-	const ref = useRef<HTMLElement>(null);
-	const onIntersect = useEffectEvent((isIntersecting: boolean) => {
-		if (isIntersecting) onVisible(index);
-	});
-
-	useEffect(() => {
-		const observer = new IntersectionObserver(
-			([entry]) => onIntersect(entry.isIntersecting),
-			{ threshold: 0, rootMargin: "-45% 0px -45% 0px" },
-		);
-		if (ref.current) observer.observe(ref.current);
-		return () => observer.disconnect();
-	}, []);
-
+function ServicePanel({ service }: { service: Service }) {
 	return (
 		<article
-			ref={ref}
 			id={`service-${service.number}`}
 			className="cap-panel scroll-mt-28 border-t border-foreground/12 py-12 first:border-t-0 sm:py-16 md:py-20"
 		>
-			<div className="flex items-center gap-4 lg:hidden">
+			<div className="flex items-center gap-4 md:hidden">
 				<span className="font-mono text-[11px] tabular-nums tracking-[0.18em] text-foreground/45">
 					{service.number}
 				</span>
@@ -338,7 +310,7 @@ function ServicePanel({
 				</h3>
 			</div>
 
-			<div className="mt-6 lg:mt-0">
+			<div className="mt-6 md:mt-0">
 				<Poster service={service} />
 			</div>
 
@@ -362,20 +334,117 @@ function ServicePanel({
 
 export function Capabilities() {
 	const rootRef = useRef<HTMLElement>(null);
+	const navRef = useRef<HTMLElement>(null);
+	const markerRef = useRef<HTMLSpanElement>(null);
 	const [activeIndex, setActiveIndex] = useState(0);
+	const lenis = useLenis();
 
 	const handleJump = (number: string) => {
-		document
-			.getElementById(`service-${number}`)
-			?.scrollIntoView({ behavior: "smooth", block: "start" });
+		const el = document.getElementById(`service-${number}`);
+		if (!el) return;
+		// Drive Lenis directly — native smooth scrollIntoView fights Lenis. The
+		// offset clears the sticky header (top-28 = 112px). Fall back to native
+		// if Lenis isn't ready.
+		if (lenis) lenis.scrollTo(el, { offset: -112 });
+		else el.scrollIntoView({ behavior: "smooth", block: "start" });
 	};
 
 	useGSAP(
-		() =>
-			withMotion(() => {
-				const root = rootRef.current;
-				if (!root) return;
+		() => {
+			const root = rootRef.current;
+			if (!root) return;
 
+			// Scrollspy: drive the active service + a gliding accent thumb from the
+			// scroll position (updates every tick via ScrollTrigger, synced to
+			// Lenis). Runs regardless of motion preference — it's a scrollbar-like
+			// indicator, not decorative motion. Replaces the old per-panel
+			// IntersectionObserver, which snapped the active state.
+			const nav = navRef.current;
+			const marker = markerRef.current;
+			const panels = gsap.utils.toArray<HTMLElement>(".cap-panel", root);
+			let spy: ScrollTrigger | undefined;
+
+			if (nav && marker && panels.length) {
+				const buttons = Array.from(nav.querySelectorAll<HTMLElement>("button"));
+				let navTops: number[] = [];
+				let navHeights: number[] = [];
+				const measure = () => {
+					// Layout offsets (offsetTop/Height) instead of rects: whole-pixel,
+					// immune to the reveal transforms, and stable while the column is
+					// sticky — so the highlight aligns exactly with each item.
+					navTops = buttons.map((b) => b.offsetTop);
+					navHeights = buttons.map((b) => b.offsetHeight);
+				};
+
+				let lastIdx = -1;
+				// Move the highlight to exactly frame item `idx`. Whole-pixel values
+				// so the edges stay crisp; ease between items, or snap instantly on
+				// first paint / layout changes.
+				const frame = (idx: number, animate: boolean) => {
+					const y = Math.round(navTops[idx]!);
+					const height = Math.round(navHeights[idx]!);
+					if (animate) {
+						gsap.to(marker, {
+							y,
+							height,
+							duration: 0.5,
+							ease: "power3.out",
+							overwrite: true,
+						});
+					} else {
+						gsap.set(marker, { y, height });
+					}
+				};
+
+				const update = () => {
+					if (!navTops.length) return;
+					const vpCenter = window.innerHeight / 2;
+
+					// Active service = the panel whose true (untransformed) centre is
+					// nearest the viewport centre. Subtracting the reveal's live
+					// y-offset keeps the pick exact during entrance animations.
+					let idx = 0;
+					let best = Number.POSITIVE_INFINITY;
+					panels.forEach((p, i) => {
+						const r = p.getBoundingClientRect();
+						const ty = (gsap.getProperty(p, "y") as number) || 0;
+						const c = r.top - ty + r.height / 2;
+						const d = Math.abs(c - vpCenter);
+						if (d < best) {
+							best = d;
+							idx = i;
+						}
+					});
+
+					if (idx !== lastIdx) {
+						frame(idx, lastIdx !== -1);
+						lastIdx = idx;
+						setActiveIndex(idx);
+					}
+				};
+
+				spy = ScrollTrigger.create({
+					trigger: root,
+					start: "top bottom",
+					end: "bottom top",
+					onUpdate: update,
+					onRefresh: () => {
+						measure();
+						// Re-frame the current item instantly after a layout change.
+						if (lastIdx >= 0) frame(lastIdx, false);
+						update();
+					},
+				});
+				measure();
+				update();
+
+				// Re-measure once the brand font has loaded — fallback-font metrics
+				// give different item heights, which would offset the highlight.
+				document.fonts?.ready.then(() => ScrollTrigger.refresh());
+			}
+
+			// Decorative reveals — gated behind reduced-motion.
+			const stopMotion = withMotion(() => {
 				gsap.from(root.querySelectorAll<HTMLElement>(".cap-head"), {
 					y: 28,
 					opacity: 0,
@@ -385,7 +454,7 @@ export function Capabilities() {
 					scrollTrigger: {
 						trigger: root,
 						start: "top 80%",
-						toggleActions: "play none none none",
+						toggleActions: "play reverse play reverse",
 					},
 				});
 
@@ -398,10 +467,16 @@ export function Capabilities() {
 					scrollTrigger: {
 						trigger: root.querySelector(".cap-grid"),
 						start: "top 75%",
-						toggleActions: "play none none none",
+						toggleActions: "play reverse play reverse",
 					},
 				});
-			}),
+			});
+
+			return () => {
+				spy?.kill();
+				stopMotion();
+			};
+		},
 		{ scope: rootRef },
 	);
 
@@ -423,9 +498,9 @@ export function Capabilities() {
 					</h2>
 				</header>
 
-				<div className="cap-grid mt-14 grid grid-cols-1 gap-x-10 sm:mt-20 lg:grid-cols-12">
+				<div className="cap-grid mt-14 grid grid-cols-1 gap-x-10 sm:mt-20 md:grid-cols-12">
 					{/* Sticky index — desktop only */}
-					<div className="hidden lg:col-span-4 lg:block">
+					<div className="hidden md:col-span-4 md:block">
 						<div className="sticky top-28">
 							<span
 								className="font-mono text-[11px] uppercase tracking-[0.2em] tabular-nums transition-colors duration-500"
@@ -434,53 +509,56 @@ export function Capabilities() {
 								{active.number} / {TOTAL}
 							</span>
 
-							<nav className="mt-8 flex flex-col" aria-label="Services">
-								{SERVICES.map((service, i) => {
-									const isActive = i === activeIndex;
-									return (
-										<button
-											key={service.number}
-											type="button"
-											onClick={() => handleJump(service.number)}
-											className="group flex items-center gap-4 py-3 text-left"
-										>
-											<span
-												aria-hidden
-												className="h-px transition-all duration-500"
-												style={{
-													width: isActive ? 36 : 16,
-													backgroundColor: isActive
-														? service.accent
-														: "var(--foreground)",
-													opacity: isActive ? 1 : 0.25,
-												}}
-											/>
-											<span
-												className={cn(
-													"text-[clamp(1.125rem,1.6vw,1.5rem)] font-medium leading-tight tracking-[-0.02em] transition-all duration-500",
-													isActive
-														? "translate-x-0 text-foreground"
-														: "text-foreground/35 group-hover:text-foreground/70",
-												)}
+							<div className="relative mt-8">
+								{/* Scroll-driven highlight: a soft accent block with an
+								    accent left-bar that glides (position + height) to the
+								    active service as you scroll — the visible scrub. */}
+								<span
+									ref={markerRef}
+									aria-hidden
+									className="pointer-events-none absolute inset-x-0 top-0 rounded-lg border-l-2 transition-colors duration-500 will-change-transform"
+									style={{
+										borderColor: active.accent,
+										backgroundColor: `color-mix(in srgb, ${active.accent} 12%, transparent)`,
+									}}
+								/>
+
+								<nav
+									className="relative flex flex-col"
+									aria-label="Services"
+									ref={navRef}
+								>
+									{SERVICES.map((service, i) => {
+										const isActive = i === activeIndex;
+										return (
+											<button
+												key={service.number}
+												type="button"
+												onClick={() => handleJump(service.number)}
+												className="group block py-3 pl-4 pr-2 text-left"
 											>
-												{service.title}
-											</span>
-										</button>
-									);
-								})}
-							</nav>
+												<span
+													className={cn(
+														"text-[clamp(1.125rem,1.6vw,1.5rem)] font-medium leading-tight tracking-[-0.02em] transition-colors duration-500",
+														isActive
+															? "text-foreground"
+															: "text-foreground/35 group-hover:text-foreground/70",
+													)}
+												>
+													{service.title}
+												</span>
+											</button>
+										);
+									})}
+								</nav>
+							</div>
 						</div>
 					</div>
 
 					{/* Scrolling panels */}
-					<div className="lg:col-span-7 lg:col-start-6">
-						{SERVICES.map((service, i) => (
-							<ServicePanel
-								key={service.number}
-								service={service}
-								index={i}
-								onVisible={setActiveIndex}
-							/>
+					<div className="md:col-span-7 md:col-start-6">
+						{SERVICES.map((service) => (
+							<ServicePanel key={service.number} service={service} />
 						))}
 					</div>
 				</div>

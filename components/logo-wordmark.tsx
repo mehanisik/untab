@@ -24,7 +24,7 @@ export function LogoWordmark({
 			<text
 				x="275"
 				y="220"
-				fontFamily="var(--font-sans), 'Satoshi', system-ui, sans-serif"
+				fontFamily="var(--font-sans), system-ui, sans-serif"
 				fontWeight={900}
 				fontSize={300}
 				letterSpacing={-8}

@@ -7,5 +7,4 @@ export * from "./journal";
 export * from "./navbar";
 export * from "./pillars";
 export * from "./showcase";
-export * from "./tech-stack";
 export * from "./vision";

@@ -10,10 +10,11 @@ function AnimatedLine() {
 
 	useEffect(() => {
 		const observer = new IntersectionObserver(
+			// Two-way: track intersection in both directions so the line and dots
+			// revert (fade/scale back out) when scrolled above and replay on the
+			// way back down, matching the reverse reveal of the title/content.
 			([entry]) => {
-				if (entry.isIntersecting) {
-					setIsVisible(true);
-				}
+				setIsVisible(entry.isIntersecting);
 			},
 			{ threshold: 0.3 },
 		);

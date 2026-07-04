@@ -24,7 +24,7 @@ export function Manifesto() {
 				const trigger = {
 					trigger: root,
 					start: "top 85%",
-					toggleActions: "play none none none",
+					toggleActions: "play reverse play reverse",
 				} as const;
 
 				if (eyebrow) {
@@ -71,7 +71,7 @@ export function Manifesto() {
 						scrollTrigger: {
 							trigger: cards[0],
 							start: "top 85%",
-							toggleActions: "play none none none",
+							toggleActions: "play reverse play reverse",
 						},
 					});
 				}

@@ -2,6 +2,7 @@
 
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useLenis } from "lenis/react";
 import type { Route } from "next";
 import { usePathname, useRouter } from "next/navigation";
@@ -198,6 +199,18 @@ export function RouterTransitionProvider({
 		// New route has committed behind the cover; slide the overlay away.
 		resetScroll();
 		revealRef.current?.();
+
+		// The new page's sections just mounted and built their ScrollTriggers
+		// while scroll was locked and layout was still settling — bottom-anchored
+		// triggers (e.g. the footer's "top 85%") end up with stale start/end
+		// positions and can stay stuck in their `.from(autoAlpha: 0)` state.
+		// Recompute every trigger's position once the layout has painted. Two
+		// rAFs so the refresh runs after the browser has committed the new
+		// layout, not mid-commit.
+		const raf = requestAnimationFrame(() => {
+			requestAnimationFrame(() => ScrollTrigger.refresh());
+		});
+		return () => cancelAnimationFrame(raf);
 	}, [pathname, resetScroll]);
 
 	return (

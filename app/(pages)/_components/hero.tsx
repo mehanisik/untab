@@ -6,6 +6,7 @@ import { useRef } from "react";
 import { useTempus } from "tempus/react";
 import { Image } from "~/components/ui/image";
 import { withMotion } from "~/libs/gsap/presets";
+import { projectCardImage } from "~/libs/project-media";
 import type { Project } from "~/libs/projects";
 
 interface HeroProps {
@@ -95,8 +96,11 @@ function collectPool(projects: Project[]): TileImage[] {
 
 	const seen = new Set<string>();
 	return projects
-		.filter((p) => isUsable(p.image) && !seen.has(p.image) && seen.add(p.image))
-		.map((p) => ({ src: p.image, hotspot: p.imageHotspot }));
+		.map((p) => ({
+			src: projectCardImage(p),
+			hotspot: p.cardImageHotspot ?? p.imageHotspot,
+		}))
+		.filter((p) => isUsable(p.src) && !seen.has(p.src) && seen.add(p.src));
 }
 
 function collectTileImages(projects: Project[] | undefined): string[] {
@@ -305,6 +309,12 @@ export function Hero({ videoUrl = "/hero.mp4", projects }: HeroProps) {
 			ref={containerRef}
 			className="home-hero relative w-full overflow-hidden bg-background h-dvh"
 		>
+			{/* The hero is visual (poster wall + video), so the page's top-level
+			    heading is screen-reader-only for SEO/a11y. */}
+			<h1 className="sr-only">
+				Untab Studio — software studio in Warsaw building brand-led websites,
+				platforms, and digital products
+			</h1>
 			{/* Poster-wall mosaic: hidden at rest, bloomed open by the scroll scrub.
 			    Bleeds past the top/bottom edges like an endless wall of work. */}
 			<div

@@ -46,7 +46,7 @@ export function Impact() {
 				const trigger = {
 					trigger: root,
 					start: "top 80%",
-					toggleActions: "play none none none",
+					toggleActions: "play reverse play reverse",
 				} as const;
 
 				if (eyebrow) {
@@ -81,7 +81,7 @@ export function Impact() {
 						scrollTrigger: {
 							trigger: rows[0],
 							start: "top 85%",
-							toggleActions: "play none none none",
+							toggleActions: "play reverse play reverse",
 						},
 					});
 				}

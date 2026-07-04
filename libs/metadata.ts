@@ -93,11 +93,20 @@ export function generatePageMetadata(
 	} = options;
 
 	const fullUrl = url ? `${APP_BASE_URL}${url}` : APP_BASE_URL;
-	// Use provided image or fallback to logo if no opengraph image exists
-	const imageUrl = image?.url || `${APP_BASE_URL}/logo.png`;
-	const imageWidth = image?.width || 1200;
-	const imageHeight = image?.height || 630;
-	const imageAlt = image?.alt || title || siteName;
+	// Only set explicit og/twitter images when the page provides one (e.g.
+	// Sanity documents). Otherwise omit `images` entirely so Next's
+	// file-convention app/opengraph-image.png / twitter-image.png (correct
+	// 1200x630-ratio cards) are used instead of a distorted logo fallback.
+	const ogImages = image?.url
+		? [
+				{
+					url: image.url,
+					width: image.width || 1200,
+					height: image.height || 630,
+					alt: image.alt || title || siteName,
+				},
+			]
+		: undefined;
 
 	const metadata: Metadata = {
 		metadataBase: new URL(APP_BASE_URL),
@@ -114,14 +123,7 @@ export function generatePageMetadata(
 			siteName,
 			locale: "en_US",
 			type,
-			images: [
-				{
-					url: imageUrl,
-					width: imageWidth,
-					height: imageHeight,
-					alt: imageAlt,
-				},
-			],
+			...(ogImages && { images: ogImages }),
 			...(publishedTime && { publishedTime }),
 			...(modifiedTime && { modifiedTime }),
 			...(authors && { authors }),
@@ -130,14 +132,7 @@ export function generatePageMetadata(
 			card: "summary_large_image",
 			title,
 			description,
-			images: [
-				{
-					url: imageUrl,
-					width: imageWidth,
-					height: imageHeight,
-					alt: imageAlt,
-				},
-			],
+			...(ogImages && { images: ogImages }),
 		},
 		other: {
 			"fb:app_id": process.env.NEXT_PUBLIC_FACEBOOK_APP_ID || "",

@@ -14,6 +14,7 @@ import { useId, useRef } from "react";
 import { LogoWordmark } from "~/components/logo-wordmark";
 import { Link } from "~/components/ui/link";
 import { withMotion } from "~/libs/gsap/presets";
+import { SOCIALS } from "~/libs/socials";
 
 const studioLinks = [
 	{ label: "Home", href: "/" },
@@ -32,17 +33,17 @@ const contactLinks: Array<{ label: string; href?: string }> = [
 ];
 
 const socialLinks = [
-	{ label: "LinkedIn", icon: Linkedin01Icon, href: "https://linkedin.com" },
-	{ label: "Instagram", icon: InstagramIcon, href: "https://instagram.com" },
-	{ label: "Twitter", icon: NewTwitterIcon, href: "https://twitter.com" },
-	{ label: "Dribbble", icon: DribbbleIcon, href: "https://dribbble.com" },
-	{ label: "GitHub", icon: GithubIcon, href: "https://github.com" },
+	{ label: "LinkedIn", icon: Linkedin01Icon, href: SOCIALS.linkedin },
+	{ label: "Instagram", icon: InstagramIcon, href: SOCIALS.instagram },
+	{ label: "Twitter", icon: NewTwitterIcon, href: SOCIALS.twitter },
+	{ label: "Dribbble", icon: DribbbleIcon, href: SOCIALS.dribbble },
+	{ label: "GitHub", icon: GithubIcon, href: SOCIALS.github },
 ];
 
 const SECTION_LABEL =
-	"text-[11px] font-medium uppercase tracking-[0.22em] text-surface-deep-foreground/45";
+	"text-[11px] font-medium uppercase tracking-[0.22em] text-surface-deep-foreground";
 const LINK =
-	"inline-block text-[15px] text-surface-deep-foreground/85 transition-colors duration-200 hover:text-surface-deep-foreground";
+	"inline-block text-[15px] text-surface-deep-foreground transition-opacity duration-200 hover:opacity-70";
 
 export function Footer() {
 	const year = new Date().getFullYear();
@@ -73,8 +74,11 @@ export function Footer() {
 					},
 				);
 
-				// Entrance: one timeline, one ScrollTrigger; reverses out when
-				// scrolling back up.
+				// Entrance: one timeline, one ScrollTrigger. Only reverses on
+				// scroll-up (onLeaveBack) — NOT "play reverse play reverse". The
+				// footer is the last element, so its trigger end sits past the max
+				// scroll and gets clamped there; a reverse-on-leave would fire at
+				// the page bottom and hide the footer exactly when it's in view.
 				const tl = gsap.timeline({
 					defaults: { ease: "expo.out" },
 					scrollTrigger: {
@@ -126,17 +130,17 @@ export function Footer() {
 		<footer
 			ref={footerRef}
 			className="relative isolate w-full text-surface-deep-foreground"
-			// Fixed magenta surface in both themes, so pin the foreground to the
+			// Fixed dark-ink surface in both themes, so pin the foreground to the
 			// cream base token instead of the theme-flipping surface foreground.
 			style={
 				{ "--surface-deep-foreground": "var(--light)" } as React.CSSProperties
 			}
 		>
-			{/* Full-bleed magenta surface: spans the viewport width (like a proper
-			    footer) while the content below keeps the shared max-width rails.
-			    left-1/2 + -ml-[50vw] + w-screen resolves to the viewport edges
-			    because the footer is centered in the page container. */}
-			<div className="pointer-events-none absolute inset-y-0 left-1/2 -z-10 -ml-[50vw] w-screen overflow-hidden bg-[var(--brand-magenta)]">
+			{/* Full-bleed dark-ink surface: spans the viewport width (like a
+			    proper footer) while the content below keeps the shared max-width
+			    rails. left-1/2 + -ml-[50vw] + w-screen resolves to the viewport
+			    edges because the footer is centered in the page container. */}
+			<div className="pointer-events-none absolute inset-y-0 left-1/2 -z-10 -ml-[50vw] w-screen overflow-hidden bg-[var(--dark)]">
 				<svg
 					aria-hidden
 					className="size-full opacity-[0.12] mix-blend-soft-light"
@@ -166,12 +170,12 @@ export function Footer() {
 							aria-label="Untab Studio"
 							className="fx-logo block h-10 md:h-12 w-auto text-surface-deep-foreground"
 						/>
-						<p className="fx-tagline-line max-w-sm text-pretty text-[15px] font-light leading-[1.6] text-surface-deep-foreground/70">
+						<p className="fx-tagline-line max-w-sm text-pretty text-[15px] font-light leading-[1.6] text-surface-deep-foreground">
 							An independent software studio in Warsaw, building brand-led
 							websites, platforms, and digital products with ambitious teams
 							around the world.
 						</p>
-						<p className="fx-tagline-line text-[11px] font-medium uppercase tracking-[0.22em] text-surface-deep-foreground/45">
+						<p className="fx-tagline-line text-[11px] font-medium uppercase tracking-[0.22em] text-surface-deep-foreground">
 							Software Studio
 						</p>
 					</div>
@@ -205,7 +209,7 @@ export function Footer() {
 								) : (
 									<li
 										key={item.label}
-										className="fx-link text-[15px] text-surface-deep-foreground/55"
+										className="fx-link text-[15px] text-surface-deep-foreground"
 									>
 										{item.label}
 									</li>
@@ -228,7 +232,7 @@ export function Footer() {
 									>
 										<HugeiconsIcon
 											icon={social.icon}
-											className="size-4 text-surface-deep-foreground/55 transition-colors duration-200 group-hover:text-surface-deep-foreground"
+											className="size-4 text-surface-deep-foreground"
 											strokeWidth={1.5}
 										/>
 										<span>{social.label}</span>
@@ -242,10 +246,10 @@ export function Footer() {
 				<div className="fx-divider mt-20 md:mt-24 h-px w-full bg-surface-deep-foreground/12" />
 
 				<div className="mt-6 flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
-					<p className="fx-meta text-xs text-surface-deep-foreground/50">
+					<p className="fx-meta text-xs text-surface-deep-foreground">
 						© {year} Untab Studio. All rights reserved.
 					</p>
-					<p className="fx-meta text-xs text-surface-deep-foreground/50">
+					<p className="fx-meta text-xs text-surface-deep-foreground">
 						Crafted in Warsaw, Poland.
 					</p>
 				</div>

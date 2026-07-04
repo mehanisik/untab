@@ -12,24 +12,9 @@ import { Providers } from "~/components/providers";
 import { RouterTransitionProvider } from "~/components/route-transition";
 import { VisualEditingWrapper } from "~/components/visual-editing";
 import { SanityLive } from "~/libs/live";
+import { SOCIAL_SAME_AS } from "~/libs/socials";
 import { Orchestra } from "~/orchestra";
 import AppData from "~/package.json";
-
-const satoshi = localFont({
-	src: [
-		{
-			path: "../public/fonts/Satoshi-Variable.woff2",
-			style: "normal",
-			weight: "300 900",
-		},
-		{
-			path: "../public/fonts/Satoshi-VariableItalic.woff2",
-			style: "italic",
-			weight: "300 900",
-		},
-	],
-	variable: "--font-satoshi",
-});
 
 const switzer = localFont({
 	src: [
@@ -73,14 +58,10 @@ export default function RootLayout({
 	children: React.ReactNode;
 }>) {
 	return (
-		<html
-			lang="en"
-			className={`${satoshi.variable} ${switzer.variable}`}
-			suppressHydrationWarning
-		>
+		<html lang="en" className={switzer.variable} suppressHydrationWarning>
 			<Script async>{`window.satusVersion = '${AppData.version}';`}</Script>
 			<body
-				className="antialiased w-full font-normal font-[family-name:var(--font-switzer),sans-serif]"
+				className="antialiased w-full font-normal font-sans"
 				suppressHydrationWarning
 			>
 				<PostHogProvider>
@@ -114,11 +95,7 @@ export default function RootLayout({
 							},
 							description:
 								"A passionate digital agency based in Warsaw specializing in high-end design and development.",
-							sameAs: [
-								"https://twitter.com/untab_studio",
-								"https://instagram.com/untab_studio",
-								"https://linkedin.com/company/untab-studio",
-							],
+							sameAs: SOCIAL_SAME_AS,
 						}),
 					}}
 				/>

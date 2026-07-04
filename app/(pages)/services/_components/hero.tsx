@@ -31,7 +31,7 @@ export function ServicesHero() {
 				const trigger = {
 					trigger: root,
 					start: "top 85%",
-					toggleActions: "play none none none",
+					toggleActions: "play reverse play reverse",
 				} as const;
 
 				if (eyebrow) {

@@ -48,7 +48,7 @@ export function BlogFeed({ posts }: BlogFeedProps) {
 						scrollTrigger: {
 							trigger: intro,
 							start: "top 85%",
-							toggleActions: "play none none none",
+							toggleActions: "play reverse play reverse",
 						},
 					});
 				}
@@ -64,7 +64,7 @@ export function BlogFeed({ posts }: BlogFeedProps) {
 						scrollTrigger: {
 							trigger: root.querySelector(".post-grid"),
 							start: "top 85%",
-							toggleActions: "play none none none",
+							toggleActions: "play reverse play reverse",
 						},
 					});
 				}

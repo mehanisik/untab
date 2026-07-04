@@ -18,6 +18,7 @@ import { Container } from "~/components/container";
 import { LogoWordmark } from "~/components/logo-wordmark";
 import { Link } from "~/components/ui/link";
 import { withMotion } from "~/libs/gsap/presets";
+import { SOCIALS } from "~/libs/socials";
 
 const COOLDOWN_MS = 10_000;
 
@@ -35,11 +36,11 @@ const FIELD =
 	"form-field w-full rounded-lg bg-[var(--light)] px-5 py-4 text-[15px] text-[#141311] outline-none ring-2 ring-transparent transition duration-200 placeholder:text-[#141311]/45 focus-visible:ring-[#141311]/30";
 
 const socialLinks = [
-	{ label: "LinkedIn", icon: Linkedin01Icon, href: "https://linkedin.com" },
-	{ label: "Instagram", icon: InstagramIcon, href: "https://instagram.com" },
-	{ label: "Twitter", icon: NewTwitterIcon, href: "https://twitter.com" },
-	{ label: "Dribbble", icon: DribbbleIcon, href: "https://dribbble.com" },
-	{ label: "GitHub", icon: GithubIcon, href: "https://github.com" },
+	{ label: "LinkedIn", icon: Linkedin01Icon, href: SOCIALS.linkedin },
+	{ label: "Instagram", icon: InstagramIcon, href: SOCIALS.instagram },
+	{ label: "Twitter", icon: NewTwitterIcon, href: SOCIALS.twitter },
+	{ label: "Dribbble", icon: DribbbleIcon, href: SOCIALS.dribbble },
+	{ label: "GitHub", icon: GithubIcon, href: SOCIALS.github },
 ];
 
 export function ContactForm() {
@@ -66,7 +67,7 @@ export function ContactForm() {
 					scrollTrigger: {
 						trigger: root,
 						start: "top 80%",
-						toggleActions: "play none none reverse",
+						toggleActions: "play reverse play reverse",
 					},
 				});
 

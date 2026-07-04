@@ -5,10 +5,11 @@ export const REVEAL = {
 	duration: 0.9,
 	y: 32,
 	start: "top 80%",
-	// Play on enter, reverse out when scrolling back above the section so
-	// every reveal has a matching exit (GSAP toggleActions: onEnter onLeave
-	// onEnterBack onLeaveBack).
-	toggleActions: "play none none reverse",
+	// Bidirectional replay: reveal on enter, reverse out whenever the section
+	// leaves the viewport (scrolling either way), and replay when it re-enters.
+	// Positions map to GSAP's onEnter onLeave onEnterBack onLeaveBack — so
+	// scrolling down past a section hides it, and scrolling back up replays it.
+	toggleActions: "play reverse play reverse",
 } as const;
 
 /**

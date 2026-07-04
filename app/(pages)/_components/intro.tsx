@@ -24,7 +24,7 @@ export function Intro() {
 					scrollTrigger: {
 						trigger: root,
 						start: "top 75%",
-						toggleActions: "play none none reverse",
+						toggleActions: "play reverse play reverse",
 					},
 				});
 

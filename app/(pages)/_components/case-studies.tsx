@@ -6,6 +6,7 @@ import { useRef } from "react";
 import { Image } from "~/components/ui/image";
 import { Link } from "~/components/ui/link";
 import { withMotion } from "~/libs/gsap/presets";
+import { projectCardImage, sanityFitMax } from "~/libs/project-media";
 import type { Project } from "~/libs/projects";
 
 interface CaseStudiesProps {
@@ -16,8 +17,7 @@ export function CaseStudies({ projects }: CaseStudiesProps) {
 	const sectionRef = useRef<HTMLElement>(null);
 	const viewportRef = useRef<HTMLDivElement>(null);
 	const trackRef = useRef<HTMLDivElement>(null);
-
-	const featured = projects.slice(0, 6);
+	const featured = projects;
 
 	useGSAP(
 		() =>
@@ -27,15 +27,8 @@ export function CaseStudies({ projects }: CaseStudiesProps) {
 				const track = trackRef.current;
 				if (!(section && viewport && track)) return;
 
-				// Desktop only: turn vertical scroll into a pinned horizontal scrub.
-				// On mobile (and when skipped for reduced motion) the viewport keeps
-				// its default `overflow-x-auto`, so it stays a native swipe scroll.
 				if (!window.matchMedia("(min-width: 768px)").matches) return;
 
-				// Measure travel against the VIEWPORT (the rail-inset content
-				// column), not the window — the viewport has no padding of its own,
-				// so clientWidth is the exact clip width and the track lands with the
-				// last card flush to the right rail.
 				const distance = () =>
 					Math.max(0, track.scrollWidth - viewport.clientWidth);
 
@@ -61,7 +54,7 @@ export function CaseStudies({ projects }: CaseStudiesProps) {
 					gsap.set(viewport, { clearProps: "overflow" });
 				};
 			}),
-		{ scope: sectionRef },
+		{ scope: sectionRef, dependencies: [featured.length] },
 	);
 
 	return (
@@ -94,9 +87,6 @@ export function CaseStudies({ projects }: CaseStudiesProps) {
 				</Link>
 			</header>
 
-			{/* Rail column owns the max-width + side rails; the viewport clips to
-			    this column, so cards start at the left rail, end at the right rail,
-			    and never bleed past the site max-width while scrubbing. */}
 			<div className="container flex flex-col justify-center px-6 md:h-[100svh] md:px-12 md:pt-16 lg:px-24">
 				<div
 					ref={viewportRef}
@@ -117,62 +107,47 @@ export function CaseStudies({ projects }: CaseStudiesProps) {
 	);
 }
 
-// The card art is a fixed 4:5 portrait. Sanity originals arrive at arbitrary
-// native ratios, so `object-cover` was hard-cropping them (awkward framing) and
-// the browser was upscaling too-small candidates (soft on retina). For Sanity
-// CDN sources, ask Sanity itself for a sharp 4:5 crop — honouring the focal
-// point when the project defines one — in a modern format at high quality.
-const CARD_W = 1200;
-const CARD_H = 1500;
-
-function cardImage(src: string, hotspot?: { x: number; y: number }): string {
-	if (!src.includes("cdn.sanity.io")) return src;
-	const params = new URLSearchParams({
-		w: String(CARD_W),
-		h: String(CARD_H),
-		fit: "crop",
-		auto: "format",
-		q: "90",
-	});
-	if (typeof hotspot?.x === "number" && typeof hotspot?.y === "number") {
-		params.set("crop", "focalpoint");
-		params.set("fp-x", hotspot.x.toFixed(4));
-		params.set("fp-y", hotspot.y.toFixed(4));
-	} else {
-		params.set("crop", "entropy");
-	}
-	return `${src}${src.includes("?") ? "&" : "?"}${params.toString()}`;
-}
-
 function ProjectCard({ project, index }: { project: Project; index: number }) {
-	const subtitle = project.description || project.category || "";
+	const cardImage = projectCardImage(project);
 
 	return (
 		<Link
 			href={project.href ?? `/work/${project.slug}`}
-			className="group flex shrink-0 snap-start flex-col w-[72vw] sm:w-[52vw] md:w-[34vw] lg:w-[28vw]"
+			className="group flex w-[82vw] shrink-0 snap-start flex-col sm:w-[60vw] md:w-[44vw] lg:w-[38vw]"
 		>
-			<div className="relative aspect-[4/5] w-full overflow-hidden rounded-2xl bg-foreground/[0.05]">
+			<div className="relative aspect-[16/10] w-full overflow-hidden rounded-lg bg-foreground/[0.035]">
 				<Image
-					src={cardImage(project.image, project.imageHotspot)}
+					src={sanityFitMax(cardImage, 1600)}
 					alt={project.title}
 					fill
 					priority={index === 0}
-					sizes="(max-width: 640px) 72vw, (max-width: 768px) 52vw, (max-width: 1024px) 34vw, 28vw"
+					sizes="(max-width: 640px) 82vw, (max-width: 768px) 60vw, (max-width: 1024px) 44vw, 38vw"
 					quality={90}
-					className="size-full object-cover transition-transform duration-[1200ms] ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.04]"
+					objectFit="cover"
+					className="size-full transition-transform duration-[1200ms] ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.035]"
 				/>
+				{project.previewVideo ? (
+					<video
+						aria-hidden
+						className="absolute inset-0 size-full object-cover opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+						src={project.previewVideo}
+						poster={sanityFitMax(cardImage, 1600)}
+						autoPlay
+						muted
+						loop
+						playsInline
+						preload="metadata"
+					/>
+				) : null}
 			</div>
 
-			<div className="mt-4 md:mt-5">
-				<h3 className="text-[clamp(1.35rem,1.8vw,2rem)] font-semibold leading-tight tracking-tight text-foreground">
+			<div className="mt-3 flex items-baseline justify-between gap-4 md:mt-4">
+				<h3 className="text-[clamp(1.25rem,1.55vw,1.75rem)] font-medium leading-tight tracking-tight text-foreground">
 					{project.title}
 				</h3>
-				{subtitle ? (
-					<p className="mt-1 line-clamp-1 text-[15px] text-foreground/55">
-						{subtitle}
-					</p>
-				) : null}
+				<span className="shrink-0 text-sm tabular-nums text-foreground/50">
+					{project.year}
+				</span>
 			</div>
 		</Link>
 	);
