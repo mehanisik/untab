@@ -101,6 +101,28 @@ export default defineType({
 			},
 		}),
 		defineField({
+			name: "cardImage",
+			title: "Work Card Image",
+			type: "image",
+			group: "media",
+			options: {
+				hotspot: true,
+			},
+			description:
+				"Curated image for homepage/work cards. Use a polished browser, app, or poster composition. Falls back to Hero Image.",
+		}),
+		defineField({
+			name: "previewVideo",
+			title: "Hover Preview Video",
+			type: "file",
+			group: "media",
+			options: {
+				accept: "video/mp4,video/webm",
+			},
+			description:
+				"Optional short, muted loop for animated projects. Keep it lightweight; the Work Card Image is used as the poster/fallback.",
+		}),
+		defineField({
 			name: "gallery",
 			title: "Project Gallery",
 			type: "array",

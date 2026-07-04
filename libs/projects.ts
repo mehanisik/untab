@@ -1,6 +1,7 @@
 import type { PortableTextBlock } from "next-sanity";
 import { cache } from "react";
 import { fetchSanity } from "./live";
+import { PROJECT_IMAGE_FALLBACK, sanityAspect } from "./project-media";
 import { QUERIES } from "./sanity";
 
 // Strip zero-width / invisible Unicode characters that Sanity content sometimes
@@ -41,6 +42,9 @@ export interface Project {
 	// Normalised 0–1 focal point set in Sanity Studio. When present the hero
 	// mosaic crops around it; otherwise it falls back to a content-aware crop.
 	imageHotspot?: { x: number; y: number };
+	cardImage?: string;
+	cardImageHotspot?: { x: number; y: number };
+	previewVideo?: string;
 	gallery?: string[];
 	client?: {
 		name?: string;
@@ -102,7 +106,8 @@ export const getProjects = cache(async (): Promise<Project[]> => {
 					slug,
 					href: `/work/${slug}`,
 					// GROQ already resolves image to a URL string (image.asset->url).
-					image: p.image || "/projects/placeholder.png",
+					image: p.image || PROJECT_IMAGE_FALLBACK,
+					cardImage: p.cardImage || p.image || PROJECT_IMAGE_FALLBACK,
 					gradient: p.gradient || "from-zinc-900 to-zinc-800",
 					accentColor: p.accentColor || "zinc",
 					branding: p.branding || { colors: [], typography: [] },
@@ -127,14 +132,20 @@ export const getProjectBySlug = cache(
 				const clean = sanitize(project);
 				const slugVal = clean.slug;
 				// GROQ already resolves image/gallery to URL strings.
-				const image = clean.image || "/projects/placeholder.png";
+				const image = clean.image || PROJECT_IMAGE_FALLBACK;
 				const gallery = clean.gallery ?? [];
 				const media: MediaItem[] = [
-					{ kind: "image", src: image, alt: `${clean.title} hero` },
+					{
+						kind: "image",
+						src: image,
+						alt: `${clean.title} hero`,
+						aspect: sanityAspect(image),
+					},
 					...gallery.map((src, i) => ({
 						kind: "image" as const,
 						src,
 						alt: `${clean.title} ${String(i + 2).padStart(2, "0")}`,
+						aspect: sanityAspect(src),
 					})),
 				];
 				return {
@@ -142,6 +153,7 @@ export const getProjectBySlug = cache(
 					slug: slugVal,
 					href: `/work/${slugVal}`,
 					image,
+					cardImage: clean.cardImage || image,
 					gradient: clean.gradient || "from-zinc-900 to-zinc-800",
 					accentColor: clean.accentColor || "zinc",
 					branding: clean.branding || { colors: [], typography: [] },

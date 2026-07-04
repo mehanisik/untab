@@ -69,6 +69,9 @@ export const QUERIES = {
     "slug": slug.current,
     "image": image.asset->url,
     "imageHotspot": image.hotspot{x, y},
+    "cardImage": cardImage.asset->url,
+    "cardImageHotspot": cardImage.hotspot{x, y},
+    "previewVideo": previewVideo.asset->url,
     "gallery": gallery[].asset->url,
     "category": category->title,
     year,
@@ -96,6 +99,8 @@ export const QUERIES = {
     timeline,
     honors,
     "image": image.asset->url,
+    "cardImage": cardImage.asset->url,
+    "previewVideo": previewVideo.asset->url,
     "gallery": gallery[].asset->url,
     client {
       name,

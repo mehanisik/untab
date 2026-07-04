@@ -50,3 +50,8 @@ next-env.d.ts
 
 # local planning notes (not part of the codebase)
 plans/
+
+# sanity seed assets (uploaded to Sanity, not tracked - 26MB of binaries)
+sanity/seed/images/*
+!sanity/seed/images/README.md
+*.bak
