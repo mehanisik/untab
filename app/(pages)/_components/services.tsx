@@ -147,10 +147,9 @@ export function Services() {
 								>
 									<span
 										className={cn(
-											"size-11 transition-[color,transform] duration-300 ease-out will-change-transform md:size-14",
-											"group-hover:-rotate-3 group-hover:scale-110",
+											"size-11 transition-colors duration-300 md:size-14",
 											open
-												? "scale-105 text-[var(--brand-coral-accent)]"
+												? "text-[var(--brand-coral-accent)]"
 												: "text-foreground/60 group-hover:text-foreground",
 										)}
 										aria-hidden
