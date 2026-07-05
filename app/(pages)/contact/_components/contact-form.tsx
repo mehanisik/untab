@@ -6,21 +6,17 @@ import {
 	GithubIcon,
 	InstagramIcon,
 	Linkedin01Icon,
-	Loading03Icon,
 	NewTwitterIcon,
-	SentIcon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import gsap from "gsap";
-import { useEffect, useRef, useState } from "react";
-import { sendContactEmail } from "~/app/actions/contact";
+import { useRef } from "react";
 import { Container } from "~/components/container";
 import { LogoWordmark } from "~/components/logo-wordmark";
 import { Link } from "~/components/ui/link";
 import { withMotion } from "~/libs/gsap/presets";
 import { SOCIALS } from "~/libs/socials";
-
-const COOLDOWN_MS = 10_000;
+import { ContactFormPanel } from "./contact-form-panel";
 
 // Palette triad, inverted: fixed brand ink surface in both themes, coral
 // for the headline and actions, cream for text and the form fields. No
@@ -28,25 +24,6 @@ const COOLDOWN_MS = 10_000;
 const CORAL = "var(--brand-coral)";
 const INK = "var(--dark)";
 const CREAM = "var(--light)";
-
-// Mirrors ALLOWED_PROJECT_TYPES in app/actions/contact.ts - keep in sync.
-const PROJECT_TYPES = [
-	"Website & Platform",
-	"Brand Strategy",
-	"Branding",
-	"Creative Content",
-	"Design System",
-	"Other",
-] as const;
-
-type FormState =
-	| { status: "idle" }
-	| { status: "submitting" }
-	| { status: "success" }
-	| { status: "error"; message: string };
-
-const FIELD =
-	"form-field w-full rounded-lg bg-[var(--light)] px-5 py-4 text-[15px] text-[var(--dark)] outline-none ring-2 ring-transparent transition duration-200 placeholder:text-[var(--dark)]/45 focus-visible:ring-[var(--brand-coral)]/70";
 
 const socialLinks = [
 	{ label: "LinkedIn", icon: Linkedin01Icon, href: SOCIALS.linkedin },
@@ -58,15 +35,6 @@ const socialLinks = [
 
 export function ContactForm() {
 	const sectionRef = useRef<HTMLElement>(null);
-	const formRef = useRef<HTMLFormElement>(null);
-	const [formState, setFormState] = useState<FormState>({ status: "idle" });
-	const [projectType, setProjectType] = useState<string | null>(null);
-	const [renderTimestamp, setRenderTimestamp] = useState("");
-	const lastSubmitRef = useRef(0);
-
-	useEffect(() => {
-		setRenderTimestamp(String(Date.now()));
-	}, []);
 
 	useGSAP(
 		() =>
@@ -74,8 +42,10 @@ export function ContactForm() {
 				const root = sectionRef.current;
 				if (!root) return;
 
-				// One timeline, one ScrollTrigger; reverses out on scroll-up to match
-				// the rest of the site's reveal behaviour.
+				// One timeline, one ScrollTrigger; reverses out on scroll-up to
+				// match the rest of the site. The form panel animates as a single
+				// block so an interrupted tween can never strand individual
+				// fields invisible.
 				const tl = gsap.timeline({
 					defaults: { ease: "expo.out" },
 					scrollTrigger: {
@@ -101,42 +71,13 @@ export function ContactForm() {
 						0.35,
 					)
 					.from(
-						root.querySelectorAll(".form-field"),
-						{ y: 18, autoAlpha: 0, duration: 0.6, stagger: 0.06 },
-						0.3,
+						root.querySelectorAll(".contact-panel"),
+						{ y: 24, autoAlpha: 0, duration: 0.8 },
+						0.25,
 					);
 			}),
 		{ scope: sectionRef },
 	);
-
-	async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-		e.preventDefault();
-		if (formState.status === "submitting") return;
-
-		const now = Date.now();
-		if (now - lastSubmitRef.current < COOLDOWN_MS) {
-			setFormState({
-				status: "error",
-				message: "Please wait a moment before submitting again.",
-			});
-			return;
-		}
-
-		setFormState({ status: "submitting" });
-		lastSubmitRef.current = now;
-
-		const formData = new FormData(e.currentTarget);
-		const result = await sendContactEmail(formData);
-
-		if (result.error) {
-			setFormState({ status: "error", message: result.error });
-			return;
-		}
-
-		setFormState({ status: "success" });
-		setProjectType(null);
-		formRef.current?.reset();
-	}
 
 	return (
 		<section
@@ -145,7 +86,7 @@ export function ContactForm() {
 			className="relative isolate flex min-h-[calc(100dvh-3.5rem)] items-center py-16 md:py-20"
 			style={{ color: CREAM }}
 		>
-			{/* Full-bleed coral surface: spans the viewport width while the content
+			{/* Full-bleed ink surface: spans the viewport width while the content
 			    keeps the shared max-width rails. */}
 			<div
 				aria-hidden
@@ -154,8 +95,9 @@ export function ContactForm() {
 			/>
 
 			<Container className="grid grid-cols-1 gap-x-8 gap-y-14 lg:grid-cols-12 lg:items-start">
-				{/* Left: brand, address, socials */}
-				<div className="flex flex-col gap-10 lg:col-span-3 lg:border-r lg:border-[var(--light)]/15 lg:pr-8">
+				{/* Brand, address, socials. Last on mobile so the form stays close
+				    to the headline; first column on desktop. */}
+				<div className="order-3 flex flex-col gap-10 lg:order-none lg:col-span-3 lg:border-r lg:border-[var(--light)]/15 lg:pr-8">
 					<Link
 						href="/"
 						aria-label="Untab Studio home"
@@ -181,7 +123,7 @@ export function ContactForm() {
 								<Link
 									href={social.href}
 									aria-label={social.label}
-									className="flex size-11 items-center justify-center rounded-full border border-[var(--light)]/30 text-[var(--light)] transition-colors duration-200 hover:bg-[var(--brand-coral)] hover:border-transparent hover:text-[var(--dark)]"
+									className="flex size-11 items-center justify-center rounded-full border border-[var(--light)]/30 text-[var(--light)] transition-colors duration-200 hover:border-transparent hover:bg-[var(--brand-coral)] hover:text-[var(--dark)]"
 								>
 									<HugeiconsIcon
 										icon={social.icon}
@@ -194,8 +136,8 @@ export function ContactForm() {
 					</ul>
 				</div>
 
-				{/* Middle: headline + intro */}
-				<div className="lg:col-span-4">
+				{/* Headline + intro */}
+				<div className="order-1 lg:order-none lg:col-span-4">
 					<h1
 						className="font-medium leading-[0.95] tracking-[-0.03em] text-[clamp(2.75rem,5vw,4rem)]"
 						style={{ color: CORAL }}
@@ -225,229 +167,11 @@ export function ContactForm() {
 					</p>
 				</div>
 
-				{/* Right: form */}
-				<div className="lg:col-span-5">
-					{formState.status === "success" ? (
-						<SuccessMessage onReset={() => setFormState({ status: "idle" })} />
-					) : (
-						<form ref={formRef} onSubmit={handleSubmit} className="space-y-4">
-							<input
-								type="text"
-								name="_honeypot"
-								tabIndex={-1}
-								autoComplete="off"
-								className="pointer-events-none absolute h-0 w-0 opacity-0"
-								aria-hidden="true"
-							/>
-							<input type="hidden" name="_t" value={renderTimestamp} />
-
-							{/* Project type: single-select pills feeding the action's
-							    projectType field. Optional by design. */}
-							<fieldset className="form-field">
-								<legend className="mb-3 text-[11px] font-medium uppercase tracking-[0.22em] text-[var(--light)]/60">
-									What do you need
-								</legend>
-								<div className="flex flex-wrap gap-2">
-									{PROJECT_TYPES.map((type) => {
-										const active = projectType === type;
-										return (
-											<label
-												key={type}
-												className={`cursor-pointer rounded-full border px-4 py-2 text-[13px] font-medium transition-colors duration-200 ${
-													active
-														? "border-transparent bg-[var(--brand-coral)] text-[var(--dark)]"
-														: "border-[var(--light)]/30 text-[var(--light)] hover:border-[var(--brand-coral)]"
-												}`}
-											>
-												<input
-													type="radio"
-													name="projectType"
-													value={type}
-													checked={active}
-													onChange={() => setProjectType(active ? null : type)}
-													onClick={() => {
-														if (active) setProjectType(null);
-													}}
-													className="sr-only"
-												/>
-												{type}
-											</label>
-										);
-									})}
-								</div>
-							</fieldset>
-
-							<div>
-								<label htmlFor="name" className="sr-only">
-									Full name
-								</label>
-								<input
-									id="name"
-									name="name"
-									type="text"
-									required
-									minLength={2}
-									maxLength={100}
-									autoComplete="name"
-									placeholder="Full name"
-									className={FIELD}
-								/>
-							</div>
-
-							<div>
-								<label htmlFor="company" className="sr-only">
-									Your company
-								</label>
-								<input
-									id="company"
-									name="company"
-									type="text"
-									maxLength={120}
-									autoComplete="organization"
-									placeholder="Your company"
-									className={FIELD}
-								/>
-							</div>
-
-							<div>
-								<label htmlFor="email" className="sr-only">
-									Email
-								</label>
-								<input
-									id="email"
-									name="email"
-									type="email"
-									required
-									maxLength={255}
-									autoComplete="email"
-									placeholder="Email"
-									className={FIELD}
-								/>
-							</div>
-
-							<div>
-								<label htmlFor="phone" className="sr-only">
-									Phone
-								</label>
-								<input
-									id="phone"
-									name="phone"
-									type="tel"
-									maxLength={40}
-									autoComplete="tel"
-									placeholder="Phone"
-									className={FIELD}
-								/>
-							</div>
-
-							<div>
-								<label htmlFor="message" className="sr-only">
-									Message
-								</label>
-								<textarea
-									id="message"
-									name="message"
-									required
-									minLength={10}
-									maxLength={5000}
-									rows={5}
-									placeholder="Message"
-									className={`${FIELD} resize-y`}
-								/>
-							</div>
-
-							<label className="form-field flex items-center gap-3 pt-1 text-[13px] text-[var(--light)]/80">
-								<input
-									type="checkbox"
-									name="awesome"
-									className="size-4 shrink-0 rounded-sm border border-[var(--light)]/50 bg-transparent accent-[var(--brand-coral)]"
-								/>
-								I&apos;m aware that Untab is extremely good at this
-							</label>
-
-							{formState.status === "error" && (
-								<p
-									className="form-field rounded-md bg-[var(--brand-coral)]/20 px-4 py-2.5 text-[13px] font-medium text-[var(--light)]"
-									role="alert"
-								>
-									{formState.message}
-								</p>
-							)}
-
-							<div className="form-field pt-2">
-								<button
-									type="submit"
-									disabled={formState.status === "submitting"}
-									className="inline-flex items-center gap-3 rounded-full bg-[var(--brand-coral)] px-9 py-4 text-[12px] font-semibold uppercase tracking-[0.18em] text-[var(--dark)] transition-opacity duration-200 hover:opacity-85 disabled:pointer-events-none disabled:opacity-50"
-								>
-									{formState.status === "submitting" ? (
-										<>
-											<HugeiconsIcon
-												icon={Loading03Icon}
-												className="size-4 animate-spin"
-												strokeWidth={1.5}
-											/>
-											Sending
-										</>
-									) : (
-										<>
-											Send message
-											<HugeiconsIcon
-												icon={SentIcon}
-												className="size-4"
-												strokeWidth={1.5}
-											/>
-										</>
-									)}
-								</button>
-							</div>
-						</form>
-					)}
+				{/* Form */}
+				<div className="contact-panel order-2 lg:order-none lg:col-span-5">
+					<ContactFormPanel />
 				</div>
 			</Container>
 		</section>
-	);
-}
-
-function SuccessMessage({ onReset }: { onReset: () => void }) {
-	const ref = useRef<HTMLDivElement>(null);
-
-	useGSAP(
-		() =>
-			withMotion(() => {
-				const root = ref.current;
-				if (!root) return;
-
-				gsap.from(root.querySelectorAll(".success-el"), {
-					y: 20,
-					autoAlpha: 0,
-					duration: 0.8,
-					ease: "expo.out",
-					stagger: 0.1,
-				});
-			}),
-		{ scope: ref },
-	);
-
-	return (
-		<div ref={ref} className="flex flex-col items-start gap-6 py-4">
-			<div className="success-el flex size-16 items-center justify-center rounded-full bg-[var(--brand-coral)]/15 text-[var(--brand-coral)]">
-				<HugeiconsIcon icon={SentIcon} className="size-7" strokeWidth={1.5} />
-			</div>
-			<h2 className="success-el font-medium leading-[1.05] tracking-[-0.02em] text-[var(--brand-coral)] text-[clamp(1.75rem,3vw,2.5rem)]">
-				Message sent.
-			</h2>
-			<p className="success-el max-w-md text-[15px] leading-relaxed text-[var(--light)]/80">
-				Thanks for reaching out. We&apos;ll review your message and get back to
-				you within one business day.
-			</p>
-			<button
-				type="button"
-				onClick={onReset}
-				className="success-el text-[13px] font-medium text-[var(--light)] underline underline-offset-4 transition-opacity hover:opacity-70"
-			>
-				Send another message
-			</button>
-		</div>
 	);
 }
