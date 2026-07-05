@@ -10,8 +10,6 @@ import { Link } from "~/components/ui/link";
 import { withMotion } from "~/libs/gsap/presets";
 import type { Post } from "~/libs/sanity";
 
-const POSTS_PER_PAGE = 6;
-
 interface BlogFeedProps {
 	posts: Post[];
 }
@@ -19,18 +17,14 @@ interface BlogFeedProps {
 export function BlogFeed({ posts }: BlogFeedProps) {
 	const sectionRef = useRef<HTMLElement>(null);
 	const [activeCategory, setActiveCategory] = useState<string | null>(null);
-	const [visibleCount, setVisibleCount] = useState(POSTS_PER_PAGE);
 
 	const categories = Array.from(
 		new Set(posts.flatMap((p) => p.categories?.map((c) => c.title) ?? [])),
 	);
 
-	const filtered = activeCategory
+	const visible = activeCategory
 		? posts.filter((p) => p.categories?.some((c) => c.title === activeCategory))
 		: posts;
-
-	const visible = filtered.slice(0, visibleCount);
-	const hasMore = visibleCount < filtered.length;
 
 	useGSAP(
 		() =>
@@ -69,7 +63,7 @@ export function BlogFeed({ posts }: BlogFeedProps) {
 					});
 				}
 			}),
-		{ scope: sectionRef, dependencies: [activeCategory, visibleCount] },
+		{ scope: sectionRef, dependencies: [activeCategory] },
 	);
 
 	return (
@@ -124,19 +118,6 @@ export function BlogFeed({ posts }: BlogFeedProps) {
 						</li>
 					))}
 				</ul>
-
-				{/* View More */}
-				{hasMore ? (
-					<div className="mt-14 flex justify-center md:mt-20">
-						<button
-							type="button"
-							onClick={() => setVisibleCount((c) => c + POSTS_PER_PAGE)}
-							className="text-[15px] font-medium text-foreground underline underline-offset-4 transition-opacity duration-200 hover:opacity-60"
-						>
-							View More Articles +
-						</button>
-					</div>
-				) : null}
 			</div>
 		</section>
 	);

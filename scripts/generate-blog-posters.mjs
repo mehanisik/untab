@@ -16,8 +16,17 @@ const ENV_FILE = path.join(ROOT, ".env.local");
 const OUT_DIR = path.join(ROOT, ".posters-preview");
 const API_VERSION = "v2023-05-03";
 
-// The exact poster palette from app/(pages)/_components/features.tsx.
-const PALETTE = ["#f15c7e", "#7c8df0", "#d8e85e", "#a892ff"];
+// The poster palette from app/(pages)/_components/features.tsx, extended
+// with the brand coral and the sky blue from the About studio tiles.
+// Ordered so consecutive feed cards land on clearly different hues.
+const PALETTE = [
+	"#f15c7e",
+	"#7c8df0",
+	"#d8e85e",
+	"#a892ff",
+	"#ee7b7e",
+	"#bfdaf2",
+];
 
 // SVG canvas; rasterized at 2.5x to 1250x1500 (matches the 5:6 card crop).
 const W = 500;
@@ -72,7 +81,7 @@ function mulberry32(seed) {
 		a |= 0;
 		a = (a + 0x6d2b79f5) | 0;
 		let t = Math.imul(a ^ (a >>> 15), 1 | a);
-		t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+		t ^= t + Math.imul(t ^ (t >>> 7), 61 | t);
 		return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
 	};
 }
