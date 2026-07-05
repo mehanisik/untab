@@ -48,12 +48,12 @@ export const UntabConfirmationEmail = ({
 					>
 						<Section
 							className="px-[32px] py-[26px]"
-							style={{ backgroundColor: "#0a0a0a" }}
+							style={{ backgroundColor: INK }}
 						>
 							<Img
-								src={`${ASSETS}/logo.png`}
-								width="132"
-								height="42"
+								src={`${ASSETS}/brand/email/logo-wordmark.png`}
+								width="130"
+								height="27"
 								alt="Untab Studio"
 							/>
 							<Text
@@ -87,17 +87,6 @@ export const UntabConfirmationEmail = ({
 								In the meantime, the work is the best introduction to how we
 								think.
 							</Text>
-
-							<Section className="mt-[22px]">
-								<Img
-									src={`${ASSETS}/brand/email/inbox-meme.png`}
-									width="496"
-									height="372"
-									alt="Meme: your message has arrived, celebratory coffee initiated"
-									className="w-full rounded-[12px]"
-									style={{ border: `1px solid ${INK}1f` }}
-								/>
-							</Section>
 
 							<Section className="mt-[24px]">
 								<Link

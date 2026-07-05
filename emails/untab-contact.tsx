@@ -55,12 +55,12 @@ export const UntabContactEmail = ({
 						{/* Ink header band with the text wordmark and coral full stop */}
 						<Section
 							className="px-[32px] py-[26px]"
-							style={{ backgroundColor: "#0a0a0a" }}
+							style={{ backgroundColor: INK }}
 						>
 							<Img
-								src={`${ASSETS}/logo.png`}
-								width="132"
-								height="42"
+								src={`${ASSETS}/brand/email/logo-wordmark.png`}
+								width="130"
+								height="27"
 								alt="Untab Studio"
 							/>
 							<Text
