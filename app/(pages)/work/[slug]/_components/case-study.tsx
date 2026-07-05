@@ -7,8 +7,7 @@ import { useRef } from "react";
 import { Image } from "~/components/ui/image";
 import { REVEAL } from "~/libs/gsap/presets";
 import type { MediaItem, Project } from "~/libs/projects";
-
-const PAGE_PADDING = "px-6 md:px-12 lg:px-24";
+import { PAGE_PADDING } from "~/libs/utils";
 
 // Assumed ratio when a source has no parseable dimensions (local fallbacks).
 const DEFAULT_ASPECT = 16 / 10;

@@ -8,8 +8,7 @@ import { Link } from "~/components/ui/link";
 import { REVEAL } from "~/libs/gsap/presets";
 import { projectCardImage, sanityFitMax } from "~/libs/project-media";
 import type { Project } from "~/libs/projects";
-
-const PAGE_PADDING = "px-6 md:px-12 lg:px-24";
+import { PAGE_PADDING } from "~/libs/utils";
 
 interface WorkListProps {
 	projects: Project[];

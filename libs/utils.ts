@@ -28,3 +28,9 @@ export function mapRange(
 
 	return shouldClamp ? clamp(outMin, result, outMax) : result;
 }
+
+/** Two-digit index for the site's mono counters: 1 -> "01". */
+export const pad = (n: number) => String(n).padStart(2, "0");
+
+/** The shared horizontal page rails used by every full-width section. */
+export const PAGE_PADDING = "px-6 md:px-12 lg:px-24";

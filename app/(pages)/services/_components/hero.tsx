@@ -4,8 +4,7 @@ import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { useRef } from "react";
 import { REVEAL } from "~/libs/gsap/presets";
-
-const PAGE_PADDING = "px-6 md:px-12 lg:px-24";
+import { PAGE_PADDING } from "~/libs/utils";
 
 const META = [
 	{ label: "Foundation", value: "Technical pedigree" },

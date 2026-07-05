@@ -17,6 +17,7 @@ import { Link } from "~/components/ui/link";
 import { withMotion } from "~/libs/gsap/presets";
 import { SOCIALS } from "~/libs/socials";
 import { ContactFormPanel } from "./contact-form-panel";
+import { pad } from "~/libs/utils";
 
 // Split-card contact layout: a theme-aware info panel on the left, a fixed
 // brand coral form block on the right with ink type. The card flips with the
@@ -56,8 +57,6 @@ const INFO_BLOCKS = [
 		),
 	},
 ];
-
-const pad = (n: number) => String(n).padStart(2, "0");
 
 const socialLinks = [
 	{ label: "LinkedIn", icon: Linkedin01Icon, href: SOCIALS.linkedin },

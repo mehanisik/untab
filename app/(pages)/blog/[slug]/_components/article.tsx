@@ -8,8 +8,7 @@ import { Image } from "~/components/ui/image";
 import { Link } from "~/components/ui/link";
 import { withMotion } from "~/libs/gsap/presets";
 import { type Post, urlFor } from "~/libs/sanity";
-
-const PAGE_PADDING = "px-6 md:px-12 lg:px-24";
+import { PAGE_PADDING } from "~/libs/utils";
 
 function formatDate(value: string) {
 	const date = new Date(value);

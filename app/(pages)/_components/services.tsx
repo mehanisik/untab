@@ -14,7 +14,7 @@ import {
 } from "~/components/service-marks";
 import { Link } from "~/components/ui/link";
 import { withMotion } from "~/libs/gsap/presets";
-import { cn } from "~/libs/utils";
+import { cn, pad } from "~/libs/utils";
 
 // The landing index of what /services covers in depth: five rows, one
 // line each. Kept deliberately terse; the deep dive lives on /services.
@@ -53,8 +53,6 @@ const SERVICES = [
 		meta: "Tokens · Components · Guidelines",
 	},
 ];
-
-const pad = (n: number) => String(n).padStart(2, "0");
 
 // One grid for the row and its panel keeps the expanded copy aligned
 // exactly under the title, whatever the mark column measures.

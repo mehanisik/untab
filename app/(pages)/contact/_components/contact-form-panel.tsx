@@ -10,20 +10,11 @@ import { HugeiconsIcon } from "@hugeicons/react";
 import gsap from "gsap";
 import { useEffect, useRef, useState } from "react";
 import { sendContactEmail } from "~/app/actions/contact";
+import { PROJECT_TYPES } from "~/libs/contact";
 import { withMotion } from "~/libs/gsap/presets";
 
 const COOLDOWN_MS = 10_000;
 const MESSAGE_MAX = 5000;
-
-// Mirrors ALLOWED_PROJECT_TYPES in app/actions/contact.ts - keep in sync.
-const PROJECT_TYPES = [
-	"Website & Platform",
-	"Brand Strategy",
-	"Branding",
-	"Creative Content",
-	"Design System",
-	"Other",
-] as const;
 
 // Underline fields on the coral surface, ink type throughout.
 const FIELD =

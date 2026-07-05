@@ -4,6 +4,7 @@ import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { Fragment, useRef } from "react";
 import { withMotion } from "~/libs/gsap/presets";
+import { pad } from "~/libs/utils";
 
 const ACCENT = "var(--brand-coral-accent)";
 
@@ -41,8 +42,6 @@ interface PillarsProps {
 		icon?: string;
 	}[];
 }
-
-const pad = (n: number) => String(n).padStart(2, "0");
 
 // Capsule outline with a curved chevron, both drawn in stroke-by-stroke on
 // scroll. On hover the capsule fills with the accent and the arrow flips dark.

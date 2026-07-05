@@ -6,6 +6,7 @@ import { Resend } from "resend";
 import { UntabConfirmationEmail } from "~/emails/untab-confirmation";
 import { UntabContactEmail } from "~/emails/untab-contact";
 import { aj } from "~/libs/arcjet";
+import { PROJECT_TYPES } from "~/libs/contact";
 import { isValidEmail, sanitizeInput } from "~/libs/escape-html";
 import { getEnv } from "~/libs/validate-env";
 
@@ -29,14 +30,7 @@ const MAX_PROJECT_TYPE_LENGTH = 50;
 const MAX_COMPANY_LENGTH = 120;
 const MAX_PHONE_LENGTH = 40;
 
-const ALLOWED_PROJECT_TYPES = new Set([
-	"Website & Platform",
-	"Brand Strategy",
-	"Branding",
-	"Creative Content",
-	"Design System",
-	"Other",
-]);
+const ALLOWED_PROJECT_TYPES = new Set<string>(PROJECT_TYPES);
 
 const MIN_SUBMIT_TIME_MS = 2000;
 

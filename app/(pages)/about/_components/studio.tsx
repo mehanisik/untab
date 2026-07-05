@@ -2,65 +2,9 @@
 
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
-import Image from "next/image";
 import { useRef } from "react";
-
-interface StudioFrame {
-	src: string;
-	alt: string;
-	title: string;
-	description: string;
-	className: string;
-	imageClassName: string;
-	sizes: string;
-}
-
-// Tile geometry is deterministic: every tile carries an aspect ratio that
-// matches its grid span, so rows always align instead of fighting the grid.
-// Lockup tiles pin their surface to the brand ink/cream tokens so the right
-// contrast variant of each asset stays legible in both themes.
-const FRAMES: StudioFrame[] = [
-	{
-		// Native 2400x1260 (~1.9): the 2-col span at aspect 2/1 crops only a
-		// few pixels, so the composed social frame reads intact.
-		src: "/brand/og/og-image-dark.png",
-		alt: "Untab Studio social share image on an ink background",
-		title: "Positioning",
-		description: "A concise public-facing line for the studio.",
-		className: "col-span-2 aspect-[40/21] md:aspect-[2/1] bg-muted",
-		imageClassName: "object-cover",
-		sizes: "(min-width: 768px) 50vw, 100vw",
-	},
-	{
-		src: "/brand/app-icon/app-icon-1024.png",
-		alt: "Untab app icon with the studio mark",
-		title: "App icon",
-		description: "The mark packaged for product surfaces.",
-		className: "aspect-square bg-muted",
-		imageClassName: "object-cover",
-		sizes: "(min-width: 768px) 25vw, 50vw",
-	},
-	{
-		src: "/brand/lockups/untab-stacked-light-1200.png",
-		alt: "Untab stacked logo lockup, ink on cream",
-		title: "Lockup",
-		description: "Stacked identity for compact brand moments.",
-		className: "aspect-square bg-[var(--light)]",
-		imageClassName: "object-contain p-7 md:p-9",
-		sizes: "(min-width: 768px) 25vw, 50vw",
-	},
-	{
-		// Light-glyph variant needs an ink surface in BOTH themes — on the
-		// theme-aware muted token it disappears in light mode.
-		src: "/brand/lockups/untab-horizontal-dark-1600.png",
-		alt: "Untab horizontal logo lockup, cream on ink",
-		title: "Wordmark",
-		description: "Horizontal lockup for wide digital placements.",
-		className: "col-span-2 md:col-span-4 aspect-[25/8] bg-[var(--dark)]",
-		imageClassName: "object-contain px-10 py-6 md:px-24 md:py-10",
-		sizes: "100vw",
-	},
-];
+import { LogoMark } from "~/components/logo-mark";
+import { LogoWordmark } from "~/components/logo-wordmark";
 
 export function Studio() {
 	const rootRef = useRef<HTMLElement>(null);
@@ -101,50 +45,94 @@ export function Studio() {
 			aria-label="Untab public brand system"
 			className="w-full bg-background py-20 md:py-28 lg:py-32"
 		>
-			<div className="container px-6 md:px-12 lg:px-24">
-				<div className="grid grid-cols-1 gap-10 md:grid-cols-12 md:gap-10">
-					<div className="md:col-span-3">
-						<p className="studio-frame text-[11px] font-medium uppercase tracking-[0.28em] text-muted-foreground/80">
-							Public system
+			<div className="container px-4 md:px-8 lg:px-12">
+				<div className="grid grid-cols-1 gap-3 md:grid-cols-12 md:auto-rows-[minmax(10rem,auto)] md:gap-4">
+					<div className="studio-frame relative min-h-[21rem] overflow-hidden rounded-md bg-[var(--light)] p-6 text-[var(--dark)] md:col-span-8 md:min-h-[26rem] md:p-8 lg:p-10">
+						<LogoMark className="pointer-events-none absolute -right-9 bottom-4 h-64 w-auto text-[var(--dark)]/95 md:-right-12 md:bottom-5 md:h-80" />
+						<h2 className="relative max-w-[10ch] text-[clamp(3.35rem,8vw,6.75rem)] font-black leading-[0.86] tracking-normal text-[var(--brand-coral)]">
+							Digital, crafted with intent
+						</h2>
+						<div className="relative mt-10 grid gap-6 md:mt-16 md:grid-cols-[auto_minmax(0,22rem)] md:items-end md:justify-between">
+							<div className="flex h-14 w-44 items-center bg-white px-4 text-[var(--dark)]">
+								<LogoWordmark
+									aria-label="Untab"
+									className="h-9 w-auto max-w-full"
+								/>
+							</div>
+							<p className="max-w-sm text-sm leading-relaxed text-[var(--dark)]/70 md:text-base md:pb-1">
+								A digital studio for brands, products, and interfaces that need
+								to feel unmistakably made.
+							</p>
+						</div>
+					</div>
+
+					<div className="studio-frame relative min-h-[21rem] overflow-hidden rounded-md bg-[#bfdaf2] p-6 text-[var(--brand-coral)] md:col-span-4 md:min-h-[26rem] md:p-8">
+						<h3 className="mx-auto max-w-[11ch] text-center text-[clamp(2.2rem,4vw,3.8rem)] font-black leading-[0.88] tracking-normal">
+							Every pixel a sharper signal
+						</h3>
+						<LogoMark
+							aria-label="Untab mark"
+							className="mx-auto mt-8 h-32 w-auto text-[var(--dark)] md:mt-10 md:h-40"
+						/>
+						<p className="mx-auto mt-8 max-w-[24ch] text-center text-sm font-semibold leading-snug">
+							Strategy, design, and engineering in one joined-up system.
 						</p>
 					</div>
-					<div className="md:col-span-9 lg:col-span-7">
-						<h2 className="studio-frame text-balance text-2xl font-medium tracking-tight md:text-3xl lg:text-4xl">
-							A studio identity built to move cleanly across product, web, and
-							social surfaces.
-						</h2>
-					</div>
-				</div>
-			</div>
 
-			{/* Stays in the container like every other section. Mobile: social
-			    frame full width, the two square tiles pair up, wordmark band
-			    full width. Desktop: one row of frame + squares, wordmark band
-			    beneath spanning all four columns. */}
-			<div className="container px-6 md:px-12 lg:px-24">
-				<div className="mt-12 grid grid-cols-2 gap-3 md:mt-16 md:grid-cols-4 md:gap-4">
-					{FRAMES.map((frame) => (
-						<figure
-							key={frame.src}
-							className={`studio-frame group relative overflow-hidden ${frame.className}`}
-						>
-							<Image
-								src={frame.src}
-								alt={frame.alt}
-								fill
-								sizes={frame.sizes}
-								className={frame.imageClassName}
+					<div className="studio-frame relative min-h-64 overflow-hidden rounded-md bg-[var(--brand-coral)] p-6 text-white md:col-span-5 md:min-h-80">
+						<div className="absolute inset-0 opacity-25 [background-image:linear-gradient(to_right,currentColor_1px,transparent_1px),linear-gradient(to_bottom,currentColor_1px,transparent_1px)] [background-size:32px_32px]" />
+						<div className="absolute inset-x-8 top-1/2 h-px bg-white/45" />
+						<div className="absolute left-1/2 inset-y-8 w-px bg-white/45" />
+						<div className="relative flex h-full min-h-52 items-center justify-center">
+							<div className="flex h-24 w-[20rem] items-center justify-center bg-[var(--dark)] px-8 text-[var(--light)] md:h-28 md:w-[22rem]">
+								<LogoWordmark
+									aria-label="Untab horizontal logo"
+									className="h-14 w-auto max-w-full md:h-16"
+								/>
+							</div>
+						</div>
+					</div>
+
+					<div className="studio-frame relative min-h-64 overflow-hidden rounded-md bg-muted md:col-span-3 md:min-h-80">
+						<div className="absolute inset-0 bg-gradient-to-br from-white/55 to-transparent dark:from-white/5" />
+						<div className="absolute left-1/2 top-1/2 flex h-[78%] w-[72%] -translate-x-1/2 -translate-y-1/2 flex-col justify-between overflow-hidden rounded-lg border border-foreground/10 bg-[var(--light)] p-6 text-[var(--dark)] shadow-2xl">
+							<div className="flex items-center justify-between">
+								<LogoMark className="h-8 w-auto" />
+								<div className="flex gap-1.5">
+									<span className="size-2 rounded-full bg-[var(--brand-coral)]" />
+									<span className="size-2 rounded-full bg-[var(--dark)]/25" />
+								</div>
+							</div>
+							<div>
+								<p className="max-w-[9ch] text-3xl font-black leading-[0.92] text-[var(--dark)]">
+									One tab among many.
+								</p>
+								<div className="mt-5 space-y-2">
+									<span className="block h-2 w-24 bg-[var(--dark)]/18" />
+									<span className="block h-2 w-16 bg-[var(--dark)]/18" />
+								</div>
+							</div>
+							<div className="flex items-end justify-between text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--dark)]/45">
+								<span>untab.studio</span>
+								<span>2026</span>
+							</div>
+						</div>
+					</div>
+
+					<div className="studio-frame relative min-h-64 overflow-hidden rounded-md bg-[var(--light)] p-7 text-[var(--brand-coral)] md:col-span-4 md:min-h-80">
+						<div className="mx-auto flex size-16 items-center justify-center rounded-full bg-[var(--brand-coral)]">
+							<LogoMark className="h-9 w-auto text-[var(--light)]" />
+						</div>
+						<h3 className="mx-auto mt-8 max-w-[12ch] text-center text-[clamp(2rem,4vw,3.25rem)] font-black leading-[0.9] tracking-normal">
+							Systems built to compound
+						</h3>
+						<div className="mx-auto mt-8 flex h-9 w-36 items-center justify-center text-[var(--dark)]">
+							<LogoWordmark
+								aria-label="Untab logo"
+								className="h-7 w-auto max-w-full"
 							/>
-							<figcaption className="pointer-events-none absolute inset-x-0 bottom-0 hidden bg-gradient-to-t from-[var(--dark)]/85 to-transparent p-4 pt-14 text-[var(--light)] sm:block md:p-5">
-								<p className="text-[10px] font-medium uppercase tracking-[0.22em] md:text-xs">
-									{frame.title}
-								</p>
-								<p className="mt-1 max-w-xs text-xs leading-relaxed opacity-70">
-									{frame.description}
-								</p>
-							</figcaption>
-						</figure>
-					))}
+						</div>
+					</div>
 				</div>
 			</div>
 		</section>

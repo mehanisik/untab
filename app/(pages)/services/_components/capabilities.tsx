@@ -13,9 +13,7 @@ import {
 	SystemMark,
 } from "~/components/service-marks";
 import { withMotion } from "~/libs/gsap/presets";
-import { cn } from "~/libs/utils";
-
-const PAGE_PADDING = "px-6 md:px-12 lg:px-24";
+import { PAGE_PADDING, cn } from "~/libs/utils";
 
 /* ------------------------------------------------------------------ */
 

@@ -6,23 +6,20 @@ import {
 	Hr,
 	Html,
 	Link,
-	Img,
 	Preview,
 	Section,
 	Tailwind,
 	Text,
 } from "@react-email/components";
-
-// Brand palette, inlined as hex because email clients cannot read CSS vars.
-// Mirrors app/globals.css: cream --light, ink --dark, coral --brand-coral,
-// deep coral-rose --brand-coral-accent (light surfaces).
-const ASSETS = "https://untabstudio.com";
-const CREAM = "#ece7de";
-const CARD = "#f6f3ec";
-const INK = "#1d1c1a";
-const MUTED = "#6e685f";
-const CORAL = "#ee7b7e";
-const CORAL_DEEP = "#b23a44";
+import {
+	CARD,
+	CORAL,
+	CREAM,
+	EmailFooter,
+	EmailHeader,
+	INK,
+	MUTED,
+} from "./brand";
 
 interface UntabContactEmailProps {
 	name: string;
@@ -37,8 +34,6 @@ export const UntabContactEmail = ({
 	projectType,
 	message,
 }: UntabContactEmailProps) => {
-	const year = new Date().getFullYear();
-
 	return (
 		<Html>
 			<Head />
@@ -52,24 +47,7 @@ export const UntabContactEmail = ({
 						className="mx-auto my-[40px] max-w-[560px] overflow-hidden rounded-[16px]"
 						style={{ backgroundColor: CARD, border: `1px solid ${INK}1f` }}
 					>
-						{/* Ink header band with the text wordmark and coral full stop */}
-						<Section
-							className="px-[32px] py-[26px]"
-							style={{ backgroundColor: INK }}
-						>
-							<Img
-								src={`${ASSETS}/brand/email/logo-wordmark.png`}
-								width="130"
-								height="27"
-								alt="Untab Studio"
-							/>
-							<Text
-								className="m-0 mt-[12px] text-[10px] font-bold uppercase tracking-[0.25em]"
-								style={{ color: CORAL, fontFamily: "monospace" }}
-							>
-								New inquiry
-							</Text>
-						</Section>
+						<EmailHeader eyebrow="New inquiry" />
 
 						<Section className="px-[32px] py-[28px]">
 							<Heading
@@ -141,26 +119,7 @@ export const UntabContactEmail = ({
 							</Section>
 						</Section>
 
-						<Section
-							className="px-[32px] py-[20px]"
-							style={{ borderTop: `1px solid ${INK}1f` }}
-						>
-							<Text
-								className="m-0 text-[10px] uppercase tracking-[0.22em]"
-								style={{ color: MUTED, fontFamily: "monospace" }}
-							>
-								Untab Studio · Warsaw, Poland · {year}
-							</Text>
-							<Text className="m-0 mt-[8px] text-[11px]">
-								<Link
-									href="https://untabstudio.com"
-									className="no-underline"
-									style={{ color: CORAL_DEEP }}
-								>
-									untabstudio.com
-								</Link>
-							</Text>
-						</Section>
+						<EmailFooter />
 					</Container>
 				</Body>
 			</Tailwind>
