@@ -20,34 +20,6 @@ const DATE_FORMATTER = new Intl.DateTimeFormat("en-US", {
 	day: "numeric",
 });
 
-type CardTheme = {
-	bg: string;
-	fg: string;
-	muted: string;
-	imageRing: string;
-};
-
-const THEMES: CardTheme[] = [
-	{
-		bg: "bg-[#6E56FF]",
-		fg: "text-white",
-		muted: "text-white/70",
-		imageRing: "ring-white/10",
-	},
-	{
-		bg: "bg-[#F2FF5C]",
-		fg: "text-[#0D0D0D]",
-		muted: "text-[#0D0D0D]/65",
-		imageRing: "ring-[#0D0D0D]/10",
-	},
-	{
-		bg: "bg-[#0A0A0B]",
-		fg: "text-white",
-		muted: "text-white/60",
-		imageRing: "ring-white/20",
-	},
-];
-
 export function Journal({ posts }: JournalProps) {
 	const sectionRef = useRef<HTMLElement>(null);
 
@@ -129,11 +101,7 @@ export function Journal({ posts }: JournalProps) {
 				<ul className="mt-12 grid grid-cols-1 gap-5 md:mt-16 md:grid-cols-2 md:gap-6 lg:grid-cols-3">
 					{items.map((post, index) => (
 						<li key={post._id} className="journal-card">
-							<JournalCard
-								post={post}
-								theme={THEMES[index % THEMES.length]!}
-								priority={index === 0}
-							/>
+							<JournalCard post={post} priority={index === 0} />
 						</li>
 					))}
 				</ul>
@@ -142,15 +110,7 @@ export function Journal({ posts }: JournalProps) {
 	);
 }
 
-function JournalCard({
-	post,
-	theme,
-	priority,
-}: {
-	post: Post;
-	theme: CardTheme;
-	priority: boolean;
-}) {
+function JournalCard({ post, priority }: { post: Post; priority: boolean }) {
 	const date = post.publishedAt
 		? DATE_FORMATTER.format(new Date(post.publishedAt))
 		: null;
@@ -158,11 +118,9 @@ function JournalCard({
 	return (
 		<Link
 			href={`/blog/${post.slug}`}
-			className={`group relative flex h-full flex-col rounded-[24px] p-3 transition-transform duration-500 ease-[cubic-bezier(.22,1,.36,1)] will-change-transform hover:-translate-y-1.5 ${theme.bg} ${theme.fg}`}
+			className="group relative flex h-full flex-col rounded-[24px] border border-foreground/10 bg-card p-3 text-card-foreground transition-transform duration-500 ease-[cubic-bezier(.22,1,.36,1)] will-change-transform hover:-translate-y-1.5"
 		>
-			<div
-				className={`relative aspect-[5/4] w-full overflow-hidden rounded-[14px] ring-1 ring-inset ${theme.imageRing}`}
-			>
+			<div className="relative aspect-[5/4] w-full overflow-hidden rounded-[14px] ring-1 ring-inset ring-foreground/10">
 				{post.mainImage ? (
 					<Image
 						src={post.mainImage}
@@ -182,7 +140,9 @@ function JournalCard({
 
 				<div className="mt-auto flex items-center justify-between gap-4">
 					{date ? (
-						<span className={`text-sm font-light ${theme.muted}`}>{date}</span>
+						<span className="text-sm font-light text-foreground/55">
+							{date}
+						</span>
 					) : (
 						<span />
 					)}
