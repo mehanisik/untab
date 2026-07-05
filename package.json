@@ -14,8 +14,6 @@
 		"typecheck": "tsc --noEmit --incremental false",
 		"analyze": "next experimental-analyze",
 		"seed:import": "sanity dataset import sanity/seed/projects.ndjson production --replace",
-		"seed:upload-cards": "node scripts/upload-project-card-images.mjs",
-		"seed:verify-cards": "node scripts/upload-project-card-images.mjs --verify",
 		"prepare": "husky",
 		"email": "email dev"
 	},
