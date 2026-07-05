@@ -6,7 +6,7 @@ import { Resend } from "resend";
 import { UntabConfirmationEmail } from "~/emails/untab-confirmation";
 import { UntabContactEmail } from "~/emails/untab-contact";
 import { aj } from "~/libs/arcjet";
-import { escapeHtml, sanitizeInput } from "~/libs/escape-html";
+import { isValidEmail, sanitizeInput } from "~/libs/escape-html";
 import { getEnv } from "~/libs/validate-env";
 
 const env = getEnv();
@@ -39,6 +39,31 @@ const ALLOWED_PROJECT_TYPES = new Set([
 ]);
 
 const MIN_SUBMIT_TIME_MS = 2000;
+
+// Local backstop rate limit so abuse protection never depends solely on
+// Arcjet availability (its block fails open by design). Per-instance
+// memory resets on cold starts, which is fine for a backstop.
+const RATE_WINDOW_MS = 60_000;
+const RATE_MAX_PER_WINDOW = 8;
+const recentSends: number[] = [];
+const lastSendByEmail = new Map<string, number>();
+
+function localRateLimited(email: string): boolean {
+	const now = Date.now();
+	while (
+		recentSends.length &&
+		now - (recentSends[0] as number) > RATE_WINDOW_MS
+	) {
+		recentSends.shift();
+	}
+	if (recentSends.length >= RATE_MAX_PER_WINDOW) return true;
+	const last = lastSendByEmail.get(email);
+	if (last && now - last < RATE_WINDOW_MS) return true;
+	recentSends.push(now);
+	if (lastSendByEmail.size > 1000) lastSendByEmail.clear();
+	lastSendByEmail.set(email, now);
+	return false;
+}
 
 const SPAM_PATTERNS = [
 	/https?:\/\//i,
@@ -151,6 +176,12 @@ export async function sendContactEmail(formData: FormData) {
 		return { error: "Name must be at least 2 characters long." };
 	}
 
+	// Hard format gate, independent of Arcjet: this address becomes replyTo
+	// and the confirmation recipient, so it must be a plausible email.
+	if (!isValidEmail(email)) {
+		return { error: "Please provide a valid email address." };
+	}
+
 	if (message.length < 10) {
 		return { error: "Message must be at least 10 characters long." };
 	}
@@ -161,6 +192,12 @@ export async function sendContactEmail(formData: FormData) {
 
 	if (projectType && !ALLOWED_PROJECT_TYPES.has(projectType)) {
 		return { error: "Invalid project type selected." };
+	}
+
+	if (localRateLimited(email)) {
+		return {
+			error: "You've sent too many messages. Please try again in a minute.",
+		};
 	}
 
 	try {
@@ -175,23 +212,18 @@ export async function sendContactEmail(formData: FormData) {
 			? `${detailLines.join("\n")}\n\n${message}`
 			: message;
 
-		const escapedName = escapeHtml(name);
-		const escapedEmail = escapeHtml(email);
-		const escapedProjectType = escapeHtml(projectType || "General inquiry");
-		const escapedMessage = escapeHtml(fullMessage);
-
 		const recipientEmail = CONTACT_EMAIL!;
 
 		const { error } = await resend.emails.send({
 			from: SENDER_EMAIL,
 			to: [recipientEmail],
-			subject: `New Contact Form Submission: ${escapedName}`,
+			subject: `New Contact Form Submission: ${name}`,
 			replyTo: email,
 			react: UntabContactEmail({
-				name: escapedName,
-				email: escapedEmail,
-				projectType: escapedProjectType,
-				message: escapedMessage,
+				name,
+				email,
+				projectType: projectType || "General inquiry",
+				message: fullMessage,
 			}),
 		});
 
@@ -214,7 +246,7 @@ export async function sendContactEmail(formData: FormData) {
 				from: SENDER_EMAIL,
 				to: [email],
 				subject: "We received your message",
-				react: UntabConfirmationEmail({ name: escapedName }),
+				react: UntabConfirmationEmail({ name }),
 			});
 		} catch (confirmationError) {
 			console.error("Confirmation email error:", confirmationError);
