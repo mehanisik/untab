@@ -3,7 +3,6 @@ import localFont from "next/font/local";
 import "./globals.css";
 import type { Viewport } from "next";
 import Script from "next/script";
-import { Toaster } from "sonner";
 import { ReactTempus } from "tempus/react";
 import { CookieConsentBanner } from "~/components/cookie-consent";
 import { IntroPreloader } from "~/components/intro-preloader";
@@ -71,7 +70,6 @@ export default function RootLayout({
 						<div className="fixed inset-0 pointer-events-none z-[9999]">
 							<Orchestra />
 							<VisualEditingWrapper />
-							<Toaster closeButton position="bottom-right" />
 						</div>
 						<CookieConsentBanner />
 					</Providers>
