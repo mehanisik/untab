@@ -10,7 +10,7 @@ interface EnvConfig {
 	ARCJET_API_KEY?: string;
 }
 
-export function validateEnv(): EnvConfig {
+function validateEnv(): EnvConfig {
 	// Skip validation during CI/static-analysis builds where real secrets are
 	// unavailable. The hosting platform enforces real values at deploy time.
 	if (process.env.SKIP_ENV_VALIDATION === "true") {

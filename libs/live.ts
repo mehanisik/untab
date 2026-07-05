@@ -1,5 +1,5 @@
 import { defineLive } from "next-sanity/live";
-import { type Author, client, QUERIES } from "./sanity";
+import { client } from "./sanity";
 
 // Read token lets sanityFetch use stega in dev for Visual Editing overlays.
 // Live updates of published content work without it (public dataset). Only a
@@ -11,13 +11,14 @@ const token =
 	process.env.SANITY_API_READ_TOKEN ||
 	process.env.SANITY_API_TOKEN;
 
-export const { SanityLive, sanityFetch } = defineLive({
+const { SanityLive, sanityFetch } = defineLive({
 	client,
 	serverToken: token,
 	// No draft preview outside dev, so never ship a token to the browser.
 	browserToken: false,
 	strict: true,
 });
+export { SanityLive };
 
 const stega = process.env.NODE_ENV === "development" && Boolean(token);
 
@@ -50,8 +51,4 @@ export async function getSettings() {
     "heroVideo": heroVideo.asset->url
   }`,
 	);
-}
-
-export async function getAuthors() {
-	return fetchSanity<Author[]>(QUERIES.authors);
 }

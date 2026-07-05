@@ -1,26 +1,6 @@
 /**
- * HTML Escaping Utility
- * Escapes HTML special characters to prevent XSS attacks
+ * Form input validation and sanitization helpers.
  */
-
-const HTML_ESCAPE_MAP: Record<string, string> = {
-	"&": "&amp;",
-	"<": "&lt;",
-	">": "&gt;",
-	'"': "&quot;",
-	"'": "&#x27;",
-	"/": "&#x2F;",
-};
-
-/**
- * Escapes HTML special characters in a string
- */
-export function escapeHtml(text: string): string {
-	return String(text).replace(
-		/[&<>"'/]/g,
-		(char) => HTML_ESCAPE_MAP[char] || char,
-	);
-}
 
 /**
  * Validates email format

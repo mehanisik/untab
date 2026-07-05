@@ -27,14 +27,6 @@ export interface Post {
 	};
 }
 
-export interface Author {
-	_id: string;
-	name: string;
-	imageUrl?: string;
-	bio?: string;
-	socials?: { platform: string; url: string }[];
-}
-
 const env = getEnv();
 
 export const client = createClient({

@@ -11,5 +11,3 @@ export const PROJECT_TYPES = [
 	"Design System",
 	"Other",
 ] as const;
-
-export type ProjectType = (typeof PROJECT_TYPES)[number];

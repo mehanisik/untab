@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { urlFor } from "./sanity";
 
 /**
  * Metadata Generation Utilities
@@ -147,74 +146,4 @@ export function generatePageMetadata(
 	}
 
 	return metadata;
-}
-
-/**
- * Generate metadata specifically for Sanity CMS pages
- *
- * @example
- * ```ts
- * export async function generateMetadata({ params }) {
- *   const { data } = await sanityFetch({ query: pageQuery, params })
- *
- *   return generateSanityMetadata({
- *     document: data,
- *     url: `/sanity/${params.slug}`,
- *   })
- * }
- * ```
- */
-export function generateSanityMetadata(options: {
-	document: {
-		title?: string;
-		seo?: {
-			title?: string;
-			description?: string;
-			image?: string | { asset?: { url?: string }; [key: string]: unknown };
-			keywords?: string[];
-			noIndex?: boolean;
-		};
-		metadata?: {
-			title?: string;
-			description?: string;
-			keywords?: string[];
-			image?: { asset?: { url?: string } };
-			noIndex?: boolean;
-		};
-		_updatedAt?: string;
-		publishedAt?: string;
-	};
-	url?: string;
-	type?: "website" | "article";
-}): Metadata {
-	const { document, url, type = "website" } = options;
-	const seo = document.seo || document.metadata;
-
-	if (!seo) {
-		return generatePageMetadata({
-			title: document.title,
-			url,
-			type,
-		});
-	}
-
-	const imageUrl =
-		typeof seo.image === "string"
-			? seo.image
-			: seo.image?.asset?.url ||
-				(seo.image ? urlFor(seo.image).url() : undefined);
-
-	return generatePageMetadata({
-		title: seo.title || document.title,
-		description: seo.description,
-		keywords: seo.keywords,
-		image: {
-			url: imageUrl,
-		},
-		url,
-		noIndex: seo.noIndex,
-		type,
-		publishedTime: document.publishedAt,
-		modifiedTime: document._updatedAt,
-	});
 }
