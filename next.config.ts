@@ -1,4 +1,3 @@
-import bundleAnalyzer from "@next/bundle-analyzer";
 import type { NextConfig } from "next";
 import { sanity } from "next-sanity/live/cache-life";
 
@@ -172,13 +171,4 @@ const nextConfig: NextConfig = {
 	],
 };
 
-const bundleAnalyzerPlugin = bundleAnalyzer({
-	enabled: process.env.ANALYZE === "true",
-});
-
-const NextApp = () => {
-	const plugins = [bundleAnalyzerPlugin];
-	return plugins.reduce((config, plugin) => plugin(config), nextConfig);
-};
-
-export default NextApp;
+export default nextConfig;
