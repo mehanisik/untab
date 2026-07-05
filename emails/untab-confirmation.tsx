@@ -9,10 +9,12 @@ import {
 	Section,
 	Tailwind,
 	Text,
+	Img,
 } from "@react-email/components";
 
 // Brand palette, inlined as hex because email clients cannot read CSS vars.
 // Mirrors app/globals.css - keep in sync with untab-contact.tsx.
+const ASSETS = "https://untabstudio.com";
 const CREAM = "#ece7de";
 const CARD = "#f6f3ec";
 const INK = "#1d1c1a";
@@ -45,17 +47,17 @@ export const UntabConfirmationEmail = ({
 						style={{ backgroundColor: CARD, border: `1px solid ${INK}1f` }}
 					>
 						<Section
-							className="px-[32px] py-[28px]"
-							style={{ backgroundColor: INK }}
+							className="px-[32px] py-[26px]"
+							style={{ backgroundColor: "#0a0a0a" }}
 						>
+							<Img
+								src={`${ASSETS}/logo.png`}
+								width="132"
+								height="42"
+								alt="Untab Studio"
+							/>
 							<Text
-								className="m-0 text-[20px] font-bold tracking-[-0.02em]"
-								style={{ color: CREAM }}
-							>
-								untab<span style={{ color: CORAL }}>.</span>
-							</Text>
-							<Text
-								className="m-0 mt-[10px] text-[10px] font-bold uppercase tracking-[0.25em]"
+								className="m-0 mt-[12px] text-[10px] font-bold uppercase tracking-[0.25em]"
 								style={{ color: CORAL, fontFamily: "monospace" }}
 							>
 								Message received
@@ -85,6 +87,17 @@ export const UntabConfirmationEmail = ({
 								In the meantime, the work is the best introduction to how we
 								think.
 							</Text>
+
+							<Section className="mt-[22px]">
+								<Img
+									src={`${ASSETS}/brand/email/inbox-meme.png`}
+									width="496"
+									height="372"
+									alt="Meme: your message has arrived, celebratory coffee initiated"
+									className="w-full rounded-[12px]"
+									style={{ border: `1px solid ${INK}1f` }}
+								/>
+							</Section>
 
 							<Section className="mt-[24px]">
 								<Link

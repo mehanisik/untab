@@ -6,6 +6,7 @@ import {
 	Hr,
 	Html,
 	Link,
+	Img,
 	Preview,
 	Section,
 	Tailwind,
@@ -15,6 +16,7 @@ import {
 // Brand palette, inlined as hex because email clients cannot read CSS vars.
 // Mirrors app/globals.css: cream --light, ink --dark, coral --brand-coral,
 // deep coral-rose --brand-coral-accent (light surfaces).
+const ASSETS = "https://untabstudio.com";
 const CREAM = "#ece7de";
 const CARD = "#f6f3ec";
 const INK = "#1d1c1a";
@@ -52,17 +54,17 @@ export const UntabContactEmail = ({
 					>
 						{/* Ink header band with the text wordmark and coral full stop */}
 						<Section
-							className="px-[32px] py-[28px]"
-							style={{ backgroundColor: INK }}
+							className="px-[32px] py-[26px]"
+							style={{ backgroundColor: "#0a0a0a" }}
 						>
+							<Img
+								src={`${ASSETS}/logo.png`}
+								width="132"
+								height="42"
+								alt="Untab Studio"
+							/>
 							<Text
-								className="m-0 text-[20px] font-bold tracking-[-0.02em]"
-								style={{ color: CREAM }}
-							>
-								untab<span style={{ color: CORAL }}>.</span>
-							</Text>
-							<Text
-								className="m-0 mt-[10px] text-[10px] font-bold uppercase tracking-[0.25em]"
+								className="m-0 mt-[12px] text-[10px] font-bold uppercase tracking-[0.25em]"
 								style={{ color: CORAL, fontFamily: "monospace" }}
 							>
 								New inquiry
