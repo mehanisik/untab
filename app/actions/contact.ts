@@ -3,6 +3,7 @@
 import { isSpoofedBot } from "@arcjet/inspect";
 import { request } from "@arcjet/next";
 import { Resend } from "resend";
+import { UntabConfirmationEmail } from "~/emails/untab-confirmation";
 import { UntabContactEmail } from "~/emails/untab-contact";
 import { aj } from "~/libs/arcjet";
 import { escapeHtml, sanitizeInput } from "~/libs/escape-html";
@@ -203,6 +204,20 @@ export async function sendContactEmail(formData: FormData) {
 			return {
 				error: `Failed to send email${devError}. Please try again later.`,
 			};
+		}
+
+		// Confirmation receipt to the sender. Deliberately does not echo the
+		// message body, so the form cannot be used to relay content to third
+		// parties. A failure here never fails the submission.
+		try {
+			await resend.emails.send({
+				from: SENDER_EMAIL,
+				to: [email],
+				subject: "We received your message",
+				react: UntabConfirmationEmail({ name: escapedName }),
+			});
+		} catch (confirmationError) {
+			console.error("Confirmation email error:", confirmationError);
 		}
 
 		return { success: true };
