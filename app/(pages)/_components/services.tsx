@@ -59,7 +59,7 @@ const pad = (n: number) => String(n).padStart(2, "0");
 // One grid for the row and its panel keeps the expanded copy aligned
 // exactly under the title, whatever the mark column measures.
 const ROW_GRID =
-	"grid grid-cols-[2.25rem_1fr_1.5rem] items-center gap-x-5 md:grid-cols-[3rem_1fr_1.75rem] md:gap-x-7";
+	"grid grid-cols-[2.75rem_1fr_1.5rem] items-center gap-x-5 md:grid-cols-[3.75rem_1fr_1.75rem] md:gap-x-8";
 
 export function Services() {
 	const sectionRef = useRef<HTMLElement>(null);
@@ -126,7 +126,7 @@ export function Services() {
 					</span>
 				</p>
 
-				<div className="mt-14 md:mt-20">
+				<div className="group/list mt-14 md:mt-20">
 					{SERVICES.map((service, index) => {
 						const open = openIndex === index;
 						const panelId = `${panelBaseId}-panel-${index}`;
@@ -142,21 +142,22 @@ export function Services() {
 									onClick={() => setOpenIndex(open ? null : index)}
 									className={cn(
 										ROW_GRID,
-										"group w-full py-6 text-left md:py-8",
+										"group w-full py-6 text-left transition-opacity duration-300 md:py-8 md:group-hover/list:opacity-40 md:hover:opacity-100",
 									)}
 								>
 									<span
 										className={cn(
-											"size-8 transition-colors duration-300 md:size-10",
+											"size-11 transition-[color,transform] duration-300 ease-out will-change-transform md:size-14",
+											"group-hover:-rotate-3 group-hover:scale-110",
 											open
-												? "text-[var(--brand-coral-accent)]"
+												? "scale-105 text-[var(--brand-coral-accent)]"
 												: "text-foreground/60 group-hover:text-foreground",
 										)}
 										aria-hidden
 									>
 										{service.mark}
 									</span>
-									<span className="min-w-0 truncate font-medium leading-[1.05] tracking-[-0.02em] text-[clamp(1.35rem,2.8vw,2.2rem)] transition-colors duration-300 group-hover:text-foreground/70">
+									<span className="min-w-0 truncate font-medium leading-[1.05] tracking-[-0.02em] text-[clamp(1.35rem,2.8vw,2.2rem)] transition-transform duration-300 ease-out group-hover:translate-x-1.5">
 										{service.title}
 									</span>
 									<HugeiconsIcon
@@ -164,8 +165,8 @@ export function Services() {
 										aria-hidden
 										strokeWidth={1.5}
 										className={cn(
-											"size-5 justify-self-end text-foreground/50 transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:text-foreground md:size-6",
-											open && "rotate-180",
+											"size-5 justify-self-end text-foreground/50 transition-[color,transform] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:translate-y-0.5 group-hover:text-foreground md:size-6",
+											open && "rotate-180 group-hover:translate-y-0",
 										)}
 									/>
 								</button>
