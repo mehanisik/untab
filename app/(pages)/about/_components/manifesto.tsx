@@ -138,13 +138,13 @@ export function Manifesto() {
 									A small, senior team. Same names on the kickoff call and the
 									ship date.
 								</p>
-								<button
-									type="button"
+								<a
+									href="#about-impact"
 									className="inline-flex w-fit items-center gap-3 rounded-full border border-foreground/20 px-5 py-2.5 text-[11px] font-medium uppercase tracking-[0.2em] text-foreground transition-colors hover:bg-primary hover:text-primary-foreground hover:border-transparent"
 								>
 									Read the story
 									<span aria-hidden>→</span>
-								</button>
+								</a>
 							</div>
 						</div>
 					</div>
