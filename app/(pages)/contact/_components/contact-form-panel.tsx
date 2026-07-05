@@ -1,7 +1,11 @@
 "use client";
 
 import { useGSAP } from "@gsap/react";
-import { Loading03Icon, SentIcon } from "@hugeicons/core-free-icons";
+import {
+	Loading03Icon,
+	SentIcon,
+	Tick02Icon,
+} from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import gsap from "gsap";
 import { useEffect, useRef, useState } from "react";
@@ -21,11 +25,9 @@ const PROJECT_TYPES = [
 	"Other",
 ] as const;
 
+// Underline fields on the coral surface, ink type throughout.
 const FIELD =
-	"w-full rounded-lg bg-[var(--light)] px-5 py-4 text-[15px] text-[var(--dark)] outline-none ring-2 ring-transparent transition duration-200 placeholder:text-[var(--dark)]/40 focus-visible:ring-[var(--brand-coral)]/70 aria-[invalid=true]:ring-[var(--brand-coral)]";
-
-const LABEL =
-	"mb-2 block text-[11px] font-medium uppercase tracking-[0.2em] text-[var(--light)]/60";
+	"w-full border-b-2 border-[var(--dark)]/35 bg-transparent px-0 py-3 text-[15px] text-[var(--dark)] outline-none transition-colors duration-200 placeholder:text-[var(--dark)]/55 focus:border-[var(--dark)] aria-[invalid=true]:border-[var(--dark)]";
 
 type SubmitState =
 	| { status: "idle" }
@@ -33,11 +35,10 @@ type SubmitState =
 	| { status: "success" }
 	| { status: "error"; message: string };
 
-type FieldName = "name" | "company" | "email" | "phone" | "message";
+type FieldName = "name" | "email" | "message";
 type FieldErrors = Partial<Record<FieldName, string>>;
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
-const PHONE_RE = /^[+\d][\d\s.-]{5,39}$/;
 
 const VALIDATORS: Record<FieldName, (value: string) => string | null> = {
 	name: (v) => {
@@ -47,18 +48,11 @@ const VALIDATORS: Record<FieldName, (value: string) => string | null> = {
 		if (value.length > 100) return "Name is too long.";
 		return null;
 	},
-	company: (v) => (v.trim().length > 120 ? "Company name is too long." : null),
 	email: (v) => {
 		const value = v.trim();
 		if (!value) return "We need an email to reply to.";
 		if (value.length > 255 || !EMAIL_RE.test(value))
 			return "That email address does not look right.";
-		return null;
-	},
-	phone: (v) => {
-		const value = v.trim();
-		if (!value) return null;
-		if (!PHONE_RE.test(value)) return "That phone number does not look right.";
 		return null;
 	},
 	message: (v) => {
@@ -77,7 +71,7 @@ function FieldError({ id, message }: { id: string; message?: string }) {
 		<p
 			id={id}
 			role="alert"
-			className="mt-2 text-[12px] font-medium leading-snug text-[var(--brand-coral)]"
+			className="mt-2 text-[12px] font-semibold leading-snug text-[var(--dark)]"
 		>
 			{message}
 		</p>
@@ -170,7 +164,7 @@ export function ContactFormPanel() {
 			ref={formRef}
 			onSubmit={handleSubmit}
 			noValidate
-			className="space-y-5"
+			className="space-y-7"
 		>
 			<input
 				type="text"
@@ -182,21 +176,86 @@ export function ContactFormPanel() {
 			/>
 			<input type="hidden" name="_t" value={renderTimestamp} />
 
-			{/* Project type: single-select pills feeding the action's
+			<div>
+				<label htmlFor="contact-name" className="sr-only">
+					Your name
+				</label>
+				<input
+					id="contact-name"
+					name="name"
+					type="text"
+					required
+					maxLength={100}
+					autoComplete="name"
+					placeholder="Your name"
+					aria-invalid={Boolean(errors.name)}
+					aria-describedby={errors.name ? "contact-name-error" : undefined}
+					onBlur={handleBlur}
+					className={FIELD}
+				/>
+				<FieldError id="contact-name-error" message={errors.name} />
+			</div>
+
+			<div>
+				<label htmlFor="contact-email" className="sr-only">
+					Email
+				</label>
+				<input
+					id="contact-email"
+					name="email"
+					type="email"
+					required
+					maxLength={255}
+					autoComplete="email"
+					placeholder="you@company.com"
+					aria-invalid={Boolean(errors.email)}
+					aria-describedby={errors.email ? "contact-email-error" : undefined}
+					onBlur={handleBlur}
+					className={FIELD}
+				/>
+				<FieldError id="contact-email-error" message={errors.email} />
+			</div>
+
+			<div>
+				<label htmlFor="contact-message" className="sr-only">
+					About the project
+				</label>
+				<textarea
+					id="contact-message"
+					name="message"
+					required
+					maxLength={MESSAGE_MAX}
+					rows={3}
+					placeholder="Tell us a little about the project..."
+					aria-invalid={Boolean(errors.message)}
+					aria-describedby={
+						errors.message ? "contact-message-error" : undefined
+					}
+					onBlur={handleBlur}
+					onChange={(e) => setMessageLength(e.target.value.length)}
+					className={`${FIELD} resize-y`}
+				/>
+				<div className="mt-1.5 flex items-center justify-between gap-4">
+					<FieldError id="contact-message-error" message={errors.message} />
+					<span className="ml-auto text-[11px] tabular-nums text-[var(--dark)]/50">
+						{messageLength}/{MESSAGE_MAX}
+					</span>
+				</div>
+			</div>
+
+			{/* Project type: checkbox-styled single select feeding the action's
 			    projectType field. Optional by design. */}
 			<fieldset>
-				<legend className={LABEL}>What do you need</legend>
-				<div className="flex flex-wrap gap-2">
+				<legend className="mb-4 text-[13px] font-semibold text-[var(--dark)]">
+					How can we help?
+				</legend>
+				<div className="grid grid-cols-1 gap-x-6 gap-y-3 sm:grid-cols-2">
 					{PROJECT_TYPES.map((type) => {
 						const active = projectType === type;
 						return (
 							<label
 								key={type}
-								className={`cursor-pointer rounded-full border px-4 py-2 text-[13px] font-medium transition-colors duration-200 ${
-									active
-										? "border-transparent bg-[var(--brand-coral)] text-[var(--dark)]"
-										: "border-[var(--light)]/30 text-[var(--light)] hover:border-[var(--brand-coral)]"
-								}`}
+								className="group flex w-fit cursor-pointer items-center gap-3 text-[14px] font-medium text-[var(--dark)]"
 							>
 								<input
 									type="radio"
@@ -209,6 +268,22 @@ export function ContactFormPanel() {
 									}}
 									className="sr-only"
 								/>
+								<span
+									aria-hidden
+									className={`flex size-5 shrink-0 items-center justify-center rounded-md border-2 transition-colors duration-150 ${
+										active
+											? "border-[var(--dark)] bg-[var(--dark)] text-[var(--brand-coral)]"
+											: "border-[var(--dark)]/50 bg-transparent group-hover:border-[var(--dark)]"
+									}`}
+								>
+									{active ? (
+										<HugeiconsIcon
+											icon={Tick02Icon}
+											className="size-3.5"
+											strokeWidth={3}
+										/>
+									) : null}
+								</span>
 								{type}
 							</label>
 						);
@@ -216,155 +291,33 @@ export function ContactFormPanel() {
 				</div>
 			</fieldset>
 
-			<div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-				<div>
-					<label htmlFor="contact-name" className={LABEL}>
-						Full name <span className="text-[var(--brand-coral)]">*</span>
-					</label>
-					<input
-						id="contact-name"
-						name="name"
-						type="text"
-						required
-						maxLength={100}
-						autoComplete="name"
-						placeholder="Ada Lovelace"
-						aria-invalid={Boolean(errors.name)}
-						aria-describedby={errors.name ? "contact-name-error" : undefined}
-						onBlur={handleBlur}
-						className={FIELD}
-					/>
-					<FieldError id="contact-name-error" message={errors.name} />
-				</div>
-
-				<div>
-					<label htmlFor="contact-company" className={LABEL}>
-						Company
-					</label>
-					<input
-						id="contact-company"
-						name="company"
-						type="text"
-						maxLength={120}
-						autoComplete="organization"
-						placeholder="Optional"
-						aria-invalid={Boolean(errors.company)}
-						aria-describedby={
-							errors.company ? "contact-company-error" : undefined
-						}
-						onBlur={handleBlur}
-						className={FIELD}
-					/>
-					<FieldError id="contact-company-error" message={errors.company} />
-				</div>
-
-				<div>
-					<label htmlFor="contact-email" className={LABEL}>
-						Email <span className="text-[var(--brand-coral)]">*</span>
-					</label>
-					<input
-						id="contact-email"
-						name="email"
-						type="email"
-						required
-						maxLength={255}
-						autoComplete="email"
-						placeholder="you@company.com"
-						aria-invalid={Boolean(errors.email)}
-						aria-describedby={errors.email ? "contact-email-error" : undefined}
-						onBlur={handleBlur}
-						className={FIELD}
-					/>
-					<FieldError id="contact-email-error" message={errors.email} />
-				</div>
-
-				<div>
-					<label htmlFor="contact-phone" className={LABEL}>
-						Phone
-					</label>
-					<input
-						id="contact-phone"
-						name="phone"
-						type="tel"
-						maxLength={40}
-						autoComplete="tel"
-						placeholder="Optional"
-						aria-invalid={Boolean(errors.phone)}
-						aria-describedby={errors.phone ? "contact-phone-error" : undefined}
-						onBlur={handleBlur}
-						className={FIELD}
-					/>
-					<FieldError id="contact-phone-error" message={errors.phone} />
-				</div>
-			</div>
-
-			<div>
-				<div className="flex items-baseline justify-between">
-					<label htmlFor="contact-message" className={LABEL}>
-						About the project{" "}
-						<span className="text-[var(--brand-coral)]">*</span>
-					</label>
-					<span className="text-[11px] tabular-nums text-[var(--light)]/40">
-						{messageLength}/{MESSAGE_MAX}
-					</span>
-				</div>
-				<textarea
-					id="contact-message"
-					name="message"
-					required
-					maxLength={MESSAGE_MAX}
-					rows={5}
-					placeholder="Goals, scope, timeline, budget range. Whatever you know so far."
-					aria-invalid={Boolean(errors.message)}
-					aria-describedby={
-						errors.message ? "contact-message-error" : undefined
-					}
-					onBlur={handleBlur}
-					onChange={(e) => setMessageLength(e.target.value.length)}
-					className={`${FIELD} resize-y`}
-				/>
-				<FieldError id="contact-message-error" message={errors.message} />
-			</div>
-
 			{submitState.status === "error" && (
 				<p
-					className="rounded-md bg-[var(--brand-coral)]/20 px-4 py-2.5 text-[13px] font-medium text-[var(--light)]"
+					className="rounded-lg bg-[var(--dark)]/12 px-4 py-3 text-[13px] font-semibold text-[var(--dark)]"
 					role="alert"
 				>
 					{submitState.message}
 				</p>
 			)}
 
-			<div className="flex flex-wrap items-center gap-5 pt-1">
-				<button
-					type="submit"
-					disabled={submitState.status === "submitting"}
-					className="inline-flex items-center gap-3 rounded-full bg-[var(--brand-coral)] px-9 py-4 text-[12px] font-semibold uppercase tracking-[0.18em] text-[var(--dark)] transition-opacity duration-200 hover:opacity-85 disabled:pointer-events-none disabled:opacity-50"
-				>
-					{submitState.status === "submitting" ? (
-						<>
-							<HugeiconsIcon
-								icon={Loading03Icon}
-								className="size-4 animate-spin"
-								strokeWidth={1.5}
-							/>
-							Sending
-						</>
-					) : (
-						<>
-							Send message
-							<HugeiconsIcon
-								icon={SentIcon}
-								className="size-4"
-								strokeWidth={1.5}
-							/>
-						</>
-					)}
-				</button>
-				<p className="text-[12px] leading-snug text-[var(--light)]/50">
-					We reply within one business day.
-				</p>
-			</div>
+			<button
+				type="submit"
+				disabled={submitState.status === "submitting"}
+				className="inline-flex w-full items-center justify-center gap-3 rounded-xl bg-[var(--dark)] px-8 py-4 text-[13px] font-semibold tracking-[0.04em] text-[var(--light)] transition-opacity duration-200 hover:opacity-90 disabled:pointer-events-none disabled:opacity-50"
+			>
+				{submitState.status === "submitting" ? (
+					<>
+						<HugeiconsIcon
+							icon={Loading03Icon}
+							className="size-4 animate-spin"
+							strokeWidth={1.5}
+						/>
+						Sending
+					</>
+				) : (
+					"Let's get started"
+				)}
+			</button>
 		</form>
 	);
 }
@@ -391,20 +344,20 @@ function SuccessMessage({ onReset }: { onReset: () => void }) {
 
 	return (
 		<div ref={ref} className="flex flex-col items-start gap-6 py-4">
-			<div className="success-el flex size-16 items-center justify-center rounded-full bg-[var(--brand-coral)]/15 text-[var(--brand-coral)]">
+			<div className="success-el flex size-16 items-center justify-center rounded-full bg-[var(--dark)]/10 text-[var(--dark)]">
 				<HugeiconsIcon icon={SentIcon} className="size-7" strokeWidth={1.5} />
 			</div>
-			<h2 className="success-el font-medium leading-[1.05] tracking-[-0.02em] text-[var(--brand-coral)] text-[clamp(1.75rem,3vw,2.5rem)]">
+			<h2 className="success-el font-medium leading-[1.05] tracking-[-0.02em] text-[var(--dark)] text-[clamp(1.6rem,2.6vw,2.2rem)]">
 				Message sent.
 			</h2>
-			<p className="success-el max-w-md text-[15px] leading-relaxed text-[var(--light)]/80">
+			<p className="success-el max-w-md text-[15px] leading-relaxed text-[var(--dark)]/75">
 				Thanks for reaching out. We&apos;ll review your message and get back to
 				you within one business day.
 			</p>
 			<button
 				type="button"
 				onClick={onReset}
-				className="success-el text-[13px] font-medium text-[var(--light)] underline underline-offset-4 transition-opacity hover:opacity-70"
+				className="success-el text-[13px] font-semibold text-[var(--dark)] underline underline-offset-4 transition-opacity hover:opacity-70"
 			>
 				Send another message
 			</button>
