@@ -2,13 +2,10 @@
 
 import { useGSAP } from "@gsap/react";
 import {
-	Clock01Icon,
 	DribbbleIcon,
 	GithubIcon,
 	InstagramIcon,
 	Linkedin01Icon,
-	Location01Icon,
-	Mail01Icon,
 	NewTwitterIcon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
@@ -28,7 +25,6 @@ const CORAL = "var(--brand-coral)";
 
 const INFO_BLOCKS = [
 	{
-		icon: Mail01Icon,
 		title: "Chat to us",
 		body: "Our friendly team is here to help.",
 		detail: (
@@ -41,7 +37,6 @@ const INFO_BLOCKS = [
 		),
 	},
 	{
-		icon: Location01Icon,
 		title: "Based in",
 		body: "Working with teams across Europe and beyond.",
 		detail: (
@@ -54,7 +49,6 @@ const INFO_BLOCKS = [
 		),
 	},
 	{
-		icon: Clock01Icon,
 		title: "Availability",
 		body: "Mon to Fri, 9am to 5pm CET.",
 		detail: (
@@ -64,6 +58,8 @@ const INFO_BLOCKS = [
 		),
 	},
 ];
+
+const pad = (n: number) => String(n).padStart(2, "0");
 
 const socialLinks = [
 	{ label: "LinkedIn", icon: Linkedin01Icon, href: SOCIALS.linkedin },
@@ -92,10 +88,15 @@ export function ContactForm() {
 				});
 
 				tl.from(
-					root.querySelector(".contact-card"),
-					{ y: 40, autoAlpha: 0, duration: 0.9 },
+					root.querySelector(".contact-eyebrow"),
+					{ y: 14, autoAlpha: 0, duration: 0.7 },
 					0,
 				)
+					.from(
+						root.querySelector(".contact-card"),
+						{ y: 40, autoAlpha: 0, duration: 0.9 },
+						0.05,
+					)
 					.from(
 						root.querySelectorAll(".contact-aside"),
 						{ y: 18, autoAlpha: 0, duration: 0.7, stagger: 0.08 },
@@ -124,7 +125,11 @@ export function ContactForm() {
 			className="flex min-h-[calc(100dvh-3.5rem)] items-center bg-background py-10 text-foreground md:py-14"
 		>
 			<Container>
-				<div className="contact-card overflow-hidden rounded-3xl border border-foreground/10 bg-card text-card-foreground shadow-sm">
+				<h2 className="contact-eyebrow mb-8 font-mono text-[11px] uppercase tracking-[0.25em] text-foreground/50 md:mb-10">
+					Contact{" "}
+					<span className="tabular-nums">({pad(INFO_BLOCKS.length)})</span>
+				</h2>
+				<div className="contact-card overflow-hidden rounded-2xl border border-foreground/10 bg-card text-card-foreground shadow-sm">
 					<div className="grid grid-cols-1 lg:grid-cols-[2fr_3fr]">
 						{/* Left: brand, contact channels, socials */}
 						<div className="flex flex-col gap-12 p-7 sm:p-10 lg:p-12">
@@ -136,25 +141,23 @@ export function ContactForm() {
 								<LogoWordmark className="h-10 w-auto text-foreground md:h-12" />
 							</Link>
 
-							<div className="flex flex-1 flex-col gap-9">
-								{INFO_BLOCKS.map((block) => (
+							<div className="flex flex-1 flex-col">
+								{INFO_BLOCKS.map((block, index) => (
 									<div
 										key={block.title}
-										className="contact-aside flex items-start gap-4"
+										className="contact-aside flex items-baseline gap-5 border-t border-foreground/10 py-6 first:border-t-0 first:pt-0 lg:py-7"
 									>
-										<span className="flex size-11 shrink-0 items-center justify-center rounded-full border border-foreground/15 text-foreground">
-											<HugeiconsIcon
-												icon={block.icon}
-												className="size-[18px]"
-												strokeWidth={1.5}
-											/>
+										<span className="font-mono text-[11px] tabular-nums text-[var(--brand-coral-accent)]">
+											{pad(index + 1)}
 										</span>
-										<div className="space-y-1 text-[14px] leading-relaxed">
-											<p className="text-[15px] font-semibold text-foreground">
+										<div className="space-y-1.5 text-[14px] leading-relaxed">
+											<p className="text-[11px] font-medium uppercase tracking-[0.22em] text-foreground/55">
 												{block.title}
 											</p>
-											<p className="text-foreground/55">{block.body}</p>
-											<div className="pt-1 text-[14px]">{block.detail}</div>
+											<p className="text-pretty text-foreground/55">
+												{block.body}
+											</p>
+											<div className="pt-1 text-[15px]">{block.detail}</div>
 										</div>
 									</div>
 								))}
@@ -181,7 +184,7 @@ export function ContactForm() {
 
 						{/* Right: coral form block */}
 						<div
-							className="p-7 text-[var(--dark)] sm:p-10 lg:rounded-l-3xl lg:p-12"
+							className="p-7 text-[var(--dark)] sm:p-10 lg:rounded-l-2xl lg:p-12"
 							style={{ backgroundColor: CORAL }}
 						>
 							<h1 className="max-w-[18ch] font-medium leading-[1.05] tracking-[-0.03em] text-[clamp(1.9rem,3.4vw,2.9rem)]">

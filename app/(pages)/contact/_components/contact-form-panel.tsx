@@ -237,7 +237,7 @@ export function ContactFormPanel() {
 				/>
 				<div className="mt-1.5 flex items-center justify-between gap-4">
 					<FieldError id="contact-message-error" message={errors.message} />
-					<span className="ml-auto text-[11px] tabular-nums text-[var(--dark)]/50">
+					<span className="ml-auto font-mono text-[11px] tabular-nums text-[var(--dark)]/50">
 						{messageLength}/{MESSAGE_MAX}
 					</span>
 				</div>
@@ -246,8 +246,8 @@ export function ContactFormPanel() {
 			{/* Project type: checkbox-styled single select feeding the action's
 			    projectType field. Optional by design. */}
 			<fieldset>
-				<legend className="mb-4 text-[13px] font-semibold text-[var(--dark)]">
-					How can we help?
+				<legend className="mb-4 text-[11px] font-medium uppercase tracking-[0.22em] text-[var(--dark)]/60">
+					How can we help
 				</legend>
 				<div className="grid grid-cols-1 gap-x-6 gap-y-3 sm:grid-cols-2">
 					{PROJECT_TYPES.map((type) => {
@@ -303,7 +303,7 @@ export function ContactFormPanel() {
 			<button
 				type="submit"
 				disabled={submitState.status === "submitting"}
-				className="inline-flex w-full items-center justify-center gap-3 rounded-xl bg-[var(--dark)] px-8 py-4 text-[13px] font-semibold tracking-[0.04em] text-[var(--light)] transition-opacity duration-200 hover:opacity-90 disabled:pointer-events-none disabled:opacity-50"
+				className="inline-flex w-full items-center justify-center gap-3 rounded-full bg-[var(--dark)] px-8 py-4 text-[12px] font-semibold uppercase tracking-[0.18em] text-[var(--light)] transition-opacity duration-200 hover:opacity-90 disabled:pointer-events-none disabled:opacity-50"
 			>
 				{submitState.status === "submitting" ? (
 					<>
