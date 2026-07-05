@@ -80,75 +80,91 @@ function mulberry32(seed) {
 const between = (rnd, min, max) => min + rnd() * (max - min);
 const pick = (rnd, arr) => arr[Math.floor(rnd() * arr.length)];
 
+// Halftone lattice: every dot is emitted individually on one shared 4-unit
+// grid, so nothing is ever a clipped half-dot and overlapping discs merge
+// into a single clean field (per lattice point the largest radius wins).
+const GRID = 4;
+const MAX_DOT = 1.72; // < GRID/2 so dots never touch
+const MIN_DOT = 0.24; // below this a dot reads as noise, skip it
+
+// Dot-size profiles as a function of normalized distance t = d / R.
+const FALLOFFS = {
+	// Dense centre thinning to the rim, like a printed sphere highlight.
+	sphere: (t) => Math.sqrt(Math.max(0, 1 - t * t)) ** 0.72,
+	// Straight linear fade.
+	fade: (t) => 1 - t,
+	// Hollow centre, dense rim: reads as a halftone ring.
+	rim: (t) => t ** 1.5,
+	// Band that peaks mid-radius, airy centre and edge.
+	halo: (t) => Math.sin(Math.PI * Math.min(1, t)) ** 1.3,
+};
+
 function posterSvg({ slug, bg }) {
 	const rnd = mulberry32(hashSeed(slug));
 	const ink = "rgba(0,0,0,0.92)";
-	const parts = [];
+	const snap = (v) => Math.round(v / GRID) * GRID + GRID / 2;
 
-	// Halftone dot circles: the signature element. Two or three, spread
-	// across thirds of the canvas so they never all clump in one corner.
-	const dotCircles = 2 + Math.floor(rnd() * 2);
-	const zones = [
-		{ x: [110, 250], y: [90, 210] },
-		{ x: [250, 400], y: [230, 380] },
-		{ x: [100, 260], y: [390, 520] },
-		{ x: [280, 410], y: [80, 200] },
-	];
-	const zoneStart = Math.floor(rnd() * zones.length);
-	for (let i = 0; i < dotCircles; i++) {
-		const zone = zones[(zoneStart + i) % zones.length];
-		const cx = between(rnd, zone.x[0], zone.x[1]);
-		const cy = between(rnd, zone.y[0], zone.y[1]);
-		const r = between(rnd, 85, 165);
-		parts.push(`<circle cx="${cx}" cy="${cy}" r="${r}" fill="url(#dots)"/>`);
-	}
-
-	// One thin outline ring.
-	parts.push(
-		`<circle cx="${between(rnd, 90, 410)}" cy="${between(rnd, 90, 510)}" r="${between(rnd, 36, 82)}" fill="none" stroke="${ink}" stroke-width="2.5"/>`,
+	// The anchor disc (always a sphere, always substantial) sits in one
+	// vertical half; the companion disc is forced into the other half so a
+	// composition never clumps and leaves half the canvas dead. A small
+	// satellite adds rhythm, tucked toward whichever side has more air.
+	const discs = [];
+	const anchorTop = rnd() > 0.5;
+	const anchorCx = snap(between(rnd, 150, 350));
+	const anchorCy = snap(
+		anchorTop ? between(rnd, 150, 260) : between(rnd, 340, 460),
 	);
+	discs.push({
+		cx: anchorCx,
+		cy: anchorCy,
+		R: between(rnd, 130, 185),
+		falloff: FALLOFFS.sphere,
+		weight: 1,
+	});
 
-	// Zero to two hairline rules, full-bleed like a print grid.
-	const rules = Math.floor(rnd() * 3);
-	for (let i = 0; i < rules; i++) {
-		if (rnd() > 0.5) {
-			const y = between(rnd, 70, 530);
-			parts.push(
-				`<line x1="0" y1="${y}" x2="${W}" y2="${y}" stroke="${ink}" stroke-width="1.5"/>`,
-			);
-		} else {
-			const x = between(rnd, 60, 440);
-			parts.push(
-				`<line x1="${x}" y1="0" x2="${x}" y2="${H}" stroke="${ink}" stroke-width="1.5"/>`,
-			);
+	discs.push({
+		cx: snap(between(rnd, 120, 380)),
+		cy: snap(anchorTop ? between(rnd, 370, 490) : between(rnd, 110, 230)),
+		R: between(rnd, 90, 150),
+		falloff: FALLOFFS[pick(rnd, ["fade", "rim", "halo"])],
+		// Slight per-disc weight so overlaps keep depth instead of
+		// flattening into one even texture.
+		weight: between(rnd, 0.8, 0.95),
+	});
+
+	// Satellite: small, airy, pulled to the horizontal side the anchor
+	// left open.
+	const satelliteLeft = anchorCx > W / 2;
+	discs.push({
+		cx: snap(
+			satelliteLeft ? between(rnd, 70, 170) : between(rnd, 330, 430),
+		),
+		cy: snap(between(rnd, 90, 510)),
+		R: between(rnd, 38, 68),
+		falloff: FALLOFFS[pick(rnd, ["sphere", "halo"])],
+		weight: between(rnd, 0.7, 0.9),
+	});
+
+	// Walk the shared lattice once; each point takes the strongest disc.
+	const dots = [];
+	for (let x = GRID / 2; x < W; x += GRID) {
+		for (let y = GRID / 2; y < H; y += GRID) {
+			let size = 0;
+			for (const disc of discs) {
+				const d = Math.hypot(x - disc.cx, y - disc.cy);
+				if (d > disc.R) continue;
+				const s = disc.falloff(d / disc.R) * disc.weight;
+				if (s > size) size = s;
+			}
+			const r = size * MAX_DOT;
+			if (r >= MIN_DOT) {
+				dots.push(`<circle cx="${x}" cy="${y}" r="${r.toFixed(2)}"/>`);
+			}
 		}
-	}
-
-	// One small solid accent: dot, square, or half-disc.
-	const accentX = between(rnd, 60, 420);
-	const accentY = between(rnd, 60, 520);
-	const accentKind = pick(rnd, ["dot", "square", "half"]);
-	if (accentKind === "dot") {
-		parts.push(
-			`<circle cx="${accentX}" cy="${accentY}" r="${between(rnd, 8, 15)}" fill="${ink}"/>`,
-		);
-	} else if (accentKind === "square") {
-		const s = between(rnd, 14, 26);
-		parts.push(
-			`<rect x="${accentX}" y="${accentY}" width="${s}" height="${s}" fill="${ink}"/>`,
-		);
-	} else {
-		const r = between(rnd, 22, 40);
-		parts.push(
-			`<path d="M ${accentX - r} ${accentY} A ${r} ${r} 0 0 1 ${accentX + r} ${accentY} Z" fill="${ink}"/>`,
-		);
 	}
 
 	return `<svg xmlns="http://www.w3.org/2000/svg" width="${W * SCALE}" height="${H * SCALE}" viewBox="0 0 ${W} ${H}">
   <defs>
-    <pattern id="dots" patternUnits="userSpaceOnUse" width="4" height="4">
-      <circle cx="2" cy="2" r="0.85" fill="${ink}"/>
-    </pattern>
     <filter id="grain">
       <feTurbulence baseFrequency="0.9" numOctaves="2" stitchTiles="stitch"/>
       <feColorMatrix values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.16 0"/>
@@ -163,7 +179,9 @@ function posterSvg({ slug, bg }) {
     </radialGradient>
   </defs>
   <rect width="100%" height="100%" fill="${bg}"/>
-  ${parts.join("\n  ")}
+  <g fill="${ink}">
+    ${dots.join("\n    ")}
+  </g>
   <rect width="100%" height="100%" filter="url(#grain)" opacity="0.7"/>
   <rect width="100%" height="100%" fill="url(#sheen)"/>
   <rect width="100%" height="100%" fill="url(#shade)"/>
