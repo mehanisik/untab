@@ -7,6 +7,7 @@ import {
 	Intro,
 	Journal,
 	Pillars,
+	Services,
 	Showcase,
 	Vision,
 } from "./_components";
@@ -19,6 +20,7 @@ export default async function Page() {
 			<Hero projects={projects} />
 			<Intro />
 			<Showcase />
+			<Services />
 			<Features />
 			<CaseStudies projects={projects} />
 			<Pillars />

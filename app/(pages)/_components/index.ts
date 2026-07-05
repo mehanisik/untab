@@ -6,5 +6,6 @@ export * from "./intro";
 export * from "./journal";
 export * from "./navbar";
 export * from "./pillars";
+export * from "./services";
 export * from "./showcase";
 export * from "./vision";
