@@ -21,8 +21,6 @@ import { ContactFormPanel } from "./contact-form-panel";
 // Split-card contact layout: a theme-aware info panel on the left, a fixed
 // brand coral form block on the right with ink type. The card flips with the
 // theme; the coral block is a brand statement and stays put in both.
-const CORAL = "var(--brand-coral)";
-
 const INFO_BLOCKS = [
 	{
 		title: "Chat to us",
@@ -183,10 +181,7 @@ export function ContactForm() {
 						</div>
 
 						{/* Right: coral form block */}
-						<div
-							className="p-7 text-[var(--dark)] sm:p-10 lg:rounded-l-2xl lg:p-12"
-							style={{ backgroundColor: CORAL }}
-						>
+						<div className="bg-[var(--brand-coral)] p-7 text-[var(--dark)] sm:p-10 lg:rounded-l-2xl lg:p-12">
 							<h1 className="max-w-[18ch] font-medium leading-[1.05] tracking-[-0.03em] text-[clamp(1.9rem,3.4vw,2.9rem)]">
 								<span className="block overflow-hidden pb-0.5">
 									<span className="contact-headline-line block">
