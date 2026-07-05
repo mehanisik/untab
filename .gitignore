@@ -55,3 +55,4 @@ plans/
 sanity/seed/images/*
 !sanity/seed/images/README.md
 *.bak
+.posters-preview/
