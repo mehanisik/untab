@@ -66,18 +66,16 @@ function AnimatedLine() {
 
 			<div
 				className={cn(
-					"w-px flex-1 origin-top bg-muted-foreground/30 transition-transform duration-1000 ease-out",
+					"w-px flex-1 origin-top bg-muted-foreground/30 transition-transform delay-300 duration-1000 ease-out",
 					isVisible ? "scale-y-100" : "scale-y-0",
 				)}
-				style={{ transitionDelay: "300ms" }}
 			/>
 
 			<div
 				className={cn(
-					"size-[34px] shrink-0 transition-all duration-700",
+					"size-[34px] shrink-0 transition-all delay-[800ms] duration-700",
 					isVisible ? "opacity-100 scale-100" : "opacity-0 scale-50",
 				)}
-				style={{ transitionDelay: "800ms" }}
 			>
 				<svg
 					aria-hidden="true"

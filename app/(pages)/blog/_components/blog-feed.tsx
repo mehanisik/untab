@@ -123,10 +123,11 @@ export function BlogFeed({ posts }: BlogFeedProps) {
 	);
 }
 
+// Poster-family accents as utility classes so styling stays in Tailwind.
 const ACCENTS = [
-	{ bg: "#6E56FF", fg: "#FFFFFF" }, // purple
-	{ bg: "#F2FF5C", fg: "#0A0A0B" }, // lime
-	{ bg: "#FF6B4A", fg: "#FFFFFF" }, // coral
+	{ chip: "bg-[#6E56FF] text-white", dot: "bg-[#6E56FF]" }, // purple
+	{ chip: "bg-[#F2FF5C] text-[var(--dark)]", dot: "bg-[#F2FF5C]" }, // lime
+	{ chip: "bg-[#FF6B4A] text-white", dot: "bg-[#FF6B4A]" }, // coral
 ] as const;
 
 function PostCard({
@@ -184,8 +185,7 @@ function PostCard({
 				</h3>
 				<span
 					aria-hidden
-					style={{ backgroundColor: accent.bg, color: accent.fg }}
-					className="mt-1 inline-flex size-8 shrink-0 items-center justify-center rounded-full transition-transform duration-300 ease-out group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
+					className={`mt-1 inline-flex size-8 shrink-0 items-center justify-center rounded-full transition-transform duration-300 ease-out group-hover:translate-x-0.5 group-hover:-translate-y-0.5 ${accent.chip}`}
 				>
 					<HugeiconsIcon icon={ArrowRight01Icon} size={15} strokeWidth={2.2} />
 				</span>
@@ -199,8 +199,7 @@ function PostCard({
 				<span className="flex min-w-0 flex-1 items-center gap-2">
 					<span
 						aria-hidden
-						style={{ backgroundColor: accent.bg }}
-						className="size-2 shrink-0 rounded-full"
+						className={`size-2 shrink-0 rounded-full ${accent.dot}`}
 					/>
 					<span className="truncate">{primaryTag}</span>
 				</span>

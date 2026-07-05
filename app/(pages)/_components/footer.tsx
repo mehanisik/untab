@@ -129,12 +129,9 @@ export function Footer() {
 	return (
 		<footer
 			ref={footerRef}
-			className="relative isolate w-full text-surface-deep-foreground"
 			// Fixed dark-ink surface in both themes, so pin the foreground to the
 			// cream base token instead of the theme-flipping surface foreground.
-			style={
-				{ "--surface-deep-foreground": "var(--light)" } as React.CSSProperties
-			}
+			className="relative isolate w-full text-surface-deep-foreground [--surface-deep-foreground:var(--light)]"
 		>
 			{/* Full-bleed dark-ink surface: spans the viewport width (like a
 			    proper footer) while the content below keeps the shared max-width

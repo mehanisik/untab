@@ -6,8 +6,6 @@ import { Fragment, useRef } from "react";
 import { withMotion } from "~/libs/gsap/presets";
 import { pad } from "~/libs/utils";
 
-const ACCENT = "var(--brand-coral-accent)";
-
 const DEFAULT_PILLARS = [
 	{
 		title: "Fluent conversation",
@@ -194,10 +192,7 @@ export function Pillars({
 				<div className="grid gap-16 md:grid-cols-2 md:gap-12 lg:gap-24">
 					{/* Left: accent quote, attribution, and the honest aside */}
 					<div className="flex flex-col md:pt-2">
-						<blockquote
-							className="max-w-[18ch] text-balance font-medium leading-[1.08] tracking-[-0.02em] text-[clamp(2rem,4.2vw,3.6rem)]"
-							style={{ color: ACCENT }}
-						>
+						<blockquote className="max-w-[18ch] text-balance font-medium leading-[1.08] tracking-[-0.02em] text-[clamp(2rem,4.2vw,3.6rem)] text-[var(--brand-coral-accent)]">
 							{words.map((word, index) => (
 								// biome-ignore lint/suspicious/noArrayIndexKey: words can repeat and never reorder
 								<Fragment key={`${index}-${word}`}>
@@ -214,8 +209,7 @@ export function Pillars({
 
 						<p
 							data-fade
-							className="mt-7 font-semibold uppercase tracking-[0.04em] text-[clamp(1.05rem,1.7vw,1.5rem)]"
-							style={{ color: ACCENT }}
+							className="mt-7 font-semibold uppercase tracking-[0.04em] text-[clamp(1.05rem,1.7vw,1.5rem)] text-[var(--brand-coral-accent)]"
 						>
 							{attribution}
 						</p>
@@ -236,7 +230,7 @@ export function Pillars({
 								data-row
 								className="group flex items-start gap-6 md:gap-8"
 							>
-								<span className="mt-1" style={{ color: ACCENT }}>
+								<span className="mt-1 text-[var(--brand-coral-accent)]">
 									<ArrowPill />
 								</span>
 								<div className="transition-transform duration-300 ease-out group-hover:translate-x-1">

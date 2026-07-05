@@ -43,14 +43,6 @@ export default function Loading() {
 			ref={containerRef}
 			className="fixed inset-0 z-100 flex flex-col items-center justify-center bg-background text-foreground"
 		>
-			<div
-				className="grain-bg absolute inset-0 opacity-5 dark:opacity-10 pointer-events-none"
-				style={{
-					backgroundImage:
-						'url("https://grainy-gradients.vercel.app/noise.svg")',
-				}}
-			/>
-
 			<div className="relative z-10 flex flex-col items-center gap-8">
 				<div className="flex flex-col items-center">
 					<span className="loading-text text-[10px] font-bold uppercase tracking-[0.5em] text-primary">

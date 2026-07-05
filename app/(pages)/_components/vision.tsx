@@ -6,8 +6,6 @@ import { Fragment, useRef } from "react";
 import { Link } from "~/components/ui/link";
 import { withMotion } from "~/libs/gsap/presets";
 
-const ACCENT = "var(--brand-coral)";
-
 interface VisionProps {
 	description?: string;
 	linkText?: string;
@@ -149,10 +147,7 @@ export function Vision({
 								className="group relative inline-block leading-none transition-colors duration-300 hover:text-[var(--brand-coral)]"
 							>
 								{linkText}
-								<span
-									className="vision-underline absolute -bottom-1.5 left-0 h-[3px] w-full origin-left"
-									style={{ backgroundColor: ACCENT }}
-								/>
+								<span className="vision-underline absolute -bottom-1.5 left-0 h-[3px] w-full origin-left bg-[var(--brand-coral)]" />
 							</Link>
 						</span>
 					</span>

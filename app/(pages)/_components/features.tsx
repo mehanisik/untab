@@ -144,11 +144,7 @@ function Poster({ meta, index }: { meta: PosterMeta; index: number }) {
 
 			<div
 				aria-hidden
-				className="pointer-events-none absolute inset-0 mix-blend-soft-light"
-				style={{
-					background:
-						"radial-gradient(120% 80% at 30% 0%, rgba(255,255,255,0.35), transparent 60%), radial-gradient(120% 80% at 80% 100%, rgba(0,0,0,0.25), transparent 65%)",
-				}}
+				className="poster-sheen pointer-events-none absolute inset-0 mix-blend-soft-light"
 			/>
 		</div>
 	);

@@ -6,16 +6,6 @@ import { useRef } from "react";
 import { Link } from "~/components/ui/link";
 import { withMotion } from "~/libs/gsap/presets";
 
-// Halftone disc in the brand coral: pure CSS dots with a radial fade,
-// echoing the blog poster art. No external assets.
-const DISC_STYLE = {
-	backgroundImage:
-		"radial-gradient(var(--brand-coral-accent) 1.1px, transparent 1.1px)",
-	backgroundSize: "9px 9px",
-	maskImage: "radial-gradient(circle, black 45%, transparent 72%)",
-	WebkitMaskImage: "radial-gradient(circle, black 45%, transparent 72%)",
-} as const;
-
 export default function NotFound() {
 	const rootRef = useRef<HTMLElement>(null);
 
@@ -55,8 +45,7 @@ export default function NotFound() {
 		>
 			<div
 				aria-hidden
-				className="nf-disc pointer-events-none absolute right-[-8rem] top-1/2 size-[24rem] -translate-y-1/2 opacity-60 md:right-[6vw] md:size-[30rem]"
-				style={DISC_STYLE}
+				className="nf-disc halftone-disc pointer-events-none absolute right-[-8rem] top-1/2 size-[24rem] -translate-y-1/2 opacity-60 md:right-[6vw] md:size-[30rem]"
 			/>
 
 			<div className="container flex grow flex-col justify-center px-6 py-24 md:px-12 lg:px-24">
