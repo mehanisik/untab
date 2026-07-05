@@ -5,6 +5,13 @@ import { ArrowDown01Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import gsap from "gsap";
 import { useId, useRef, useState } from "react";
+import {
+	BrandingMark,
+	ContentMark,
+	PlatformMark,
+	StrategyMark,
+	SystemMark,
+} from "~/components/service-marks";
 import { Link } from "~/components/ui/link";
 import { withMotion } from "~/libs/gsap/presets";
 import { cn } from "~/libs/utils";
@@ -13,30 +20,35 @@ import { cn } from "~/libs/utils";
 // same story; this section is the index, /services is the deep dive.
 const SERVICES = [
 	{
+		mark: <PlatformMark />,
 		title: "Website & Platform Software",
 		description:
 			"Production-grade web apps and marketing sites, architected to scale and shipped end-to-end. What we design is exactly what goes live.",
 		deliverables: ["Web & platform apps", "Headless CMS", "Performance & SEO"],
 	},
 	{
+		mark: <StrategyMark />,
 		title: "Brand Strategy",
 		description:
 			"Positioning, narrative, and the decisions that make everything downstream coherent. Who you are for, and the through-line that holds it together.",
 		deliverables: ["Positioning", "Messaging & voice", "Naming"],
 	},
 	{
+		mark: <BrandingMark />,
 		title: "Branding",
 		description:
 			"Logos, type, colour, and motion built as a living system rather than a static logo pack. Designed to flex across every surface people meet it on.",
 		deliverables: ["Identity", "Logo & marks", "Type & colour", "Motion"],
 	},
 	{
+		mark: <ContentMark />,
 		title: "Creative Content",
 		description:
 			"Art direction, copy, and assets that carry the brand into the world. Consistent in tone, sharp in execution.",
 		deliverables: ["Art direction", "Copywriting", "Imagery"],
 	},
 	{
+		mark: <SystemMark />,
 		title: "Design System & Brand Guide",
 		description:
 			"Everything documented, tokenised, and ready for your team to run with. The brand stays consistent long after the engagement ends.",
@@ -127,8 +139,16 @@ export function Services() {
 									onClick={() => setOpenIndex(open ? null : index)}
 									className="group flex w-full items-center gap-5 py-6 text-left md:gap-8 md:py-8"
 								>
-									<span className="w-8 shrink-0 font-mono text-[11px] tabular-nums text-[var(--brand-coral-accent)]">
-										{pad(index + 1)}
+									<span
+										className={cn(
+											"size-9 shrink-0 transition-colors duration-300 md:size-11",
+											open
+												? "text-[var(--brand-coral-accent)]"
+												: "text-foreground/70 group-hover:text-foreground",
+										)}
+										aria-hidden
+									>
+										{service.mark}
 									</span>
 									<span className="flex-1 text-balance font-medium leading-[1.05] tracking-[-0.02em] text-[clamp(1.4rem,3vw,2.4rem)] transition-colors duration-300 group-hover:text-foreground/70">
 										{service.title}
@@ -159,7 +179,7 @@ export function Services() {
 									)}
 								>
 									<div className="overflow-hidden">
-										<div className="flex flex-col gap-6 pb-8 pl-13 md:flex-row md:items-end md:justify-between md:gap-10 md:pb-10 md:pl-16">
+										<div className="flex flex-col gap-6 pb-8 pl-14 md:flex-row md:items-end md:justify-between md:gap-10 md:pb-10 md:pl-19">
 											<p className="max-w-[52ch] text-pretty text-[14px] leading-relaxed text-foreground/60 md:text-[15px]">
 												{service.description}
 											</p>
