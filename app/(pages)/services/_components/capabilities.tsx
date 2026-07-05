@@ -12,6 +12,7 @@ import {
 	StrategyMark,
 	SystemMark,
 } from "~/components/service-marks";
+import { Link } from "~/components/ui/link";
 import { withMotion } from "~/libs/gsap/presets";
 import { PAGE_PADDING, cn } from "~/libs/utils";
 
@@ -25,73 +26,104 @@ interface Service {
 	deliverables: string[];
 	accent: string;
 	mark: ReactNode;
+	caseStudy: { title: string; href: string };
 }
 
 const SERVICES: Service[] = [
 	{
 		number: "01",
-		title: "Website & Platform Software",
-		tagline: "The product itself",
-		description:
-			"Production-grade web apps and marketing sites, architected to scale and shipped end-to-end. We own the stack from data model to the last pixel, so what we design is exactly what goes live.",
-		deliverables: [
-			"Web & platform apps",
-			"Headless CMS",
-			"Performance & SEO",
-			"Maintenance",
-		],
-		accent: "#E83A50",
-		mark: <PlatformMark />,
-	},
-	{
-		number: "02",
-		title: "Brand Strategy",
+		title: "Strategy",
 		tagline: "The thinking first",
 		description:
-			"Positioning, narrative, and the decisions that make everything downstream coherent. We define who you are for, what you stand for, and the through-line that holds the whole experience together.",
+			"We establish clarity and direction before anything gets built. Discovery, benchmarking and team alignment that grounds decisions in insight, not assumptions. We interrogate the brief, identify what's actually possible, and set a common thread that runs across the entire partnership.",
 		deliverables: [
-			"Positioning",
-			"Messaging & voice",
-			"Audience & market",
-			"Naming",
+			"Strategic Research & Discovery",
+			"User Experience Research",
+			"Workshops & Facilitation",
+			"Brand Strategy & Positioning",
+			"Product Strategy",
+			"Digital Performance Strategy",
 		],
 		accent: "#7C8DF0",
 		mark: <StrategyMark />,
+		caseStudy: {
+			title: "Atik Import Export",
+			href: "/work/atik-import-export",
+		},
+	},
+	{
+		number: "02",
+		title: "Brand",
+		tagline: "The identity",
+		description:
+			"We design visual and verbal systems that resonate and endure. Brand guidelines, component libraries, and assets are built for consistency across every touchpoint and ladder up to a unique identity that has value as a strategic asset, not just decoration.",
+		deliverables: [
+			"Visual Identity Systems",
+			"Naming",
+			"Tone of Voice & Messaging",
+			"Brand & Marketing Collateral",
+			"Illustration & Mascot Design",
+			"Motion Design & Brand Videos",
+			"Campaign Creative & Activation",
+		],
+		accent: "#E83A50",
+		mark: <BrandingMark />,
+		caseStudy: { title: "Untab Studio", href: "/work/untab-studio" },
 	},
 	{
 		number: "03",
-		title: "Branding",
-		tagline: "The identity",
+		title: "Website",
+		tagline: "Brand-led sites",
 		description:
-			"Logos, type, colour, and motion built as a living system — not a static logo pack. Every asset is designed to flex across product, marketing, and the real surfaces people will meet it on.",
-		deliverables: ["Identity", "Logo & marks", "Type & colour", "Motion"],
+			"We build brand-led marketing sites that work hard for your business. Clear messaging, smooth user journeys, and content management systems with guardrails baked in. Sites your teams can update and evolve without breaking things or losing consistency.",
+		deliverables: [
+			"Information Architecture & User Flows",
+			"Interface Design & Interactions",
+			"Web Animations & Transitions",
+			"Design Systems & Documentation",
+			"Web Copywriting & UX Writing",
+			"Analytics & Performance Tracking",
+		],
 		accent: "#D8E85E",
-		mark: <BrandingMark />,
+		mark: <ContentMark />,
+		caseStudy: { title: "Sagando Bungalows", href: "/work/sagando-bungalows" },
 	},
 	{
 		number: "04",
-		title: "Creative Content",
-		tagline: "The story, told",
+		title: "Product",
+		tagline: "The problem, solved",
 		description:
-			"Art direction, copy, and assets that carry the brand into the world. We produce the imagery, words, and films that make the work land — consistent in tone, sharp in execution.",
-		deliverables: ["Art direction", "Copywriting", "Imagery", "Social & film"],
+			"We create platforms and digital products that solve real problems and adapt as things change. We design and build interaction flows, interfaces, and component libraries. Through prototyping and testing to validate direction early, we can track what's working through analytics, and establish systems your team can grow.",
+		deliverables: [
+			"Interaction Architecture & Product Flows",
+			"Interface Design & Micro-interactions",
+			"Design Systems & Component Libraries",
+			"Animated Product Visualizations & Demos",
+			"Prototyping, Testing & User Validation",
+			"Analytics & Event Tracking",
+		],
 		accent: "#A892FF",
-		mark: <ContentMark />,
+		mark: <SystemMark />,
+		caseStudy: { title: "Wooah!", href: "/work/wooah" },
 	},
 	{
 		number: "05",
-		title: "Design System & Brand Guide",
-		tagline: "The handover",
+		title: "Development",
+		tagline: "The build",
 		description:
-			"Everything documented, tokenised, and ready for your team to run with. Components, usage rules, and guidelines that keep the brand consistent long after the engagement ends.",
+			"We back our designs with robust development. Product designers and developers work hand-in-hand to create technology that's built for growth, performance, and long-term flexibility, not just launch day.",
 		deliverables: [
-			"Design tokens",
-			"Component library",
-			"Usage guidelines",
-			"Handover",
+			"Backend Development",
+			"Front-end Development",
+			"Mobile Development",
+			"CMS Development",
+			"Generative AI & Machine Learning",
+			"Quality Assurance & Maintenance",
+			"Cloud & Infrastructure",
 		],
 		accent: "#5FB89A",
-		mark: <SystemMark />,
+		mark: <PlatformMark />,
+		caseStudy: { title: "Crypto Predict", href: "/work/crypto-predict" },
 	},
 ];
 
@@ -201,6 +233,22 @@ function ServicePanel({ service }: { service: Service }) {
 					</li>
 				))}
 			</ul>
+
+			<div className="mt-8 flex flex-wrap items-center gap-x-8 gap-y-3">
+				<Link
+					href="/contact"
+					className="inline-flex min-h-11 items-center gap-2 text-[14px] font-medium tracking-[-0.01em] text-foreground transition-opacity hover:opacity-60"
+				>
+					Explore {service.title}
+					<span aria-hidden>→</span>
+				</Link>
+				<Link
+					href={service.caseStudy.href}
+					className="inline-flex min-h-11 items-center gap-2 font-mono text-[11px] uppercase tracking-[0.18em] text-foreground/50 transition-colors hover:text-foreground"
+				>
+					Case study · {service.caseStudy.title}
+				</Link>
+			</div>
 		</article>
 	);
 }
@@ -363,12 +411,19 @@ export function Capabilities() {
 		>
 			<div className={`container ${PAGE_PADDING}`}>
 				<header className="max-w-3xl">
-					<p className="cap-head text-[11px] font-medium uppercase tracking-[0.28em] text-foreground/50">
-						What we do
+					<p className="cap-head font-mono text-[11px] uppercase tracking-[0.25em] text-foreground/50">
+						Our services <span className="tabular-nums">({TOTAL})</span>
 					</p>
 					<h2 className="cap-head mt-6 text-balance text-[clamp(2.25rem,5vw,4rem)] font-medium leading-[1.02] tracking-[-0.035em]">
-						Where we go deep.
+						Strategy, design, and development.{" "}
+						<span className="text-[var(--brand-coral-accent)]">
+							Together from day one.
+						</span>
 					</h2>
+					<p className="cap-head mt-6 max-w-[52ch] text-pretty text-[15px] leading-relaxed text-foreground/60 sm:text-base">
+						Everything we do supports and informs the other, creating systems
+						that work today and adapt to wherever your business goes next.
+					</p>
 				</header>
 
 				<div className="cap-grid mt-14 grid grid-cols-1 gap-x-10 sm:mt-20 md:grid-cols-12">

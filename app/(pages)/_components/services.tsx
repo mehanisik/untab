@@ -20,37 +20,39 @@ import { cn, pad } from "~/libs/utils";
 // line each. Kept deliberately terse; the deep dive lives on /services.
 const SERVICES = [
 	{
-		mark: <PlatformMark />,
-		title: "Websites & Platforms",
-		description:
-			"Production-grade sites and web apps, designed and shipped end-to-end.",
-		meta: "Web apps · Headless CMS · Performance",
-	},
-	{
 		mark: <StrategyMark />,
-		title: "Brand Strategy",
+		title: "Strategy",
 		description:
-			"Positioning and narrative that make everything downstream coherent.",
-		meta: "Positioning · Messaging · Naming",
+			"Clarity and direction before anything gets built. Insight, not assumptions.",
+		meta: "Discovery · Positioning · Workshops",
 	},
 	{
 		mark: <BrandingMark />,
-		title: "Branding",
-		description: "Identity as a living system. Logo, type, colour, motion.",
-		meta: "Identity · Marks · Motion",
+		title: "Brand",
+		description:
+			"Visual and verbal systems that resonate and endure, across every touchpoint.",
+		meta: "Identity · Naming · Motion",
 	},
 	{
 		mark: <ContentMark />,
-		title: "Creative Content",
+		title: "Website",
 		description:
-			"Art direction, copy, and assets that carry the brand into the world.",
-		meta: "Art direction · Copy · Imagery",
+			"Brand-led marketing sites that work hard, with guardrails your team can trust.",
+		meta: "Architecture · Interface · Animation",
 	},
 	{
 		mark: <SystemMark />,
-		title: "Design Systems",
-		description: "Tokens, components, and guidelines your team can run with.",
-		meta: "Tokens · Components · Guidelines",
+		title: "Product",
+		description:
+			"Digital products that solve real problems and adapt as things change.",
+		meta: "Flows · Prototyping · Design systems",
+	},
+	{
+		mark: <PlatformMark />,
+		title: "Development",
+		description:
+			"Robust builds for growth, performance, and long-term flexibility.",
+		meta: "Backend · Front-end · Mobile",
 	},
 ];
 
