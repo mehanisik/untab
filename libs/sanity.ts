@@ -163,6 +163,7 @@ export const QUERIES = {
 	settings: `*[_type == "settings"][0] {
     title,
     "logo": logo.asset->url,
+    "heroVideo": heroVideo.asset->url,
     socials,
     footerText,
     copyright

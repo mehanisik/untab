@@ -25,6 +25,17 @@ export default defineType({
 			group: "general",
 		}),
 		defineField({
+			name: "heroVideo",
+			title: "Hero Loop Video",
+			type: "file",
+			group: "general",
+			options: {
+				accept: "video/mp4,video/webm",
+			},
+			description:
+				"Muted looping animation for the homepage hero. Keep it lightweight; the site falls back to the bundled loop when unset.",
+		}),
+		defineField({
 			name: "socials",
 			title: "Social Media Links",
 			type: "array",

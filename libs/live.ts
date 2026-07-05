@@ -43,10 +43,13 @@ export async function fetchSanity<T>(
 }
 
 export async function getSettings() {
-	return fetchSanity<{ logo: string }>(`*[_type == "settings"][0]{
+	return fetchSanity<{ logo: string; heroVideo?: string }>(
+		`*[_type == "settings"][0]{
     ...,
-    "logo": logo.asset->url
-  }`);
+    "logo": logo.asset->url,
+    "heroVideo": heroVideo.asset->url
+  }`,
+	);
 }
 
 export async function getAuthors() {
