@@ -1,6 +1,8 @@
 "use client";
 
 import { useGSAP } from "@gsap/react";
+import { ArrowUpRight01Icon } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 import gsap from "gsap";
 import type { ReactNode } from "react";
 import { useRef, useState } from "react";
@@ -104,18 +106,19 @@ export function Capabilities() {
 					},
 				});
 
-				gsap.from(root.querySelectorAll<HTMLElement>(".cap-row"), {
-					y: 36,
-					autoAlpha: 0,
-					duration: 0.8,
-					ease: "expo.out",
-					stagger: 0.07,
-					scrollTrigger: {
-						trigger: root.querySelector(".cap-ledger"),
-						start: "top 85%",
-						toggleActions: "play reverse play reverse",
-					},
-				});
+				for (const row of root.querySelectorAll<HTMLElement>(".cap-row")) {
+					gsap.from(row, {
+						y: 36,
+						autoAlpha: 0,
+						duration: 0.8,
+						ease: "expo.out",
+						scrollTrigger: {
+							trigger: row,
+							start: "top 92%",
+							toggleActions: "play reverse play reverse",
+						},
+					});
+				}
 			}),
 		{ scope: rootRef },
 	);
@@ -144,7 +147,7 @@ export function Capabilities() {
 					    the right rail. Pointer devices and wide screens only. */}
 					<div
 						aria-hidden
-						className="pointer-events-none absolute -top-16 right-0 hidden size-56 lg:block xl:size-64"
+						className="pointer-events-none absolute -top-16 right-0 -z-10 hidden size-56 lg:block xl:size-64"
 					>
 						{DISCIPLINES.map((discipline, index) => (
 							<span
@@ -179,7 +182,9 @@ export function Capabilities() {
 								onFocus={() => setHovered(index)}
 								className={cn(
 									"cap-row group grid grid-cols-[2.5rem_1fr_auto] items-start gap-x-5 border-b border-foreground/10 py-6 transition-opacity duration-300 md:grid-cols-[3.5rem_1.2fr_1fr_auto] md:gap-x-8 md:py-8",
-									hovered !== null && hovered !== index && "md:opacity-35",
+									hovered !== null &&
+										hovered !== index &&
+										"pointer-fine:md:opacity-35",
 								)}
 							>
 								<span className="pt-2 font-mono text-[11px] tabular-nums text-[var(--brand-coral-accent)]">
@@ -198,9 +203,12 @@ export function Capabilities() {
 								</span>
 								<span className="justify-self-end pt-3 text-right font-mono text-[10px] uppercase tracking-[0.18em] text-foreground/45 transition-colors duration-300 group-hover:text-foreground">
 									{discipline.caseStudy}
-									<span aria-hidden className="ml-2">
-										↗
-									</span>
+									<HugeiconsIcon
+										icon={ArrowUpRight01Icon}
+										aria-hidden
+										strokeWidth={2}
+										className="ml-1.5 inline size-3.5 align-[-2px]"
+									/>
 								</span>
 							</Link>
 						))}
