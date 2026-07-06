@@ -185,10 +185,15 @@ export function Capabilities() {
 								<span className="pt-2 font-mono text-[11px] tabular-nums text-[var(--brand-coral-accent)]">
 									{pad(index + 1)}
 								</span>
-								<h3 className="text-balance font-medium leading-[1.02] tracking-[-0.025em] text-[clamp(1.6rem,3.4vw,2.6rem)] transition-transform duration-300 ease-out group-hover:translate-x-1.5">
-									{discipline.title}
-								</h3>
-								<span className="hidden font-mono text-[10px] uppercase tracking-[0.18em] text-foreground/45 md:block">
+								<div className="min-w-0">
+									<h3 className="text-balance font-medium leading-[1.02] tracking-[-0.025em] text-[clamp(1.6rem,3.4vw,2.6rem)] transition-transform duration-300 ease-out group-hover:translate-x-1.5">
+										{discipline.title}
+									</h3>
+									<p className="mt-2.5 max-w-[44ch] text-pretty text-[13px] leading-relaxed text-foreground/55 md:text-[14px]">
+										{discipline.description}
+									</p>
+								</div>
+								<span className="hidden pt-3 font-mono text-[10px] uppercase tracking-[0.18em] text-foreground/45 md:block">
 									{discipline.scope}
 								</span>
 								<span className="justify-self-end pt-3 text-right font-mono text-[10px] uppercase tracking-[0.18em] text-foreground/45 transition-colors duration-300 group-hover:text-foreground">
