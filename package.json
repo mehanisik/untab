@@ -22,7 +22,7 @@
 		"@arcjet/next": "^1.6.1",
 		"@base-ui/react": "^1.4.1",
 		"@gsap/react": "^2.1.2",
-		"@hugeicons/core-free-icons": "^4.1.4",
+		"@hugeicons/core-free-icons": "^4.2.2",
 		"@hugeicons/react": "^1.1.6",
 		"@portabletext/react": "^6.2.0",
 		"@sanity/icons": "^3.7.4",
