@@ -1,11 +1,9 @@
 "use client";
 
 import { useGSAP } from "@gsap/react";
-import { ArrowUpRight01Icon } from "@hugeicons/core-free-icons";
-import { HugeiconsIcon } from "@hugeicons/react";
 import gsap from "gsap";
 import type { ReactNode } from "react";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import {
 	BrandingMark,
 	ContentMark,
@@ -18,57 +16,55 @@ import { withMotion } from "~/libs/gsap/presets";
 import { PAGE_PADDING, cn, pad } from "~/libs/utils";
 
 /* ------------------------------------------------------------------ */
-/* Minimal bento: five flat tiles, one discipline each. A mark, a      */
-/* title, a three-word meta line. The whole tile links to the case     */
-/* study that proves the discipline.                                   */
+/* Specimen ledger: the disciplines as an index sheet. Mono column     */
+/* heads, hairline rows, the whole row links to the case study that    */
+/* proves the discipline. Hovering a row summons its mark, large and   */
+/* coral, in the fixed preview area on the right.                      */
 /* ------------------------------------------------------------------ */
 
 interface Discipline {
 	title: string;
-	meta: string;
-	mark: ReactNode;
+	scope: string;
+	caseStudy: string;
 	href: string;
-	// Flat tile surfaces from the brand palette only.
-	surface: string;
-	tall?: boolean;
+	mark: ReactNode;
 }
 
 const DISCIPLINES: Discipline[] = [
 	{
 		title: "Strategy",
-		meta: "Discovery · Research · Workshops",
-		mark: <StrategyMark />,
+		scope: "Discovery · Research · Workshops",
+		caseStudy: "Atik Import Export",
 		href: "/work/atik-import-export",
-		surface: "border border-foreground/10 bg-card text-card-foreground",
+		mark: <StrategyMark />,
 	},
 	{
 		title: "Brand",
-		meta: "Identity · Naming · Motion",
-		mark: <BrandingMark />,
+		scope: "Identity · Naming · Motion",
+		caseStudy: "Untab Studio",
 		href: "/work/untab-studio",
-		surface: "bg-[var(--brand-coral)] text-[var(--dark)]",
-	},
-	{
-		title: "Development",
-		meta: "Backend · Front-end · Mobile",
-		mark: <PlatformMark />,
-		href: "/work/crypto-predict",
-		surface: "bg-[var(--dark)] text-[var(--light)]",
-		tall: true,
+		mark: <BrandingMark />,
 	},
 	{
 		title: "Website",
-		meta: "Architecture · Interface · Animation",
-		mark: <ContentMark />,
+		scope: "Architecture · Interface · Animation",
+		caseStudy: "Sagando Bungalows",
 		href: "/work/sagando-bungalows",
-		surface: "bg-[var(--light)] text-[var(--dark)]",
+		mark: <ContentMark />,
 	},
 	{
 		title: "Product",
-		meta: "Flows · Prototyping · Systems",
-		mark: <SystemMark />,
+		scope: "Flows · Prototyping · Systems",
+		caseStudy: "Wooah!",
 		href: "/work/wooah",
-		surface: "border border-foreground/10 bg-card text-card-foreground",
+		mark: <SystemMark />,
+	},
+	{
+		title: "Development",
+		scope: "Backend · Front-end · Mobile",
+		caseStudy: "Crypto Predict",
+		href: "/work/crypto-predict",
+		mark: <PlatformMark />,
 	},
 ];
 
@@ -76,6 +72,7 @@ const TOTAL = pad(DISCIPLINES.length);
 
 export function Capabilities() {
 	const rootRef = useRef<HTMLElement>(null);
+	const [hovered, setHovered] = useState<number | null>(null);
 
 	useGSAP(
 		() =>
@@ -96,15 +93,15 @@ export function Capabilities() {
 					},
 				});
 
-				gsap.from(root.querySelectorAll<HTMLElement>(".cap-tile"), {
-					y: 44,
+				gsap.from(root.querySelectorAll<HTMLElement>(".cap-row"), {
+					y: 36,
 					autoAlpha: 0,
-					duration: 0.9,
+					duration: 0.8,
 					ease: "expo.out",
-					stagger: 0.09,
+					stagger: 0.07,
 					scrollTrigger: {
-						trigger: root.querySelector(".cap-grid"),
-						start: "top 80%",
+						trigger: root.querySelector(".cap-ledger"),
+						start: "top 85%",
 						toggleActions: "play reverse play reverse",
 					},
 				});
@@ -131,60 +128,77 @@ export function Capabilities() {
 					</h2>
 				</header>
 
-				<div className="cap-grid mt-14 grid grid-cols-1 gap-3 sm:mt-20 md:grid-cols-3 md:gap-4">
-					{DISCIPLINES.map((discipline, index) => (
-						<Link
-							key={discipline.title}
-							href={discipline.href}
-							aria-label={`${discipline.title} case study`}
-							className={cn(
-								"cap-tile group relative flex min-h-[18rem] flex-col justify-between overflow-hidden rounded-2xl p-7 transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform hover:-translate-y-1.5 md:min-h-[20rem]",
-								discipline.tall && "md:row-span-2 md:min-h-0",
-								discipline.surface,
-							)}
-						>
-							<div className="flex items-start justify-between">
-								<span
-									className={cn(
-										"size-12 opacity-80 md:size-14",
-										discipline.tall && "md:size-20",
-									)}
-								>
-									{discipline.mark}
-								</span>
-								<HugeiconsIcon
-									icon={ArrowUpRight01Icon}
-									aria-hidden
-									strokeWidth={1.5}
-									className="size-5 opacity-40 transition-all duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:opacity-100"
-								/>
-							</div>
-
-							<div>
-								<div className="flex items-baseline gap-3">
-									<span className="font-mono text-[11px] tabular-nums opacity-50">
-										{pad(index + 1)}
-									</span>
-									<h3 className="text-[clamp(1.35rem,2.2vw,1.75rem)] font-medium leading-[1.05] tracking-[-0.02em]">
-										{discipline.title}
-									</h3>
-								</div>
-								<p className="mt-2.5 font-mono text-[10px] uppercase tracking-[0.18em] opacity-50">
-									{discipline.meta}
-								</p>
-							</div>
-						</Link>
-					))}
-				</div>
-
-				<div className="cap-head mt-10 flex justify-end md:mt-12">
-					<Link
-						href="/contact"
-						className="inline-flex min-h-11 items-center gap-2 text-[14px] font-medium tracking-[-0.01em] text-foreground transition-opacity hover:opacity-60"
+				<div className="relative mt-14 sm:mt-20">
+					{/* Hover preview: the hovered discipline's mark, oversized, on
+					    the right rail. Pointer devices and wide screens only. */}
+					<div
+						aria-hidden
+						className="pointer-events-none absolute -top-16 right-0 hidden size-56 lg:block xl:size-64"
 					>
-						Start a project
-						<span aria-hidden>→</span>
-					</Link>
+						{DISCIPLINES.map((discipline, index) => (
+							<span
+								key={discipline.title}
+								className={cn(
+									"absolute inset-0 text-[var(--brand-coral-accent)] transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]",
+									hovered === index
+										? "scale-100 opacity-100 rotate-0"
+										: "scale-90 opacity-0 rotate-6",
+								)}
+							>
+								{discipline.mark}
+							</span>
+						))}
+					</div>
+
+					{/* biome-ignore lint/a11y/noStaticElementInteractions: mouse-leave only resets the decorative hover preview; rows themselves are the interactive elements */}
+					<div className="cap-ledger" onMouseLeave={() => setHovered(null)}>
+						{/* Column heads */}
+						<div className="cap-row grid grid-cols-[2.5rem_1fr_auto] items-baseline gap-x-5 border-b border-foreground/15 pb-3 font-mono text-[10px] uppercase tracking-[0.22em] text-foreground/40 md:grid-cols-[3.5rem_1.2fr_1fr_auto] md:gap-x-8">
+							<span>No.</span>
+							<span>Discipline</span>
+							<span className="hidden md:block">Scope</span>
+							<span className="text-right">Case</span>
+						</div>
+
+						{DISCIPLINES.map((discipline, index) => (
+							<Link
+								key={discipline.title}
+								href={discipline.href}
+								onMouseEnter={() => setHovered(index)}
+								onFocus={() => setHovered(index)}
+								className={cn(
+									"cap-row group grid grid-cols-[2.5rem_1fr_auto] items-baseline gap-x-5 border-b border-foreground/10 py-6 transition-opacity duration-300 md:grid-cols-[3.5rem_1.2fr_1fr_auto] md:gap-x-8 md:py-8",
+									hovered !== null && hovered !== index && "md:opacity-35",
+								)}
+							>
+								<span className="font-mono text-[11px] tabular-nums text-[var(--brand-coral-accent)]">
+									{pad(index + 1)}
+								</span>
+								<h3 className="text-balance font-medium leading-[1.02] tracking-[-0.025em] text-[clamp(1.6rem,3.4vw,2.6rem)] transition-transform duration-300 ease-out group-hover:translate-x-1.5">
+									{discipline.title}
+								</h3>
+								<span className="hidden font-mono text-[10px] uppercase tracking-[0.18em] text-foreground/45 md:block">
+									{discipline.scope}
+								</span>
+								<span className="justify-self-end text-right font-mono text-[10px] uppercase tracking-[0.18em] text-foreground/45 transition-colors duration-300 group-hover:text-foreground">
+									{discipline.caseStudy}
+									<span aria-hidden className="ml-2">
+										↗
+									</span>
+								</span>
+							</Link>
+						))}
+					</div>
+
+					<div className="cap-head mt-10 flex justify-end md:mt-12">
+						<Link
+							href="/contact"
+							className="inline-flex min-h-11 items-center gap-2 text-[14px] font-medium tracking-[-0.01em] text-foreground transition-opacity hover:opacity-60"
+						>
+							Start a project
+							<span aria-hidden>→</span>
+						</Link>
+					</div>
 				</div>
 			</div>
 		</section>
