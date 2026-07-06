@@ -113,19 +113,19 @@ export function Capabilities() {
 		<section
 			ref={rootRef}
 			aria-label="Capabilities"
-			className="w-full bg-background pb-24 pt-4 text-foreground sm:pb-28 md:pb-36"
+			className="w-full bg-background pb-24 pt-24 text-foreground sm:pb-28 sm:pt-28 md:pb-36 md:pt-32"
 		>
 			<div className={`container ${PAGE_PADDING}`}>
 				<header>
 					<p className="cap-head font-mono text-[11px] uppercase tracking-[0.25em] text-foreground/50">
-						Our services <span className="tabular-nums">({TOTAL})</span>
+						Services <span className="tabular-nums">({TOTAL})</span>
 					</p>
-					<h2 className="cap-head mt-6 max-w-[24ch] text-balance text-[clamp(2.25rem,5vw,4rem)] font-medium leading-[1.02] tracking-[-0.035em]">
+					<h1 className="cap-head mt-6 max-w-[24ch] text-balance text-[clamp(2.5rem,6vw,4rem)] font-medium leading-[0.98] tracking-[-0.035em]">
 						Strategy, design, and development.{" "}
 						<span className="text-[var(--brand-coral-accent)]">
 							Together from day one.
 						</span>
-					</h2>
+					</h1>
 				</header>
 
 				<div className="relative mt-14 sm:mt-20">

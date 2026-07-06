@@ -3,6 +3,7 @@
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { useRef } from "react";
+import { LogoMark } from "~/components/logo-mark";
 import { withMotion } from "~/libs/gsap/presets";
 
 export default function Loading() {
@@ -14,26 +15,11 @@ export default function Loading() {
 			withMotion(() => {
 				gsap.to(barRef.current, {
 					scaleX: 1,
-					duration: 2,
+					duration: 1.6,
 					ease: "power2.inOut",
 					repeat: -1,
 					yoyo: true,
 				});
-
-				gsap.fromTo(
-					".loading-text",
-					{ opacity: 0, y: 10 },
-					{
-						opacity: 1,
-						y: 0,
-						duration: 1,
-						stagger: 0.2,
-						ease: "power3.out",
-						repeat: -1,
-						yoyo: true,
-						repeatDelay: 0.5,
-					},
-				);
 			}),
 		{ scope: containerRef },
 	);
@@ -43,26 +29,22 @@ export default function Loading() {
 			ref={containerRef}
 			className="fixed inset-0 z-100 flex flex-col items-center justify-center bg-background text-foreground"
 		>
-			<div className="relative z-10 flex flex-col items-center gap-8">
-				<div className="flex flex-col items-center">
-					<span className="loading-text text-[10px] font-bold uppercase tracking-[0.5em] text-primary">
-						Untab Studio
-					</span>
-					<h1 className="loading-text mt-2 text-4xl font-black uppercase italic tracking-tighter">
-						Defining <span className="text-primary italic">Next.</span>
-					</h1>
-				</div>
+			<div className="flex flex-col items-center gap-7">
+				<LogoMark
+					aria-label="Untab Studio"
+					className="size-9 text-[var(--brand-coral-accent)]"
+				/>
 
-				<div className="relative h-px w-48 overflow-hidden bg-primary/10">
+				<div className="relative h-px w-40 overflow-hidden bg-foreground/10">
 					<div
 						ref={barRef}
-						className="absolute inset-0 origin-left scale-x-0 bg-primary"
+						className="absolute inset-0 origin-left scale-x-0 bg-[var(--brand-coral-accent)]"
 					/>
 				</div>
 
-				<span className="loading-text text-[8px] font-bold uppercase tracking-[0.3em] text-muted-foreground/40">
-					Synchronizing interface...
-				</span>
+				<p className="font-mono text-[10px] uppercase tracking-[0.25em] text-foreground/40">
+					Loading
+				</p>
 			</div>
 		</div>
 	);
