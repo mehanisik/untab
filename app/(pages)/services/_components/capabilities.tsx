@@ -24,6 +24,7 @@ import { PAGE_PADDING, cn, pad } from "~/libs/utils";
 
 interface Discipline {
 	title: string;
+	description: string;
 	scope: string;
 	caseStudy: string;
 	href: string;
@@ -33,6 +34,8 @@ interface Discipline {
 const DISCIPLINES: Discipline[] = [
 	{
 		title: "Strategy",
+		description:
+			"Clarity and direction before anything gets built. Decisions grounded in insight, not assumptions.",
 		scope: "Discovery · Research · Workshops",
 		caseStudy: "Atik Import Export",
 		href: "/work/atik-import-export",
@@ -40,6 +43,8 @@ const DISCIPLINES: Discipline[] = [
 	},
 	{
 		title: "Brand",
+		description:
+			"Visual and verbal systems that resonate and endure, built as a strategic asset rather than decoration.",
 		scope: "Identity · Naming · Motion",
 		caseStudy: "Untab Studio",
 		href: "/work/untab-studio",
@@ -47,6 +52,8 @@ const DISCIPLINES: Discipline[] = [
 	},
 	{
 		title: "Website",
+		description:
+			"Brand-led marketing sites that work hard for your business, with guardrails your team can trust.",
 		scope: "Architecture · Interface · Animation",
 		caseStudy: "Sagando Bungalows",
 		href: "/work/sagando-bungalows",
@@ -54,6 +61,8 @@ const DISCIPLINES: Discipline[] = [
 	},
 	{
 		title: "Product",
+		description:
+			"Platforms and digital products that solve real problems and adapt as things change.",
 		scope: "Flows · Prototyping · Systems",
 		caseStudy: "Wooah!",
 		href: "/work/wooah",
@@ -61,6 +70,8 @@ const DISCIPLINES: Discipline[] = [
 	},
 	{
 		title: "Development",
+		description:
+			"Robust engineering behind every design. Built for growth, performance, and flexibility, not just launch day.",
 		scope: "Backend · Front-end · Mobile",
 		caseStudy: "Crypto Predict",
 		href: "/work/crypto-predict",
@@ -167,11 +178,11 @@ export function Capabilities() {
 								onMouseEnter={() => setHovered(index)}
 								onFocus={() => setHovered(index)}
 								className={cn(
-									"cap-row group grid grid-cols-[2.5rem_1fr_auto] items-baseline gap-x-5 border-b border-foreground/10 py-6 transition-opacity duration-300 md:grid-cols-[3.5rem_1.2fr_1fr_auto] md:gap-x-8 md:py-8",
+									"cap-row group grid grid-cols-[2.5rem_1fr_auto] items-start gap-x-5 border-b border-foreground/10 py-6 transition-opacity duration-300 md:grid-cols-[3.5rem_1.2fr_1fr_auto] md:gap-x-8 md:py-8",
 									hovered !== null && hovered !== index && "md:opacity-35",
 								)}
 							>
-								<span className="font-mono text-[11px] tabular-nums text-[var(--brand-coral-accent)]">
+								<span className="pt-2 font-mono text-[11px] tabular-nums text-[var(--brand-coral-accent)]">
 									{pad(index + 1)}
 								</span>
 								<h3 className="text-balance font-medium leading-[1.02] tracking-[-0.025em] text-[clamp(1.6rem,3.4vw,2.6rem)] transition-transform duration-300 ease-out group-hover:translate-x-1.5">
@@ -180,7 +191,7 @@ export function Capabilities() {
 								<span className="hidden font-mono text-[10px] uppercase tracking-[0.18em] text-foreground/45 md:block">
 									{discipline.scope}
 								</span>
-								<span className="justify-self-end text-right font-mono text-[10px] uppercase tracking-[0.18em] text-foreground/45 transition-colors duration-300 group-hover:text-foreground">
+								<span className="justify-self-end pt-3 text-right font-mono text-[10px] uppercase tracking-[0.18em] text-foreground/45 transition-colors duration-300 group-hover:text-foreground">
 									{discipline.caseStudy}
 									<span aria-hidden className="ml-2">
 										↗
