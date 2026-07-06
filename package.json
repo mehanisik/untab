@@ -23,7 +23,7 @@
 		"@base-ui/react": "^1.4.1",
 		"@gsap/react": "^2.1.2",
 		"@hugeicons/core-free-icons": "^4.1.4",
-		"@hugeicons/react": "^1.1.6",
+		"@hugeicons/react": "^1.1.9",
 		"@portabletext/react": "^6.2.0",
 		"@sanity/icons": "^3.7.4",
 		"@sanity/image-url": "^2.1.1",
