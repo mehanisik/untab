@@ -1,7 +1,7 @@
-import { useCallback, useState } from "react";
-import { Box, Button, Card, Stack, Text, useToast } from "@sanity/ui";
-import { type ObjectInputProps, set, useFormValue } from "sanity";
 import { SparklesIcon } from "@sanity/icons";
+import { Box, Button, Card, Stack, Text, useToast } from "@sanity/ui";
+import { useCallback, useState } from "react";
+import { type ObjectInputProps, set, useFormValue } from "sanity";
 import { generateAIMetadata } from "../../app/actions/ai";
 
 interface BlockChild {

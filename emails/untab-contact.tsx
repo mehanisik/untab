@@ -5,13 +5,21 @@ import {
 	Heading,
 	Hr,
 	Html,
+	Link,
 	Preview,
 	Section,
 	Tailwind,
 	Text,
-	Link,
-	Img,
 } from "@react-email/components";
+import {
+	CARD,
+	CORAL,
+	CREAM,
+	EmailFooter,
+	EmailHeader,
+	INK,
+	MUTED,
+} from "./brand";
 
 interface UntabContactEmailProps {
 	name: string;
@@ -20,106 +28,98 @@ interface UntabContactEmailProps {
 	message: string;
 }
 
-const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://untabstudio.com";
-
 export const UntabContactEmail = ({
 	name,
 	email,
 	projectType,
 	message,
 }: UntabContactEmailProps) => {
-	const previewText = `New inquiry from ${name}`;
-
 	return (
 		<Html>
 			<Head />
-			<Preview>{previewText}</Preview>
+			<Preview>New inquiry from {name}</Preview>
 			<Tailwind>
-				<Body className="mx-auto my-auto bg-white font-sans px-2">
-					<Container className="mx-auto my-[40px] max-w-[465px] rounded border border-solid border-[#eaeaea] p-[20px]">
-						<Section className="mt-[32px]">
-							<Img
-								src={`${baseUrl}/logo.png`}
-								width="120"
-								height="auto"
-								alt="Untab"
-								className="mx-auto my-0"
-							/>
-						</Section>
-						<Heading className="mx-0 my-[30px] p-0 text-center font-bold text-[24px] text-black">
-							New Project Inquiry
-						</Heading>
-						<Text className="text-[14px] leading-[24px] text-black">
-							Hello,
-						</Text>
-						<Text className="text-[14px] leading-[24px] text-black">
-							You have received a new inquiry through the contact form.
-						</Text>
+				<Body
+					className="mx-auto my-auto px-2 font-sans"
+					style={{ backgroundColor: CREAM }}
+				>
+					<Container
+						className="mx-auto my-[40px] max-w-[560px] overflow-hidden rounded-[16px]"
+						style={{ backgroundColor: CARD, border: `1px solid ${INK}1f` }}
+					>
+						<EmailHeader eyebrow="New inquiry" />
 
-						<Section className="bg-[#f9f9f9] rounded-lg p-[16px] my-[24px]">
-							<Text className="text-[10px] uppercase tracking-[0.2em] text-[#666666] mb-[4px] font-bold">
-								From
-							</Text>
-							<Text className="text-[14px] font-medium m-0 mb-[12px]">
-								{name} ({email})
-							</Text>
-
-							<Text className="text-[10px] uppercase tracking-[0.2em] text-[#666666] mb-[4px] font-bold">
-								Inquiry Type
-							</Text>
-							<Text className="text-[14px] font-medium m-0 mb-[12px]">
-								{projectType}
-							</Text>
-
-							<Text className="text-[10px] uppercase tracking-[0.2em] text-[#666666] mb-[4px] font-bold">
-								Message
-							</Text>
-							<Text className="text-[14px] m-0 text-black whitespace-pre-wrap italic">
-								"{message}"
-							</Text>
-						</Section>
-
-						<Section className="text-center mt-[32px] mb-[32px]">
-							<Link
-								href={`mailto:${email}`}
-								className="bg-[#cf3f99] rounded-full text-white text-[12px] font-bold no-underline text-center px-6 py-3 inline-block"
+						<Section className="px-[32px] py-[28px]">
+							<Heading
+								className="m-0 text-[22px] font-medium leading-[1.2] tracking-[-0.02em]"
+								style={{ color: INK }}
 							>
-								Reply to {name}
-							</Link>
-						</Section>
+								{name} wants to start a conversation.
+							</Heading>
 
-						<Hr className="mx-0 my-[26px] w-full border border-solid border-[#eaeaea]" />
+							<Section className="mt-[24px]">
+								<Text
+									className="m-0 mb-[4px] text-[10px] font-bold uppercase tracking-[0.22em]"
+									style={{ color: MUTED, fontFamily: "monospace" }}
+								>
+									From
+								</Text>
+								<Text
+									className="m-0 text-[14px] font-medium leading-[22px]"
+									style={{ color: INK }}
+								>
+									{name} · {email}
+								</Text>
 
-						<Section className="text-center">
-							<Text className="text-[#666666] text-[12px] leading-[24px] mb-2">
-								Untab &copy; 2025
-							</Text>
-							<Text className="text-[#999999] text-[10px] leading-[18px]">
-								Warsaw, Poland
-								<br />
-								Digital Product & Design Agency
-							</Text>
-							<Section className="mt-4">
-								<Link
-									href="https://untabstudio.com"
-									className="text-[#cf3f99] text-[10px] mx-2 no-underline"
+								<Hr
+									className="my-[16px] w-full"
+									style={{ borderColor: `${INK}1f`, borderWidth: 1 }}
+								/>
+
+								<Text
+									className="m-0 mb-[4px] text-[10px] font-bold uppercase tracking-[0.22em]"
+									style={{ color: MUTED, fontFamily: "monospace" }}
 								>
-									Website
-								</Link>
-								<Link
-									href="https://twitter.com/untab_studio"
-									className="text-[#cf3f99] text-[10px] mx-2 no-underline"
+									Project type
+								</Text>
+								<Text
+									className="m-0 text-[14px] font-medium leading-[22px]"
+									style={{ color: INK }}
 								>
-									Twitter
-								</Link>
-								<Link
-									href="https://instagram.com/untab_studio"
-									className="text-[#cf3f99] text-[10px] mx-2 no-underline"
+									{projectType}
+								</Text>
+
+								<Hr
+									className="my-[16px] w-full"
+									style={{ borderColor: `${INK}1f`, borderWidth: 1 }}
+								/>
+
+								<Text
+									className="m-0 mb-[4px] text-[10px] font-bold uppercase tracking-[0.22em]"
+									style={{ color: MUTED, fontFamily: "monospace" }}
 								>
-									Instagram
+									Message
+								</Text>
+								<Text
+									className="m-0 whitespace-pre-wrap text-[14px] leading-[24px]"
+									style={{ color: INK }}
+								>
+									{message}
+								</Text>
+							</Section>
+
+							<Section className="mt-[28px]">
+								<Link
+									href={`mailto:${email}`}
+									className="inline-block rounded-full px-[28px] py-[12px] text-[12px] font-bold uppercase tracking-[0.16em] no-underline"
+									style={{ backgroundColor: CORAL, color: INK }}
+								>
+									Reply to {name}
 								</Link>
 							</Section>
 						</Section>
+
+						<EmailFooter />
 					</Container>
 				</Body>
 			</Tailwind>
@@ -128,10 +128,11 @@ export const UntabContactEmail = ({
 };
 
 UntabContactEmail.PreviewProps = {
-	name: "Tony Stark",
-	email: "tony@stark.com",
-	projectType: "Web Development",
-	message: "I need a website for my new armor project. Money is no object.",
+	name: "Ada Lovelace",
+	email: "ada@analytical.engine",
+	projectType: "Website & Platform",
+	message:
+		"We are rebuilding our marketing site and need a partner who can own design and build end to end. Timeline is this quarter.",
 } as UntabContactEmailProps;
 
 export default UntabContactEmail;

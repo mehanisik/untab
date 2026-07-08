@@ -1,160 +1,277 @@
 "use client";
 
+import { useGSAP } from "@gsap/react";
 import {
 	DribbbleIcon,
+	GithubIcon,
 	InstagramIcon,
 	Linkedin01Icon,
 	NewTwitterIcon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { Logo } from "~/components/logo";
+import gsap from "gsap";
+import { useId, useRef } from "react";
+import { LogoWordmark } from "~/components/logo-wordmark";
 import { Link } from "~/components/ui/link";
+import { withMotion } from "~/libs/gsap/presets";
+import type { Settings } from "~/libs/sanity";
+import { SOCIALS } from "~/libs/socials";
 
-const footerLinks = {
-	company: {
-		title: "Company",
-		links: [
-			{ label: "About Us", href: "/about" },
-			{ label: "Our Team", href: "/team" },
-			{ label: "Our Process", href: "/process" },
-			{ label: "Careers", href: "/careers" },
-			{ label: "Contact", href: "/contact" },
-		],
-	},
-	services: {
-		title: "Services",
-		links: [
-			{ label: "Web Development", href: "/services/web" },
-			{ label: "Mobile Apps", href: "/services/mobile" },
-			{ label: "UI/UX Design", href: "/services/design" },
-			{ label: "Branding", href: "/services/branding" },
-			{ label: "Consulting", href: "/services/consulting" },
-		],
-	},
-	work: {
-		title: "Work",
-		links: [
-			{ label: "All Projects", href: "/work" },
-			{ label: "Case Studies", href: "/work#case-studies" },
-			{ label: "Industries", href: "/work#industries" },
-		],
-	},
-	resources: {
-		title: "Resources",
-		links: [
-			{ label: "Blog", href: "/blog" },
-			{ label: "Insights", href: "/insights" },
-			{ label: "FAQ", href: "/faq" },
-		],
-	},
-};
+const DEFAULT_TAGLINE =
+	"An independent software studio in Warsaw, building brand-led websites, platforms, and digital products with ambitious teams around the world.";
+const DEFAULT_EMAIL = "contact@untabstudio.com";
+const DEFAULT_CITY = "Warsaw, Poland";
+const DEFAULT_TIMEZONE = "CET · UTC+1";
 
-const socialLinks = [
-	{ label: "LinkedIn", icon: Linkedin01Icon, href: "https://linkedin.com" },
-	{ label: "Instagram", icon: InstagramIcon, href: "https://instagram.com" },
-	{ label: "Twitter", icon: NewTwitterIcon, href: "https://twitter.com" },
-	{ label: "Dribbble", icon: DribbbleIcon, href: "https://dribbble.com" },
+// Nav routes stay in code — they map to real pages, so they can't be edited
+// away into broken links from the CMS.
+const studioLinks = [
+	{ label: "Home", href: "/" },
+	{ label: "Work", href: "/work" },
+	{ label: "Services", href: "/services" },
+	{ label: "About", href: "/about" },
+	{ label: "Blog", href: "/blog" },
+	{ label: "Contact", href: "/contact" },
 ];
 
-export function Footer() {
+const socialLinks = [
+	{ label: "LinkedIn", icon: Linkedin01Icon, href: SOCIALS.linkedin },
+	{ label: "Instagram", icon: InstagramIcon, href: SOCIALS.instagram },
+	{ label: "Twitter", icon: NewTwitterIcon, href: SOCIALS.twitter },
+	{ label: "Dribbble", icon: DribbbleIcon, href: SOCIALS.dribbble },
+	{ label: "GitHub", icon: GithubIcon, href: SOCIALS.github },
+];
+
+const SECTION_LABEL =
+	"text-[11px] font-medium uppercase tracking-[0.22em] text-surface-deep-foreground";
+const LINK =
+	"inline-block text-[15px] text-surface-deep-foreground transition-opacity duration-200 hover:opacity-70";
+
+type FooterProps = Pick<
+	Settings,
+	| "footerTagline"
+	| "studioTypeLabel"
+	| "contactEmail"
+	| "studioCity"
+	| "timezone"
+>;
+
+export function Footer({
+	footerTagline,
+	studioTypeLabel = "Software Studio",
+	contactEmail,
+	studioCity,
+	timezone,
+}: FooterProps = {}) {
+	const year = new Date().getFullYear();
+	const footerRef = useRef<HTMLElement>(null);
+	const grainId = useId();
+
+	const email = contactEmail ?? DEFAULT_EMAIL;
+	const contactLinks: Array<{ label: string; href?: string }> = [
+		{ label: email, href: `mailto:${email}` },
+		{ label: "Book a call", href: "/contact" },
+		{ label: studioCity ?? DEFAULT_CITY },
+		{ label: timezone ?? DEFAULT_TIMEZONE },
+	];
+
+	useGSAP(
+		() =>
+			withMotion(() => {
+				const root = footerRef.current;
+				if (!root) return;
+
+				// Curtain reveal: the whole footer body eases down into place as
+				// the footer scrolls in. Scroll-linked, so scrub + ease "none",
+				// clamped so short pages don't start mid-animation.
+				gsap.fromTo(
+					root.querySelector(".fx-inner"),
+					{ yPercent: -10 },
+					{
+						yPercent: 0,
+						ease: "none",
+						scrollTrigger: {
+							trigger: root,
+							start: "clamp(top bottom)",
+							end: "clamp(top 25%)",
+							scrub: true,
+						},
+					},
+				);
+
+				// Entrance: one timeline, one ScrollTrigger. Only reverses on
+				// scroll-up (onLeaveBack) — NOT "play reverse play reverse". The
+				// footer is the last element, so its trigger end sits past the max
+				// scroll and gets clamped there; a reverse-on-leave would fire at
+				// the page bottom and hide the footer exactly when it's in view.
+				const tl = gsap.timeline({
+					defaults: { ease: "expo.out" },
+					scrollTrigger: {
+						trigger: root,
+						start: "top 85%",
+						toggleActions: "play none none reverse",
+					},
+				});
+
+				tl.from(
+					root.querySelectorAll(".fx-logo"),
+					{ y: 24, autoAlpha: 0, duration: 0.9 },
+					0,
+				)
+					.from(
+						root.querySelectorAll(".fx-tagline-line"),
+						{ y: 28, autoAlpha: 0, duration: 0.9, stagger: 0.08 },
+						0.1,
+					)
+					.from(
+						root.querySelectorAll(".fx-col-label"),
+						{ y: 14, autoAlpha: 0, duration: 0.7, stagger: 0.06 },
+						0.15,
+					)
+					.from(
+						root.querySelectorAll(".fx-link"),
+						{ y: 10, autoAlpha: 0, duration: 0.5, stagger: 0.04 },
+						0.25,
+					)
+					.from(
+						root.querySelector(".fx-divider"),
+						{
+							scaleX: 0,
+							transformOrigin: "left center",
+							duration: 1,
+						},
+						0.35,
+					)
+					.from(
+						root.querySelectorAll(".fx-meta"),
+						{ y: 10, autoAlpha: 0, duration: 0.6, stagger: 0.06 },
+						0.45,
+					);
+			}),
+		{ scope: footerRef },
+	);
+
 	return (
-		<footer className="w-full bg-[#181A19] text-foreground">
-			<div className="mx-auto max-w-360 px-6 md:px-12 lg:px-24">
-				{/* Top Section - Logo */}
-				<div className="py-12 md:py-16">
-					<Logo className="scale-125 origin-left" />
-				</div>
+		<footer
+			ref={footerRef}
+			// Fixed dark-ink surface in both themes, so pin the foreground to the
+			// cream base token instead of the theme-flipping surface foreground.
+			className="relative isolate w-full text-surface-deep-foreground [--surface-deep-foreground:var(--light)]"
+		>
+			{/* Full-bleed dark-ink surface: spans the viewport width (like a
+			    proper footer) while the content below keeps the shared max-width
+			    rails. left-1/2 + -ml-[50vw] + w-screen resolves to the viewport
+			    edges because the footer is centered in the page container. */}
+			<div className="pointer-events-none absolute inset-y-0 left-1/2 -z-10 -ml-[50vw] w-screen overflow-hidden bg-[var(--dark)]">
+				<svg
+					aria-hidden
+					className="size-full opacity-[0.12] mix-blend-soft-light"
+					preserveAspectRatio="none"
+				>
+					<title>texture</title>
+					<filter id={grainId}>
+						<feTurbulence
+							type="fractalNoise"
+							baseFrequency="0.72"
+							numOctaves="3"
+							stitchTiles="stitch"
+						/>
+						<feColorMatrix
+							type="matrix"
+							values="0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0.45 0.45 0.45 0 0"
+						/>
+					</filter>
+					<rect width="100%" height="100%" filter={`url(#${grainId})`} />
+				</svg>
+			</div>
 
-				{/* Main Content */}
-				<div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 pb-16">
-					{/* Left Side - CTA Box + Contact */}
-					<div className="lg:col-span-4 flex flex-col gap-10">
-						{/* CTA Box */}
-						<div className="bg-primary p-8 md:p-10">
-							<h2 className="text-2xl md:text-3xl font-light text-primary-foreground leading-tight mb-3">
-								Let&apos;s start
-								<br />
-								<span className="font-medium">your project</span>
-							</h2>
-							<p className="text-primary-foreground/80 text-sm font-light mb-6">
-								Ready to bring your vision to life? Let&apos;s create something
-								extraordinary together.
-							</p>
-							<input
-								type="email"
-								placeholder="Enter your email"
-								className="w-full bg-background text-foreground placeholder:text-muted-foreground px-4 py-3 text-sm outline-none"
-							/>
-						</div>
+			<div className="fx-inner container relative px-6 py-20 md:px-12 md:py-24 lg:px-24">
+				<div className="grid grid-cols-1 gap-16 md:grid-cols-12 md:gap-10 lg:gap-12">
+					<div className="flex flex-col items-start gap-6 md:col-span-6 lg:col-span-5">
+						<LogoWordmark
+							aria-label="Untab Studio"
+							className="fx-logo block h-10 md:h-12 w-auto text-surface-deep-foreground"
+						/>
+						<p className="fx-tagline-line max-w-sm text-pretty text-[15px] font-light leading-[1.6] text-surface-deep-foreground">
+							{footerTagline ?? DEFAULT_TAGLINE}
+						</p>
+						<p className="fx-tagline-line text-[11px] font-medium uppercase tracking-[0.22em] text-surface-deep-foreground">
+							{studioTypeLabel}
+						</p>
+					</div>
 
-						{/* Contact & Social */}
-						<div className="flex flex-col gap-4">
-							<Link
-								href="mailto:contact@untabstudio.com"
-								className="text-primary hover:text-primary/80 text-sm font-medium transition-colors"
-							>
-								contact@untabstudio.com
-							</Link>
-							<p className="text-sm text-muted-foreground">Warsaw, Poland</p>
-							<div className="flex items-center gap-3 mt-2">
-								{socialLinks.map((social) => (
+					<nav
+						aria-label="Studio"
+						className="md:col-span-3 md:col-start-7 lg:col-span-2 lg:col-start-7"
+					>
+						<h3 className={`fx-col-label ${SECTION_LABEL}`}>Untab</h3>
+						<ul className="mt-6 flex flex-col gap-3">
+							{studioLinks.map((link) => (
+								<li key={link.label} className="fx-link">
+									<Link href={link.href} className={LINK}>
+										{link.label}
+									</Link>
+								</li>
+							))}
+						</ul>
+					</nav>
+
+					<div className="md:col-span-3 lg:col-span-2 lg:col-start-9">
+						<h3 className={`fx-col-label ${SECTION_LABEL}`}>Contact</h3>
+						<ul className="mt-6 flex flex-col gap-3">
+							{contactLinks.map((item) =>
+								item.href ? (
+									<li key={item.label} className="fx-link">
+										<Link href={item.href} className={LINK}>
+											{item.label}
+										</Link>
+									</li>
+								) : (
+									<li
+										key={item.label}
+										className="fx-link text-[15px] text-surface-deep-foreground"
+									>
+										{item.label}
+									</li>
+								),
+							)}
+						</ul>
+					</div>
+
+					<nav
+						aria-label="Social"
+						className="md:col-span-3 md:col-start-10 lg:col-span-2 lg:col-start-11"
+					>
+						<h3 className={`fx-col-label ${SECTION_LABEL}`}>Follow us</h3>
+						<ul className="mt-6 flex flex-col gap-3">
+							{socialLinks.map((social) => (
+								<li key={social.label} className="fx-link">
 									<Link
-										key={social.label}
 										href={social.href}
-										className="flex size-10 items-center justify-center rounded-full border border-[#514e4e] text-muted-foreground hover:border-foreground/30 hover:text-foreground transition-all"
+										className={`${LINK} group inline-flex items-center gap-2.5`}
 									>
 										<HugeiconsIcon
 											icon={social.icon}
-											className="size-4"
+											className="size-4 text-surface-deep-foreground"
 											strokeWidth={1.5}
 										/>
-										<span className="sr-only">{social.label}</span>
+										<span>{social.label}</span>
 									</Link>
-								))}
-							</div>
-						</div>
-					</div>
-
-					{/* Right Side - Link Columns */}
-					<div className="lg:col-span-8">
-						<div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-6">
-							{Object.values(footerLinks).map((section) => (
-								<div key={section.title}>
-									<h3 className="text-sm font-medium text-foreground mb-5">
-										{section.title}
-									</h3>
-									<ul className="flex flex-col gap-2.5">
-										{section.links.map((link) => (
-											<li key={link.label}>
-												<Link
-													href={link.href}
-													className="text-sm text-muted-foreground hover:text-primary transition-colors"
-												>
-													{link.label}
-												</Link>
-											</li>
-										))}
-									</ul>
-								</div>
+								</li>
 							))}
-						</div>
-					</div>
+						</ul>
+					</nav>
 				</div>
 
-				{/* Bottom Bar */}
-				<div className="border-t border-[#514e4e] py-6">
-					<div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-						<p className="text-xs text-muted-foreground">
-							Copyright © {new Date().getFullYear()} Untab Studio. All rights
-							reserved.
-						</p>
-						<Link
-							href="/privacy"
-							className="text-xs text-muted-foreground hover:text-foreground underline underline-offset-2 transition-colors"
-						>
-							Privacy Policy
-						</Link>
-					</div>
+				<div className="fx-divider mt-20 md:mt-24 h-px w-full bg-surface-deep-foreground/12" />
+
+				<div className="mt-6 flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+					<p className="fx-meta text-xs text-surface-deep-foreground">
+						© {year} Untab Studio. All rights reserved.
+					</p>
+					<p className="fx-meta text-xs text-surface-deep-foreground">
+						Crafted in Warsaw, Poland.
+					</p>
 				</div>
 			</div>
 		</footer>

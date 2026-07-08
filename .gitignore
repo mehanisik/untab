@@ -2,13 +2,6 @@
 
 # dependencies
 /node_modules
-/.pnp
-.pnp.*
-.yarn/*
-!.yarn/patches
-!.yarn/plugins
-!.yarn/releases
-!.yarn/versions
 
 # testing
 /coverage
@@ -47,3 +40,15 @@ next-env.d.ts
 
 # react-email
 .react-email/
+
+# local planning notes (not part of the codebase)
+plans/
+
+# claude code local (machine-specific permission overrides)
+.claude/settings.local.json
+
+# sanity seed assets (uploaded to Sanity, not tracked - 26MB of binaries)
+sanity/seed/images/*
+!sanity/seed/images/README.md
+*.bak
+.posters-preview/

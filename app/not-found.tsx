@@ -4,82 +4,94 @@ import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { useRef } from "react";
 import { Link } from "~/components/ui/link";
-import { Wrapper } from "~/components/wrapper";
+import { withMotion } from "~/libs/gsap/presets";
 
 export default function NotFound() {
-	const containerRef = useRef<HTMLDivElement>(null);
-	const titleRef = useRef<HTMLHeadingElement>(null);
+	const rootRef = useRef<HTMLElement>(null);
 
 	useGSAP(
-		() => {
-			gsap.from(".not-found-fade", {
-				opacity: 0,
-				y: 30,
-				duration: 1.2,
-				stagger: 0.2,
-				ease: "power3.out",
-			});
+		() =>
+			withMotion(() => {
+				const root = rootRef.current;
+				if (!root) return;
 
-			gsap.to(titleRef.current, {
-				y: -20,
-				duration: 2,
-				repeat: -1,
-				yoyo: true,
-				ease: "power1.inOut",
-			});
-		},
-		{ scope: containerRef },
+				const tl = gsap.timeline({ defaults: { ease: "expo.out" } });
+				tl.from(
+					root.querySelectorAll(".nf-line"),
+					{ yPercent: 110, duration: 0.9, stagger: 0.12 },
+					0.1,
+				).from(
+					root.querySelectorAll(".nf-fade"),
+					{ y: 18, autoAlpha: 0, duration: 0.8, stagger: 0.1 },
+					0.4,
+				);
+
+				// The disc drifts slowly, the only continuous motion on the page.
+				gsap.to(root.querySelector(".nf-disc"), {
+					y: -24,
+					duration: 5,
+					repeat: -1,
+					yoyo: true,
+					ease: "sine.inOut",
+				});
+			}),
+		{ scope: rootRef },
 	);
 
 	return (
-		<Wrapper>
-			<main
-				ref={containerRef}
-				className="grow bg-background text-foreground min-h-screen relative overflow-hidden flex flex-col items-center justify-center"
-			>
-				<div
-					className="grain-bg absolute inset-0 opacity-5 dark:opacity-10 pointer-events-none"
-					style={{
-						backgroundImage:
-							'url("https://grainy-gradients.vercel.app/noise.svg")',
-					}}
-				/>
+		<main
+			ref={rootRef}
+			className="relative flex min-h-dvh flex-col overflow-hidden bg-background text-foreground"
+		>
+			<div
+				aria-hidden
+				className="nf-disc halftone-disc pointer-events-none absolute right-[-8rem] top-1/2 size-[24rem] -translate-y-1/2 opacity-60 md:right-[6vw] md:size-[30rem]"
+			/>
 
-				<div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 size-[600px] bg-primary/5 dark:bg-primary/10 blur-[120px] rounded-full pointer-events-none" />
+			<div className="container flex grow flex-col justify-center px-6 py-24 md:px-12 lg:px-24">
+				<p className="nf-fade mb-8 font-mono text-[11px] uppercase tracking-[0.25em] text-foreground/50 md:mb-10">
+					Error <span className="tabular-nums">(404)</span>
+				</p>
 
-				<div className="relative z-10 flex flex-col items-center text-center">
-					<div className="not-found-fade mb-8 text-[10px] font-bold uppercase tracking-[0.5em] text-primary">
-						Error 404 / Void Detected
-					</div>
+				<h1 className="max-w-[16ch] text-balance font-medium leading-[1.02] tracking-[-0.03em] text-[clamp(2.25rem,5vw,4rem)]">
+					<span className="block overflow-hidden pb-1">
+						<span className="nf-line block">This page went missing.</span>
+					</span>
+					<span className="block overflow-hidden pb-1">
+						<span className="nf-line block text-[var(--brand-coral-accent)]">
+							The work didn&apos;t.
+						</span>
+					</span>
+				</h1>
 
-					<h1
-						ref={titleRef}
-						className="not-found-fade text-[clamp(6rem,25vw,18rem)] font-black leading-[0.8] tracking-tighter uppercase italic perspective-1000"
+				<p className="nf-fade mt-8 max-w-[44ch] text-pretty text-[15px] leading-relaxed text-foreground/60">
+					The address may be mistyped, or the page has moved on. Start from
+					home, or head straight to the work.
+				</p>
+
+				<div className="nf-fade mt-10 flex flex-wrap items-center gap-6">
+					<Link
+						href="/"
+						className="inline-flex items-center gap-3 rounded-full bg-foreground px-8 py-3.5 text-[12px] font-semibold uppercase tracking-[0.18em] text-background transition-opacity duration-200 hover:opacity-85"
 					>
-						Lost.
-					</h1>
-
-					<div className="not-found-fade mt-16 flex flex-col items-center gap-8">
-						<p className="text-xl md:text-2xl font-light text-muted-foreground leading-relaxed max-w-md italic">
-							The page you seek has drifted into the digital ether. It either
-							never existed or has been reclaimed by the void.
-						</p>
-
-						<Link
-							href="/"
-							className="group relative w-fit overflow-hidden border border-primary px-12 py-6 text-xs font-black uppercase tracking-[0.3em] bg-transparent text-foreground hover:text-black transition-colors"
-						>
-							<span className="relative z-10">Return to Studio</span>
-							<div className="absolute inset-0 z-0 bg-primary translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-in-out" />
-						</Link>
-					</div>
+						Back home
+					</Link>
+					<Link
+						href="/work"
+						className="inline-flex min-h-11 items-center gap-2 text-[14px] font-medium tracking-[-0.01em] text-foreground transition-opacity hover:opacity-60"
+					>
+						View the work
+						<span aria-hidden>→</span>
+					</Link>
 				</div>
+			</div>
 
-				<div className="not-found-fade absolute bottom-12 left-0 w-full px-12 flex justify-between items-center text-[8px] uppercase tracking-widest font-bold text-muted-foreground/30">
-					<span>Coordinates: Null</span>
-					<span>Status: Drifted</span>
+			<div className="nf-fade container px-6 pb-8 md:px-12 lg:px-24">
+				<div className="flex items-center justify-between border-t border-foreground/10 pt-5 font-mono text-[10px] uppercase tracking-[0.22em] text-foreground/35">
+					<span className="tabular-nums">404</span>
+					<span>untab studio</span>
 				</div>
-			</main>
-		</Wrapper>
+			</div>
+		</main>
 	);
 }

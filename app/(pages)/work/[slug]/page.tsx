@@ -1,56 +1,106 @@
-import { notFound } from "next/navigation";
-import { getProjectBySlug, getProjects } from "~/libs/projects";
-import { ProjectView } from "./_components/project-view";
-import { generateSanityMetadata } from "~/libs/metadata";
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
+import { JsonLd } from "~/components/json-ld";
+import { generatePageMetadata, SITE_URL } from "~/libs/metadata";
+import { getProjectBySlug, getProjects } from "~/libs/projects";
+import { CaseStudy } from "./_components";
 
 interface PageProps {
 	params: Promise<{ slug: string }>;
+}
+
+export async function generateStaticParams() {
+	// Cache Components requires generateStaticParams to return at least one
+	// entry. When Sanity has no projects (unseeded dataset) or is unreachable at
+	// build time (CI without real credentials), emit a placeholder slug the page
+	// resolves to notFound(), so the route still builds.
+	// Mirrors darkroomengineering/satus.
+	const fallback = [{ slug: "project-not-found" }];
+	try {
+		const projects = await getProjects();
+		const params = projects.map((p) => ({ slug: p.slug }));
+		return params.length > 0 ? params : fallback;
+	} catch {
+		return fallback;
+	}
 }
 
 export async function generateMetadata({
 	params,
 }: PageProps): Promise<Metadata> {
 	const { slug } = await params;
-	const project = await getProjectBySlug(slug);
-
-	if (!project) return {};
-
-	return generateSanityMetadata({
-		document: project,
-		url: `/work/${slug}`,
-		type: "website",
+	// stega:false — keep invisible Visual-Editing chars out of <head>.
+	const study = await getProjectBySlug(slug, { stega: false });
+	if (!study) return generatePageMetadata({ title: "Case study" });
+	const cover = study.cardImage ?? study.image;
+	return generatePageMetadata({
+		title: study.title,
+		description:
+			study.description ||
+			study.about?.[0] ||
+			`${study.title} case study by Untab Studio.`,
+		url: `/work/${study.slug}`,
+		type: "article",
+		image: cover ? { url: cover, alt: `${study.title} cover` } : undefined,
 	});
 }
 
-export default async function ProjectPage({ params }: PageProps) {
+export default async function CaseStudyPage({ params }: PageProps) {
 	const { slug } = await params;
-	const project = await getProjectBySlug(slug);
+	const study = await getProjectBySlug(slug);
+	if (!study) notFound();
 
-	if (!project) {
-		notFound();
-	}
+	const url = `${SITE_URL}/work/${study.slug}`;
 
-	const projects = await getProjects();
-	const nextProject =
-		projects[
-			(projects.findIndex((p) => p.slug === slug) + 1) % projects.length
-		];
-
-	return <ProjectView project={project} nextProject={nextProject} />;
-}
-
-export async function generateStaticParams() {
-	// Cache Components requires at least one result. When Sanity is unreachable
-	// at build time (e.g. CI without real credentials) we fall back to a single
-	// placeholder slug; the page handler 404s anything it can't resolve anyway.
-	const fallback = [{ slug: "_" }];
-	try {
-		const projects = await getProjects();
-		return projects.length > 0
-			? projects.map((project) => ({ slug: project.slug }))
-			: fallback;
-	} catch {
-		return fallback;
-	}
+	return (
+		<main className="grow bg-background pt-14">
+			<JsonLd
+				data={{
+					"@context": "https://schema.org",
+					"@graph": [
+						{
+							"@type": "CreativeWork",
+							"@id": `${url}#work`,
+							name: study.title,
+							description:
+								study.description ||
+								study.about?.[0] ||
+								`${study.title} case study by Untab Studio.`,
+							url,
+							...(study.image && { image: study.image }),
+							...(study.year && { dateCreated: study.year }),
+							...(study.category && { genre: study.category }),
+							...(study.techStack?.length && {
+								keywords: study.techStack.join(", "),
+							}),
+							...(study.client?.name && { about: study.client.name }),
+							creator: {
+								"@type": "Organization",
+								"@id": `${SITE_URL}/#organization`,
+								name: "Untab Studio",
+							},
+						},
+						{
+							"@type": "BreadcrumbList",
+							itemListElement: [
+								{
+									"@type": "ListItem",
+									position: 1,
+									name: "Work",
+									item: `${SITE_URL}/work`,
+								},
+								{
+									"@type": "ListItem",
+									position: 2,
+									name: study.title,
+									item: url,
+								},
+							],
+						},
+					],
+				}}
+			/>
+			<CaseStudy study={study} />
+		</main>
+	);
 }

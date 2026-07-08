@@ -1,6 +1,32 @@
-import { cache } from "react";
-import { fetchSanity, QUERIES, urlFor } from "./sanity";
 import type { PortableTextBlock } from "next-sanity";
+import { cache } from "react";
+import { fetchSanity } from "./live";
+import { PROJECT_IMAGE_FALLBACK, sanityAspect } from "./project-media";
+import { QUERIES } from "./sanity";
+
+// Strip zero-width / invisible Unicode characters that Sanity content sometimes
+// carries (ZWSP, ZWNJ, ZWJ, word joiner, BOM, combining grapheme joiner, etc.).
+// These corrupt rendered widths and break tight layouts.
+const INVISIBLE_CHARS = /­|͏|؜|឴|឵|᠎|[​-‏]|[‪-‮]|[⁠-⁤]|[⁪-⁯]|﻿/g;
+
+const cleanString = (value: unknown): unknown => {
+	if (typeof value === "string") return value.replace(INVISIBLE_CHARS, "");
+	if (Array.isArray(value)) return value.map(cleanString);
+	if (value && typeof value === "object") {
+		const out: Record<string, unknown> = {};
+		for (const [k, v] of Object.entries(value as Record<string, unknown>)) {
+			out[k] = cleanString(v);
+		}
+		return out;
+	}
+	return value;
+};
+
+const sanitize = <T>(value: T): T => cleanString(value) as T;
+
+export type MediaItem =
+	| { kind: "image"; src: string; alt?: string; aspect?: number }
+	| { kind: "video"; src: string; poster?: string; aspect?: number };
 
 export interface Project {
 	_id?: string;
@@ -13,7 +39,17 @@ export interface Project {
 	description: string;
 	accentColor?: string;
 	image: string;
+	// Editor-authored alt text (falls back to the project title in components).
+	imageAlt?: string;
+	// Normalised 0–1 focal point set in Sanity Studio. When present the hero
+	// mosaic crops around it; otherwise it falls back to a content-aware crop.
+	imageHotspot?: { x: number; y: number };
+	cardImage?: string;
+	cardImageAlt?: string;
+	cardImageHotspot?: { x: number; y: number };
+	previewVideo?: string;
 	gallery?: string[];
+	galleryAlt?: (string | null)[];
 	client?: {
 		name?: string;
 		logo?: string;
@@ -48,6 +84,16 @@ export interface Project {
 		appStore?: string;
 	};
 	featured?: boolean;
+	// Case study (detail page) fields. `about`/`services`/`timeline`/`honors`
+	// come straight from Sanity; `stack`/`visitUrl`/`media` are derived from
+	// existing fields (techStack, links/client, image+gallery) in the loader.
+	about?: string[];
+	services?: string[];
+	timeline?: string;
+	honors?: string[];
+	stack?: string[];
+	visitUrl?: string;
+	media?: MediaItem[];
 }
 
 export const getProjects = cache(async (): Promise<Project[]> => {
@@ -56,13 +102,16 @@ export const getProjects = cache(async (): Promise<Project[]> => {
 			"project",
 		]);
 		if (sanityProjects && sanityProjects.length > 0) {
-			return sanityProjects.map((p) => {
+			return sanityProjects.map((raw) => {
+				const p = sanitize(raw);
 				const slug = p.slug;
 				return {
 					...p,
 					slug,
 					href: `/work/${slug}`,
-					image: p.image ? urlFor(p.image).url() : "/projects/placeholder.png",
+					// GROQ already resolves image to a URL string (image.asset->url).
+					image: p.image || PROJECT_IMAGE_FALLBACK,
+					cardImage: p.cardImage || p.image || PROJECT_IMAGE_FALLBACK,
 					gradient: p.gradient || "from-zinc-900 to-zinc-800",
 					accentColor: p.accentColor || "zinc",
 					branding: p.branding || { colors: [], typography: [] },
@@ -76,25 +125,51 @@ export const getProjects = cache(async (): Promise<Project[]> => {
 });
 
 export const getProjectBySlug = cache(
-	async (slug: string): Promise<Project | null> => {
+	async (slug: string, opts?: { stega?: boolean }): Promise<Project | null> => {
 		try {
 			const project = await fetchSanity<Project>(
 				QUERIES.projectBySlug,
 				{ slug },
 				[`project:${slug}`],
+				opts,
 			);
 			if (project) {
-				const slugVal = project.slug;
+				const clean = sanitize(project);
+				const slugVal = clean.slug;
+				// GROQ already resolves image/gallery to URL strings.
+				const image = clean.image || PROJECT_IMAGE_FALLBACK;
+				const gallery = clean.gallery ?? [];
+				// Prefer editor-authored alt; otherwise a descriptive, non-empty
+				// fallback built from the project title and category (never "").
+				const fallbackAlt = clean.category
+					? `${clean.title} — ${clean.category}`
+					: clean.title;
+				const media: MediaItem[] = [
+					{
+						kind: "image",
+						src: image,
+						alt: clean.imageAlt || fallbackAlt,
+						aspect: sanityAspect(image),
+					},
+					...gallery.map((src, i) => ({
+						kind: "image" as const,
+						src,
+						alt: clean.galleryAlt?.[i] || `${fallbackAlt}, image ${i + 2}`,
+						aspect: sanityAspect(src),
+					})),
+				];
 				return {
-					...project,
+					...clean,
 					slug: slugVal,
 					href: `/work/${slugVal}`,
-					image: project.image
-						? urlFor(project.image).url()
-						: "/projects/placeholder.png",
-					gradient: project.gradient || "from-zinc-900 to-zinc-800",
-					accentColor: project.accentColor || "zinc",
-					branding: project.branding || { colors: [], typography: [] },
+					image,
+					cardImage: clean.cardImage || image,
+					gradient: clean.gradient || "from-zinc-900 to-zinc-800",
+					accentColor: clean.accentColor || "zinc",
+					branding: clean.branding || { colors: [], typography: [] },
+					stack: clean.techStack ?? [],
+					visitUrl: clean.links?.live ?? clean.client?.website,
+					media,
 				};
 			}
 		} catch (error) {

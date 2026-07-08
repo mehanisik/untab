@@ -1,315 +1,197 @@
 "use client";
 
+import { useGSAP } from "@gsap/react";
+import {
+	DribbbleIcon,
+	GithubIcon,
+	InstagramIcon,
+	Linkedin01Icon,
+	NewTwitterIcon,
+} from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 import gsap from "gsap";
-import { useRef, useState } from "react";
-import { Input } from "~/components/ui/input";
-import { Textarea } from "~/components/ui/textarea";
-import { Button } from "~/components/ui/button";
-import { sendContactEmail } from "~/app/actions/contact";
-import { toast } from "sonner";
-import { cn } from "~/libs/utils";
-import { Typewriter } from "./typewriter";
+import { useRef } from "react";
+import { Container } from "~/components/container";
+import { LogoWordmark } from "~/components/logo-wordmark";
+import { Link } from "~/components/ui/link";
+import { withMotion } from "~/libs/gsap/presets";
+import type { Contact } from "~/libs/sanity";
+import { SOCIALS } from "~/libs/socials";
+import { pad } from "~/libs/utils";
+import { ContactFormPanel } from "./contact-form-panel";
 
-const PROJECT_TYPES = [
-	"Web Design",
-	"Development",
-	"Branding",
-	"Creative Tech",
-	"Full Product",
-] as const;
+// Split-card contact layout: a theme-aware info panel on the left, a fixed
+// brand coral form block on the right with ink type. The card flips with the
+// theme; the coral block is a brand statement and stays put in both.
 
-export function ContactForm() {
-	const [step, setStep] = useState(0);
-	const [formData, setFormData] = useState({
-		name: "",
-		email: "",
-		projectType: "Web Design" as string,
-		message: "",
-	});
-	const [status, setStatus] = useState<"idle" | "submitting" | "success">(
-		"idle",
-	);
-	const [isTyping, setIsTyping] = useState(true);
-	const stepRef = useRef<HTMLDivElement>(null);
-	const magneticRef = useRef<HTMLButtonElement>(null);
+const socialLinks = [
+	{ label: "LinkedIn", icon: Linkedin01Icon, href: SOCIALS.linkedin },
+	{ label: "Instagram", icon: InstagramIcon, href: SOCIALS.instagram },
+	{ label: "Twitter", icon: NewTwitterIcon, href: SOCIALS.twitter },
+	{ label: "Dribbble", icon: DribbbleIcon, href: SOCIALS.dribbble },
+	{ label: "GitHub", icon: GithubIcon, href: SOCIALS.github },
+];
 
-	const handleSubmit = async () => {
-		setStatus("submitting");
-		const rawFormData = new FormData();
-		Object.entries(formData).forEach(([key, value]) => {
-			rawFormData.append(key, value);
-		});
-		rawFormData.append("_honeypot", "");
+export function ContactForm({
+	headingLines = [],
+	intro,
+	infoBlocks = [],
+}: Contact) {
+	const sectionRef = useRef<HTMLElement>(null);
 
-		const result = await sendContactEmail(rawFormData);
+	useGSAP(
+		() =>
+			withMotion(() => {
+				const root = sectionRef.current;
+				if (!root) return;
 
-		if (result.success) {
-			setStatus("success");
-		} else {
-			setStatus("idle");
-			toast.error(result.error || "Something went wrong.");
-		}
-	};
+				const tl = gsap.timeline({
+					defaults: { ease: "expo.out" },
+					scrollTrigger: {
+						trigger: root,
+						start: "top 80%",
+						toggleActions: "play reverse play reverse",
+					},
+				});
 
-	const nextStep = () => {
-		if (step === 1 && !formData.name) {
-			toast.error("May we know your name?");
-			return;
-		}
-		if (step === 2 && !formData.email) {
-			toast.error("We'll need a valid email to reach you.");
-			return;
-		}
-		if (step === 4 && !formData.message) {
-			toast.error("Tell us just a little bit more.");
-			return;
-		}
-
-		if (step < 4) {
-			gsap.to(stepRef.current, {
-				opacity: 0,
-				filter: "blur(10px)",
-				y: -20,
-				duration: 0.5,
-				ease: "power2.inOut",
-				onComplete: () => {
-					setStep((prev) => prev + 1);
-					setIsTyping(true);
-					gsap.fromTo(
-						stepRef.current,
-						{ opacity: 0, y: 20, filter: "blur(10px)" },
-						{
-							opacity: 1,
-							y: 0,
-							filter: "blur(0px)",
-							duration: 0.8,
-							ease: "expo.out",
-						},
+				tl.from(
+					root.querySelector(".contact-eyebrow"),
+					{ y: 14, autoAlpha: 0, duration: 0.7 },
+					0,
+				)
+					.from(
+						root.querySelector(".contact-card"),
+						{ y: 40, autoAlpha: 0, duration: 0.9 },
+						0.05,
+					)
+					.from(
+						root.querySelectorAll(".contact-aside"),
+						{ y: 18, autoAlpha: 0, duration: 0.7, stagger: 0.08 },
+						0.2,
+					)
+					.from(
+						root.querySelectorAll(".contact-headline-line"),
+						{ yPercent: 110, duration: 0.9, stagger: 0.1 },
+						0.25,
+					)
+					// The form reveals as one block so an interrupted tween can
+					// never strand individual fields invisible.
+					.from(
+						root.querySelector(".contact-panel"),
+						{ y: 20, autoAlpha: 0, duration: 0.8 },
+						0.4,
 					);
-				},
-			});
-		} else {
-			handleSubmit();
-		}
-	};
-
-	const handleMouseMove = (e: React.MouseEvent) => {
-		if (!magneticRef.current) return;
-		const { clientX, clientY } = e;
-		const { left, top, width, height } =
-			magneticRef.current.getBoundingClientRect();
-		const x = clientX - (left + width / 2);
-		const y = clientY - (top + height / 2);
-
-		gsap.to(magneticRef.current, {
-			x: x * 0.2,
-			y: y * 0.2,
-			duration: 0.8,
-			ease: "power3.out",
-		});
-	};
-
-	const handleMouseLeave = () => {
-		if (!magneticRef.current) return;
-		gsap.to(magneticRef.current, {
-			x: 0,
-			y: 0,
-			duration: 0.8,
-			ease: "elastic.out(1, 0.3)",
-		});
-	};
-
-	const handleKeyDown = (e: React.KeyboardEvent) => {
-		if (e.key === "Enter" && !e.shiftKey) {
-			if (step === 3) return;
-			e.preventDefault();
-			if (!isTyping) nextStep();
-		}
-	};
-
-	if (status === "success") {
-		return (
-			<div className="py-20 text-center space-y-8 animate-in fade-in slide-in-from-bottom-12 duration-1000">
-				<div className="text-4xl text-primary opacity-60 italic font-extralight tracking-widest uppercase">
-					Thank you.
-				</div>
-				<h3 className="text-5xl md:text-7xl font-light tracking-tighter leading-none mb-6">
-					Your message has <br /> been received.
-				</h3>
-				<p className="text-muted-foreground max-w-sm mx-auto text-sm font-light opacity-60">
-					We will review your request and get back to you shortly.
-				</p>
-				<Button
-					variant="link"
-					onClick={() => {
-						setStep(0);
-						setStatus("idle");
-						setIsTyping(true);
-						setFormData({
-							name: "",
-							email: "",
-							projectType: "Web Design",
-							message: "",
-						});
-					}}
-					className="mt-12 text-[10px] uppercase tracking-[0.4em] font-medium text-primary hover:text-foreground transition-all"
-				>
-					Send another message
-				</Button>
-			</div>
-		);
-	}
+			}),
+		{ scope: sectionRef },
+	);
 
 	return (
 		<section
-			className="min-h-[350px] md:min-h-[450px] flex flex-col justify-center relative outline-none"
-			onKeyDown={handleKeyDown}
-			aria-label="Contact Form"
-			tabIndex={-1}
+			ref={sectionRef}
+			aria-label="Contact"
+			className="flex min-h-[calc(100dvh-3.5rem)] items-center bg-background py-10 text-foreground md:py-14"
 		>
-			<div ref={stepRef} className="space-y-8 md:space-y-12">
-				{step === 0 && (
-					<div className="space-y-8 md:space-y-12">
-						<Typewriter
-							text="Welcome. We're ready to start a new journey with you."
-							onComplete={() => setIsTyping(false)}
-							className="text-3xl md:text-5xl lg:text-6xl font-light tracking-tighter leading-tight md:leading-[1.1]"
-						/>
-						{!isTyping && (
-							<div className="animate-in fade-in slide-in-from-bottom-4 duration-1000">
-								<button
-									ref={magneticRef}
-									type="button"
-									onClick={nextStep}
-									onMouseMove={handleMouseMove}
-									onMouseLeave={handleMouseLeave}
-									className="group relative flex items-center justify-center px-8 md:px-12 py-4 md:py-5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-full text-[10px] md:text-xs font-medium uppercase tracking-[0.3em] transition-all duration-500"
-								>
-									<span className="relative z-10 flex items-center gap-3 md:gap-4">
-										Start Conversation
-										<span className="w-1.5 h-1.5 bg-primary rounded-full animate-pulse" />
-									</span>
-								</button>
-							</div>
-						)}
-					</div>
-				)}
+			<Container>
+				<h2 className="contact-eyebrow mb-8 font-mono text-[11px] uppercase tracking-[0.25em] text-foreground/50 md:mb-10">
+					Contact{" "}
+					<span className="tabular-nums">({pad(infoBlocks.length)})</span>
+				</h2>
+				<div className="contact-card overflow-hidden rounded-2xl border border-foreground/10 bg-card text-card-foreground shadow-sm">
+					<div className="grid grid-cols-1 lg:grid-cols-[2fr_3fr]">
+						{/* Left: brand, contact channels, socials */}
+						<div className="flex flex-col gap-12 p-7 sm:p-10 lg:p-12">
+							<Link
+								href="/"
+								aria-label="Untab Studio home"
+								className="contact-aside w-fit"
+							>
+								<LogoWordmark className="h-10 w-auto text-foreground md:h-12" />
+							</Link>
 
-				{step === 1 && (
-					<div className="space-y-6 md:space-y-10">
-						<Typewriter
-							text="Who are we speaking with?"
-							onComplete={() => setIsTyping(false)}
-							className="text-2xl md:text-4xl lg:text-5xl font-extralight tracking-tighter leading-tight"
-						/>
-						{!isTyping && (
-							<Input
-								autoFocus
-								placeholder="Enter your name"
-								value={formData.name}
-								onChange={(e) =>
-									setFormData((prev) => ({ ...prev, name: e.target.value }))
-								}
-								className="bg-transparent border-0 border-b border-white/10 focus:border-primary rounded-none px-0 h-16 md:h-20 text-2xl md:text-4xl lg:text-5xl font-light tracking-tighter transition-all placeholder:opacity-10 ring-0 focus-visible:ring-0"
-							/>
-						)}
-					</div>
-				)}
-
-				{step === 2 && (
-					<div className="space-y-6 md:space-y-10">
-						<Typewriter
-							text="And how can we reach you?"
-							onComplete={() => setIsTyping(false)}
-							className="text-2xl md:text-4xl lg:text-5xl font-extralight tracking-tighter leading-tight"
-						/>
-						{!isTyping && (
-							<Input
-								autoFocus
-								type="email"
-								placeholder="your@email.com"
-								value={formData.email}
-								onChange={(e) =>
-									setFormData((prev) => ({ ...prev, email: e.target.value }))
-								}
-								className="bg-transparent border-0 border-b border-white/10 focus:border-primary rounded-none px-0 h-16 md:h-20 text-2xl md:text-4xl lg:text-5xl font-light tracking-tighter transition-all placeholder:opacity-10 ring-0 focus-visible:ring-0"
-							/>
-						)}
-					</div>
-				)}
-
-				{step === 3 && (
-					<div className="space-y-6 md:space-y-10">
-						<Typewriter
-							text="What kind of project is this?"
-							onComplete={() => setIsTyping(false)}
-							className="text-2xl md:text-4xl lg:text-5xl font-extralight tracking-tighter leading-tight"
-						/>
-						{!isTyping && (
-							<div className="flex flex-wrap gap-2 md:gap-4 animate-in fade-in duration-1000">
-								{PROJECT_TYPES.map((type) => (
-									<button
-										key={type}
-										type="button"
-										onClick={() => {
-											setFormData((prev) => ({
-												...prev,
-												projectType: type,
-											}));
-											setTimeout(nextStep, 300);
-										}}
-										className={cn(
-											"px-4 md:px-8 py-2 md:py-3 border rounded-full text-[9px] md:text-[10px] font-medium uppercase tracking-widest transition-all",
-											formData.projectType === type
-												? "bg-white text-black border-white"
-												: "border-white/10 hover:border-white/40 opacity-50 hover:opacity-100",
-										)}
+							<div className="flex flex-1 flex-col">
+								{infoBlocks.map((block, index) => (
+									<div
+										key={block.title}
+										className="contact-aside flex items-baseline gap-5 border-t border-foreground/10 py-6 first:border-t-0 first:pt-0 lg:py-7"
 									>
-										{type}
-									</button>
+										<span className="font-mono text-[11px] tabular-nums text-[var(--brand-coral-accent)]">
+											{pad(index + 1)}
+										</span>
+										<div className="space-y-1.5 text-[14px] leading-relaxed">
+											<p className="text-[11px] font-medium uppercase tracking-[0.22em] text-foreground/55">
+												{block.title}
+											</p>
+											{block.body ? (
+												<p className="text-pretty text-foreground/55">
+													{block.body}
+												</p>
+											) : null}
+											<div className="pt-1 text-[15px]">
+												{block.email ? (
+													<a
+														href={`mailto:${block.email}`}
+														className="font-medium text-foreground underline-offset-4 transition-colors hover:text-[var(--brand-coral-accent)] hover:underline"
+													>
+														{block.email}
+													</a>
+												) : (
+													<p className="font-medium text-foreground">
+														{block.detailText}
+														{block.detailSubtext ? (
+															<span className="block text-[13px] font-normal text-foreground/55">
+																{block.detailSubtext}
+															</span>
+														) : null}
+													</p>
+												)}
+											</div>
+										</div>
+									</div>
 								))}
 							</div>
-						)}
-					</div>
-				)}
 
-				{step === 4 && (
-					<div className="space-y-6 md:space-y-10">
-						<Typewriter
-							text="Tell us more about your vision"
-							onComplete={() => setIsTyping(false)}
-							className="text-2xl md:text-4xl lg:text-5xl font-extralight tracking-tighter leading-tight"
-						/>
-						{!isTyping && (
-							<Textarea
-								autoFocus
-								placeholder="Describe your goals..."
-								value={formData.message}
-								onChange={(e) =>
-									setFormData((prev) => ({ ...prev, message: e.target.value }))
-								}
-								className="bg-transparent border-0 border-b border-white/10 focus:border-primary rounded-none px-0 min-h-[100px] md:min-h-[120px] text-xl md:text-3xl lg:text-4xl font-light tracking-tighter transition-all placeholder:opacity-10 resize-none ring-0 focus-visible:ring-0 leading-tight"
-							/>
-						)}
-					</div>
-				)}
+							<ul className="contact-aside flex flex-wrap gap-3">
+								{socialLinks.map((social) => (
+									<li key={social.label}>
+										<Link
+											href={social.href}
+											aria-label={social.label}
+											className="flex size-10 items-center justify-center rounded-full border border-foreground/15 text-foreground transition-colors duration-200 hover:border-transparent hover:bg-[var(--brand-coral)] hover:text-[var(--dark)]"
+										>
+											<HugeiconsIcon
+												icon={social.icon}
+												className="size-4"
+												strokeWidth={1.5}
+											/>
+										</Link>
+									</li>
+								))}
+							</ul>
+						</div>
 
-				{step > 0 && !isTyping && status !== "submitting" && (
-					<div className="animate-in fade-in slide-in-from-bottom-4 duration-1000 flex items-center gap-4 md:gap-6 text-[8px] md:text-[9px] font-medium uppercase tracking-[0.3em] md:tracking-[0.4em] text-white/30">
-						<span>Press Enter to continue</span>
-						<div className="h-px grow bg-white/5" />
-					</div>
-				)}
+						{/* Right: coral form block */}
+						<div className="bg-[var(--brand-coral)] p-7 text-[var(--dark)] sm:p-10 lg:rounded-l-2xl lg:p-12">
+							<h1 className="max-w-[18ch] font-medium leading-[1.05] tracking-[-0.03em] text-[clamp(1.9rem,3.4vw,2.9rem)]">
+								{headingLines.map((line) => (
+									<span key={line} className="block overflow-hidden pb-0.5">
+										<span className="contact-headline-line block">{line}</span>
+									</span>
+								))}
+							</h1>
 
-				{status === "submitting" && (
-					<div className="flex flex-col items-center gap-4 md:gap-6 py-10">
-						<div className="w-10 h-10 md:w-12 md:h-12 border-2 border-primary/10 border-t-primary rounded-full animate-spin" />
-						<div className="text-[9px] font-medium uppercase tracking-[0.4em] md:tracking-[0.5em] text-primary animate-pulse">
-							Our team is listening...
+							{intro ? (
+								<p className="contact-aside mt-4 text-[15px] leading-relaxed text-[var(--dark)]/70">
+									{intro}
+								</p>
+							) : null}
+
+							<div className="contact-panel mt-10">
+								<ContactFormPanel />
+							</div>
 						</div>
 					</div>
-				)}
-			</div>
+				</div>
+			</Container>
 		</section>
 	);
 }

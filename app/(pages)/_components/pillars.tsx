@@ -1,345 +1,249 @@
 "use client";
 
-import type { ReactNode } from "react";
-import { useFadeInOnScroll } from "~/hooks/use-scroll-animation";
+import { useGSAP } from "@gsap/react";
+import gsap from "gsap";
+import { Fragment, useRef } from "react";
+import { withMotion } from "~/libs/gsap/presets";
+import { pad } from "~/libs/utils";
 
-const pillars = [
+const DEFAULT_PILLARS = [
 	{
-		title: "Work as a fluent conversation",
+		title: "Fluent conversation",
 		description:
 			"We establish a workflow where we can follow our proven process while you enhance the final deliverable with your input and feedback.",
-		icon: (
-			<svg
-				viewBox="0 0 100 100"
-				fill="none"
-				xmlns="http://www.w3.org/2000/svg"
-				className="size-24"
-				aria-hidden="true"
-			>
-				<circle
-					cx="50"
-					cy="55"
-					r="30"
-					stroke="currentColor"
-					strokeWidth="1.5"
-					className="text-muted-foreground"
-				/>
-				<path
-					d="M25 40 Q45 15 70 28"
-					stroke="currentColor"
-					strokeWidth="1.5"
-					fill="none"
-					className="text-primary"
-				/>
-				<circle
-					cx="70"
-					cy="28"
-					r="10"
-					fill="currentColor"
-					className="text-primary"
-				/>
-			</svg>
-		),
 	},
 	{
-		title: "Iterative, integrated decision-making",
+		title: "Iterative decisions",
 		description:
-			"Since product teams make decisions every day, we work in short cycles with frequent feedback and maximum flexibility to adapt to your reports easily.",
-		icon: (
-			<svg
-				viewBox="0 0 100 100"
-				fill="none"
-				xmlns="http://www.w3.org/2000/svg"
-				className="size-24"
-				aria-hidden="true"
-			>
-				<circle
-					cx="38"
-					cy="40"
-					r="20"
-					stroke="currentColor"
-					strokeWidth="1.5"
-					className="text-muted-foreground"
-				/>
-				<circle
-					cx="62"
-					cy="40"
-					r="20"
-					stroke="currentColor"
-					strokeWidth="1.5"
-					className="text-muted-foreground"
-				/>
-				<circle
-					cx="50"
-					cy="60"
-					r="20"
-					stroke="currentColor"
-					strokeWidth="1.5"
-					className="text-muted-foreground"
-				/>
-			</svg>
-		),
+			"Product teams make decisions every day, so we work in short cycles with frequent feedback and maximum flexibility.",
 	},
 	{
-		title: "Shared knowledge and responsibility",
+		title: "Shared responsibility",
 		description:
-			"You are an expert in your target market, and we're masters in building digital products. We tackle the big risks early and focus on solving the right problems by working side-by-side.",
-		icon: (
-			<svg
-				viewBox="0 0 100 100"
-				fill="none"
-				xmlns="http://www.w3.org/2000/svg"
-				className="size-24"
-				aria-hidden="true"
-			>
-				<circle
-					cx="35"
-					cy="28"
-					r="10"
-					stroke="currentColor"
-					strokeWidth="1.5"
-					className="text-muted-foreground"
-				/>
-				<path
-					d="M22 80 L35 48 L48 80"
-					stroke="currentColor"
-					strokeWidth="1.5"
-					fill="none"
-					className="text-muted-foreground"
-				/>
-				<line
-					x1="22"
-					y1="80"
-					x2="48"
-					y2="80"
-					stroke="currentColor"
-					strokeWidth="1.5"
-					className="text-muted-foreground"
-				/>
-				<circle
-					cx="65"
-					cy="28"
-					r="10"
-					stroke="currentColor"
-					strokeWidth="1.5"
-					className="text-muted-foreground"
-				/>
-				<path
-					d="M52 80 L65 48 L78 80"
-					stroke="currentColor"
-					strokeWidth="1.5"
-					fill="none"
-					className="text-muted-foreground"
-				/>
-				<line
-					x1="52"
-					y1="80"
-					x2="78"
-					y2="80"
-					stroke="currentColor"
-					strokeWidth="1.5"
-					className="text-muted-foreground"
-				/>
-			</svg>
-		),
+			"You know your market, we know how to build. We tackle the big risks early and solve the right problems side-by-side.",
 	},
 ];
 
-function PillarCard({
-	pillar,
-	index,
-}: {
-	pillar: { title: string; description: string; icon: ReactNode };
-	index: number;
-}) {
-	const ref = useFadeInOnScroll<HTMLDivElement>({ delay: index * 0.15 });
-
-	return (
-		<div
-			ref={ref}
-			className="flex flex-col gap-6 rounded-2xl bg-card p-8 md:p-10"
-		>
-			<div className="mb-10">{pillar.icon}</div>
-
-			<div className="flex flex-1 flex-col gap-4">
-				<h3 className="text-xl font-medium text-foreground md:text-2xl">
-					{pillar.title}
-				</h3>
-				<p className="text-sm font-medium leading-relaxed text-muted-foreground md:text-base">
-					{pillar.description}
-				</p>
-			</div>
-		</div>
-	);
-}
+const DEFAULT_QUOTE = "Great work is a conversation, not a handoff.";
+const DEFAULT_ATTRIBUTION = "- untab studio";
+const DEFAULT_NOTE =
+	"To be honest, we'll shape the process around how your team already works. But if you like lists, here are the pillars every collaboration stands on.";
 
 interface PillarsProps {
 	title?: string;
-	subtitle?: string;
+	quote?: string;
+	attribution?: string;
+	note?: string;
 	pillars?: {
 		title: string;
 		description: string;
-		icon: string;
+		icon?: string;
 	}[];
 }
 
-const PILLAR_ICON_MAP: Record<string, ReactNode> = {
-	"fluent-conversation": (
+// Capsule outline with a curved chevron, both drawn in stroke-by-stroke on
+// scroll. On hover the capsule fills with the accent and the arrow flips dark.
+function ArrowPill() {
+	return (
 		<svg
-			viewBox="0 0 100 100"
+			viewBox="0 0 68 44"
 			fill="none"
 			xmlns="http://www.w3.org/2000/svg"
-			className="size-24"
+			className="h-10 w-[3.9rem] shrink-0 md:h-12 md:w-[4.6rem]"
 			aria-hidden="true"
 		>
-			<circle
-				cx="50"
-				cy="55"
-				r="30"
+			<title>Arrow</title>
+			<rect
+				x="1.5"
+				y="1.5"
+				width="65"
+				height="41"
+				rx="20.5"
 				stroke="currentColor"
-				strokeWidth="1.5"
-				className="text-muted-foreground"
+				strokeWidth="2"
+				className="fill-transparent transition-[fill] duration-300 group-hover:fill-[var(--brand-coral-accent)]"
 			/>
 			<path
-				d="M25 40 Q45 15 70 28"
+				d="M28 13 Q37.5 18 37.5 22 Q37.5 26 28 31"
 				stroke="currentColor"
-				strokeWidth="1.5"
-				fill="none"
-				className="text-primary"
-			/>
-			<circle
-				cx="70"
-				cy="28"
-				r="10"
-				fill="currentColor"
-				className="text-primary"
+				strokeWidth="2"
+				strokeLinecap="round"
+				strokeLinejoin="round"
+				className="transition-colors duration-300 group-hover:stroke-[#0a0a0a]"
 			/>
 		</svg>
-	),
-	"iterative-decision-making": (
-		<svg
-			viewBox="0 0 100 100"
-			fill="none"
-			xmlns="http://www.w3.org/2000/svg"
-			className="size-24"
-			aria-hidden="true"
-		>
-			<circle
-				cx="38"
-				cy="40"
-				r="20"
-				stroke="currentColor"
-				strokeWidth="1.5"
-				className="text-muted-foreground"
-			/>
-			<circle
-				cx="62"
-				cy="40"
-				r="20"
-				stroke="currentColor"
-				strokeWidth="1.5"
-				className="text-muted-foreground"
-			/>
-			<circle
-				cx="50"
-				cy="60"
-				r="20"
-				stroke="currentColor"
-				strokeWidth="1.5"
-				className="text-muted-foreground"
-			/>
-		</svg>
-	),
-	"shared-responsibility": (
-		<svg
-			viewBox="0 0 100 100"
-			fill="none"
-			xmlns="http://www.w3.org/2000/svg"
-			className="size-24"
-			aria-hidden="true"
-		>
-			<circle
-				cx="35"
-				cy="28"
-				r="10"
-				stroke="currentColor"
-				strokeWidth="1.5"
-				className="text-muted-foreground"
-			/>
-			<path
-				d="M22 80 L35 48 L48 80"
-				stroke="currentColor"
-				strokeWidth="1.5"
-				fill="none"
-				className="text-muted-foreground"
-			/>
-			<line
-				x1="22"
-				y1="80"
-				x2="48"
-				y2="80"
-				stroke="currentColor"
-				strokeWidth="1.5"
-				className="text-muted-foreground"
-			/>
-			<circle
-				cx="65"
-				cy="28"
-				r="10"
-				stroke="currentColor"
-				strokeWidth="1.5"
-				className="text-muted-foreground"
-			/>
-			<path
-				d="M52 80 L65 48 L78 80"
-				stroke="currentColor"
-				strokeWidth="1.5"
-				fill="none"
-				className="text-muted-foreground"
-			/>
-			<line
-				x1="52"
-				y1="80"
-				x2="78"
-				y2="80"
-				stroke="currentColor"
-				strokeWidth="1.5"
-				className="text-muted-foreground"
-			/>
-		</svg>
-	),
-};
+	);
+}
 
 export function Pillars({
 	title = "Our collaboration pillars",
-	subtitle = "Your success is a proxy to our purpose.",
+	quote = DEFAULT_QUOTE,
+	attribution = DEFAULT_ATTRIBUTION,
+	note = DEFAULT_NOTE,
 	pillars: dynamicPillars,
 }: PillarsProps) {
-	const headerRef = useFadeInOnScroll<HTMLDivElement>({ delay: 0 });
+	const sectionRef = useRef<HTMLElement>(null);
 
 	const displayPillars =
 		dynamicPillars?.map((p) => ({
 			title: p.title,
 			description: p.description,
-			icon: PILLAR_ICON_MAP[p.icon] || PILLAR_ICON_MAP["fluent-conversation"],
-		})) || pillars;
+		})) ?? DEFAULT_PILLARS;
+
+	const total = displayPillars.length;
+	const words = quote.split(" ");
+
+	useGSAP(
+		() =>
+			withMotion(() => {
+				const root = sectionRef.current;
+				if (!root) return;
+
+				// Quote rises word by word out of overflow masks.
+				const quoteWords = gsap.utils.toArray<HTMLElement>("[data-word]", root);
+				if (quoteWords.length) {
+					gsap.fromTo(
+						quoteWords,
+						{ yPercent: 115 },
+						{
+							yPercent: 0,
+							duration: 0.9,
+							ease: "expo.out",
+							stagger: 0.03,
+							scrollTrigger: {
+								trigger: root,
+								start: "top 70%",
+								toggleActions: "play reverse play reverse",
+							},
+						},
+					);
+				}
+
+				const fades = gsap.utils.toArray<HTMLElement>("[data-fade]", root);
+				if (fades.length) {
+					gsap.fromTo(
+						fades,
+						{ y: 24, autoAlpha: 0 },
+						{
+							y: 0,
+							autoAlpha: 1,
+							duration: 0.9,
+							ease: "expo.out",
+							stagger: 0.12,
+							delay: 0.35,
+							scrollTrigger: {
+								trigger: root,
+								start: "top 70%",
+								toggleActions: "play reverse play reverse",
+							},
+						},
+					);
+				}
+
+				// Each row slides in while its pill draws itself: capsule first,
+				// then the chevron.
+				const rows = gsap.utils.toArray<HTMLElement>("[data-row]", root);
+				rows.forEach((row) => {
+					const shapes = Array.from(
+						row.querySelectorAll<SVGGeometryElement>("[stroke]"),
+					);
+					for (const shape of shapes) {
+						const len = shape.getTotalLength();
+						shape.style.strokeDasharray = `${len}`;
+						shape.style.strokeDashoffset = `${len}`;
+					}
+
+					const tl = gsap.timeline({
+						scrollTrigger: {
+							trigger: row,
+							start: "top 85%",
+							toggleActions: "play reverse play reverse",
+						},
+					});
+					tl.fromTo(
+						row,
+						{ y: 32, autoAlpha: 0 },
+						{ y: 0, autoAlpha: 1, duration: 0.8, ease: "expo.out" },
+					).to(
+						shapes,
+						{
+							strokeDashoffset: 0,
+							duration: 0.9,
+							ease: "power2.inOut",
+							stagger: 0.15,
+						},
+						0.1,
+					);
+				});
+			}),
+		{ scope: sectionRef },
+	);
 
 	return (
-		<section className="bg-background py-20 md:py-32 lg:py-48">
-			<div className="mx-auto max-w-[1440px] px-6 md:px-12 lg:px-24">
-				<div ref={headerRef}>
-					<div className="mb-6">
-						<h2 className="text-3xl font-medium tracking-tight text-foreground sm:text-4xl md:text-5xl lg:text-6xl">
-							{title}
-						</h2>
-					</div>
-					<p className="mb-20 text-base text-muted-foreground">{subtitle}</p>
-				</div>
+		<section
+			ref={sectionRef}
+			className="bg-background py-24 text-foreground md:py-32 lg:py-40"
+		>
+			<div className="container px-6 md:px-12 lg:px-24">
+				<h2 className="mb-14 font-mono text-[11px] uppercase tracking-[0.25em] text-foreground/50 md:mb-20">
+					{title} <span className="tabular-nums">({pad(total)})</span>
+				</h2>
 
-				<div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-					{displayPillars.map((pillar, index) => (
-						<PillarCard key={pillar.title} pillar={pillar} index={index} />
-					))}
+				<div className="grid gap-16 md:grid-cols-2 md:gap-12 lg:gap-24">
+					{/* Left: accent quote, attribution, and the honest aside */}
+					<div className="flex flex-col md:pt-2">
+						<blockquote className="max-w-[18ch] text-balance font-medium leading-[1.08] tracking-[-0.02em] text-[clamp(2rem,4.2vw,3.6rem)] text-[var(--brand-coral-accent)]">
+							{words.map((word, index) => (
+								// biome-ignore lint/suspicious/noArrayIndexKey: words can repeat and never reorder
+								<Fragment key={`${index}-${word}`}>
+									<span className="-mb-[0.12em] inline-block overflow-hidden pb-[0.12em] align-top">
+										<span data-word className="inline-block">
+											{index === 0 ? `“${word}` : word}
+											{index === words.length - 1 ? "”" : ""}
+										</span>
+									</span>
+									{index < words.length - 1 ? " " : ""}
+								</Fragment>
+							))}
+						</blockquote>
+
+						<p
+							data-fade
+							className="mt-7 font-semibold uppercase tracking-[0.04em] text-[clamp(1.05rem,1.7vw,1.5rem)] text-[var(--brand-coral-accent)]"
+						>
+							{attribution}
+						</p>
+
+						<p
+							data-fade
+							className="mt-12 max-w-[46ch] text-pretty text-[15px] leading-relaxed text-foreground/70 md:mt-16"
+						>
+							{note}
+						</p>
+					</div>
+
+					{/* Right: pillar list with self-drawing arrow pills */}
+					<ul className="flex flex-col gap-10 md:gap-12">
+						{displayPillars.map((pillar) => (
+							<li
+								key={pillar.title}
+								data-row
+								className="group flex items-start gap-6 md:gap-8"
+							>
+								<span className="mt-1 text-[var(--brand-coral-accent)]">
+									<ArrowPill />
+								</span>
+								<div className="transition-transform duration-300 ease-out group-hover:translate-x-1">
+									<h3 className="text-balance font-medium leading-[1.05] tracking-[-0.02em] text-[clamp(1.75rem,3.2vw,3rem)]">
+										{pillar.title}
+									</h3>
+									<p className="mt-2 max-w-[42ch] text-pretty text-[14px] leading-relaxed text-foreground/55">
+										{pillar.description}
+									</p>
+								</div>
+							</li>
+						))}
+					</ul>
 				</div>
 			</div>
 		</section>

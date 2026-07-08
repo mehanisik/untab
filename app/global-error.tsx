@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { getPostHog } from "~/libs/posthog";
 
 export default function GlobalError({
 	error,
@@ -11,6 +12,7 @@ export default function GlobalError({
 }) {
 	useEffect(() => {
 		console.error("Global error boundary caught:", error);
+		getPostHog()?.captureException(error);
 	}, [error]);
 
 	return (

@@ -1,5 +1,5 @@
-import bundleAnalyzer from "@next/bundle-analyzer";
 import type { NextConfig } from "next";
+import { sanity } from "next-sanity/live/cache-life";
 
 const nextConfig: NextConfig = {
 	reactStrictMode: true,
@@ -71,35 +71,47 @@ const nextConfig: NextConfig = {
 		reactRemoveProperties: true,
 	},
 	cacheComponents: true,
+	// Sanity Live revalidates on demand, so cached Sanity data can live long.
+	cacheLife: { default: sanity },
 	compress: true,
+	logging: {
+		browserToTerminal: true,
+	},
 	experimental: {
-		turbopackFileSystemCacheForDev: true,
+		turbopackFileSystemCacheForDev: process.env.NODE_ENV !== "production",
 		taint: true,
-		browserDebugInfoInTerminal: true,
 		// isolatedDevBuild: true,
 		optimizePackageImports: [
 			"gsap",
-			"postprocessing",
-			"@base-ui-components/react",
 			"lenis",
-			"zustand",
+			"@hugeicons/react",
+			"@hugeicons/core-free-icons",
 		],
 	},
 	devIndicators: false,
 	images: {
 		dangerouslyAllowSVG: true,
+		contentDispositionType: "attachment",
+		contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
 		remotePatterns: [
 			{
 				protocol: "https",
 				hostname: "cdn.sanity.io",
 			},
+			// Last-resort hero fallback only (never fires when projects have images).
 			{
 				protocol: "https",
-				hostname: "cdn.shopify.com",
+				hostname: "picsum.photos",
+			},
+			{
+				protocol: "https",
+				hostname: "fastly.picsum.photos",
 			},
 		],
 		minimumCacheTTL: 60 * 60 * 24 * 30, // 30 days
-		qualities: [90],
+		// 75 is the wrapper default (AVIF q75 is visually near-lossless for
+		// photos); 90 stays allowlisted for hero/detail shots that opt in.
+		qualities: [75, 90],
 		formats: ["image/avif", "image/webp"],
 		deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
 		imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
@@ -135,6 +147,21 @@ const nextConfig: NextConfig = {
 			],
 		},
 	],
+	skipTrailingSlashRedirect: true,
+	rewrites: async () => [
+		{
+			source: "/ingest/static/:path*",
+			destination: "https://eu-assets.i.posthog.com/static/:path*",
+		},
+		{
+			source: "/ingest/array/:path*",
+			destination: "https://eu-assets.i.posthog.com/array/:path*",
+		},
+		{
+			source: "/ingest/:path*",
+			destination: "https://eu.i.posthog.com/:path*",
+		},
+	],
 	redirects: async () => [
 		{
 			source: "/home",
@@ -144,13 +171,4 @@ const nextConfig: NextConfig = {
 	],
 };
 
-const bundleAnalyzerPlugin = bundleAnalyzer({
-	enabled: process.env.ANALYZE === "true",
-});
-
-const NextApp = () => {
-	const plugins = [bundleAnalyzerPlugin];
-	return plugins.reduce((config, plugin) => plugin(config), nextConfig);
-};
-
-export default NextApp;
+export default nextConfig;

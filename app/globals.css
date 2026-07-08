@@ -1,25 +1,40 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
+@import "vanilla-cookieconsent/dist/cookieconsent.css";
+
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+@utility poster-sheen {
+  /* Soft print-light overlay used by the feature posters. */
+  background:
+    radial-gradient(120% 80% at 30% 0%, rgba(255, 255, 255, 0.35), transparent 60%),
+    radial-gradient(120% 80% at 80% 100%, rgba(0, 0, 0, 0.25), transparent 65%);
+}
+
+@utility halftone-disc {
+  /* Coral halftone dot field with a radial fade, echoing the blog posters. */
+  background-image: radial-gradient(var(--brand-coral-accent) 1.1px, transparent 1.1px);
+  background-size: 9px 9px;
+  mask-image: radial-gradient(circle, black 45%, transparent 72%);
+}
+
+@utility container {
+  width: 100%;
+  max-width: 100rem;
+  padding-inline: 1rem;
+  margin-inline: auto;
+}
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-satoshi);
-  --font-mono: var(--font-geist-mono);
-  --color-sidebar-ring: var(--sidebar-ring);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-primary: var(--sidebar-primary);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar: var(--sidebar);
-  --color-chart-5: var(--chart-5);
-  --color-chart-4: var(--chart-4);
-  --color-chart-3: var(--chart-3);
-  --color-chart-2: var(--chart-2);
-  --color-chart-1: var(--chart-1);
+  --color-surface-anchor: var(--surface-anchor);
+  --color-surface-anchor-foreground: var(--surface-anchor-foreground);
+  --color-surface-deep: var(--surface-deep);
+  --color-surface-deep-foreground: var(--surface-deep-foreground);
+  --font-sans: var(--font-switzer);
+  --font-mono: var(--font-switzer);
   --color-ring: var(--ring);
   --color-input: var(--input);
   --color-border: var(--border);
@@ -46,65 +61,107 @@
 }
 
 :root {
-  /* Background & Foreground - Dark Theme */
-  --background: oklch(0.15 0.005 160); /* #181a19 */
-  --foreground: oklch(0.99 0.01 90); /* #FEFCF8 */
+  /* Base palette: warm ink + cream (matches the pillars section) */
+  --light: #ece7de;
+  --dark: #1d1c1a;
 
-  /* Card & Popover */
-  --card: oklch(0.18 0.005 160); /* slightly lighter than bg */
-  --card-foreground: oklch(0.99 0.01 90);
-  --popover: oklch(0.18 0.005 160);
-  --popover-foreground: oklch(0.99 0.01 90);
+  /* Aliases: default is dark, no flash before JS */
+  --background: #0a0a0a;
+  --text: var(--light);
+  --foreground: var(--text);
 
-  /* Primary - Pink */
-  --primary: oklch(0.92 0.04 15); /* #FEDCDC */
-  --primary-foreground: oklch(0.15 0.005 160); /* dark text on pink */
+  /* Anchor surfaces: Intro panel, Footer — lifted slightly off the page ink */
+  --surface-anchor: #121110;
+  --surface-anchor-foreground: var(--light);
+  --surface-deep: #1a1815;
+  --surface-deep-foreground: var(--light);
 
-  /* Secondary - Beige */
-  --secondary: oklch(0.92 0.01 90); /* #EAE8E1 */
-  --secondary-foreground: oklch(0.15 0.005 160);
+  --card: #171614;
+  --card-foreground: var(--light);
+  --popover: #171614;
+  --popover-foreground: var(--light);
 
-  /* Muted */
-  --muted: oklch(0.25 0.005 160);
-  --muted-foreground: oklch(0.65 0.01 90);
+  --primary: var(--light);
+  --primary-foreground: var(--dark);
 
-  /* Accent */
-  --accent: oklch(0.25 0.005 160);
-  --accent-foreground: oklch(0.99 0.01 90);
+  --secondary: #201e1b;
+  --secondary-foreground: var(--light);
 
-  /* Destructive */
+  --muted: #1c1a17;
+  --muted-foreground: #a39d92;
+
+  --accent: #1c1a17;
+  --accent-foreground: var(--light);
+
   --destructive: oklch(0.65 0.2 25);
 
-  /* Border & Input */
-  --border: oklch(0.99 0.01 90 / 15%);
-  --input: oklch(0.99 0.01 90 / 20%);
-  --ring: oklch(0.92 0.04 15);
+  --border: rgb(236 231 222 / 12%);
+  --input: rgb(236 231 222 / 18%);
+  --ring: var(--light);
 
-  /* Chart colors - Pink gradient */
-  --chart-1: oklch(0.95 0.03 15);
-  --chart-2: oklch(0.92 0.04 15);
-  --chart-3: oklch(0.85 0.05 15);
-  --chart-4: oklch(0.78 0.06 15);
-  --chart-5: oklch(0.70 0.07 15);
+  /* Brand accent (Cue-inspired): theme-independent coral block color. */
+  --brand-coral: #ee7b7e;
 
-  /* Radius */
+  /* Theme-aware coral accent for text/marks: the bright coral reads well on
+     dark ink, but washes out on the cream light background — so light mode
+     swaps in a deeper coral-rose (see light block) that keeps contrast. */
+  --brand-coral-accent: var(--brand-coral);
+
   --radius: 0.625rem;
 
-  /* Sidebar */
-  --sidebar: oklch(0.12 0.005 160);
-  --sidebar-foreground: oklch(0.99 0.01 90);
-  --sidebar-primary: oklch(0.92 0.04 15);
-  --sidebar-primary-foreground: oklch(0.15 0.005 160);
-  --sidebar-accent: oklch(0.25 0.005 160);
-  --sidebar-accent-foreground: oklch(0.99 0.01 90);
-  --sidebar-border: oklch(0.99 0.01 90 / 10%);
-  --sidebar-ring: oklch(0.92 0.04 15);
+  color-scheme: dark;
+}
+
+/* Light theme: invert aliases */
+:root[data-theme="light"],
+html.light {
+  --background: var(--light);
+  --text: var(--dark);
+  --foreground: var(--text);
+
+  --surface-anchor: #e2dcd0;
+  --surface-anchor-foreground: var(--dark);
+  --surface-deep: #ddd7cb;
+  --surface-deep-foreground: var(--dark);
+
+  --card: #f2eee5;
+  --card-foreground: var(--dark);
+  --popover: #f2eee5;
+  --popover-foreground: var(--dark);
+
+  --primary: var(--dark);
+  --primary-foreground: var(--light);
+
+  --secondary: #e2dcd0;
+  --secondary-foreground: var(--dark);
+
+  /* Deeper coral-rose so the accent stays vivid and legible on cream. */
+  --brand-coral-accent: #b23a44;
+
+  --muted: #e3ddd2;
+  --muted-foreground: #6e685f;
+
+  --accent: #e3ddd2;
+  --accent-foreground: var(--dark);
+
+  --destructive: oklch(0.55 0.22 25);
+
+  --border: rgb(17 17 17 / 10%);
+  --input: rgb(17 17 17 / 16%);
+  --ring: var(--dark);
+
+  color-scheme: light;
+}
+
+/* Explicit dark selectors: matches default :root, kept for clarity */
+:root[data-theme="dark"],
+html.dark {
+  color-scheme: dark;
 }
 
 @layer base {
   html,
   body {
-    height: 100%;
     margin: 0;
     padding: 0;
   }
@@ -113,5 +170,25 @@
   }
   body {
     @apply bg-background text-foreground antialiased;
+    /* Full-bleed section backgrounds use 100vw layers; clip (not hidden, so
+       vertical scroll + ScrollTrigger pinning are unaffected) prevents the
+       scrollbar width from creating a horizontal scroll. */
+    overflow-x: clip;
+  }
+}
+
+/*
+ * Reduced-motion fallback for CSS-driven motion (hover transitions, the
+ * gradient spinner, etc.). GSAP animations are already gated in JS via the
+ * `withMotion` helper / `gsap.matchMedia`; this covers everything else.
+ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }

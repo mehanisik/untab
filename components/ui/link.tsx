@@ -6,9 +6,11 @@ import {
   type AnchorHTMLAttributes,
   type ComponentProps,
   type MouseEvent,
+  useContext,
   useEffect,
   useState,
 } from "react";
+import { RouterTransitionContext } from "~/components/route-transition";
 
 type CustomLinkProps = Omit<
   AnchorHTMLAttributes<HTMLAnchorElement>,
@@ -28,6 +30,7 @@ export function Link({
   ...props
 }: CustomLinkProps) {
   const pathname = usePathname();
+  const router = useContext(RouterTransitionContext);
   const [shouldPrefetch, setShouldPrefetch] = useState(false);
   const [isExternal, setIsExternal] = useState(false);
 
@@ -90,13 +93,28 @@ export function Link({
     );
   }
 
+  const handleClick = (e: MouseEvent<HTMLAnchorElement>) => {
+    if (onClick) onClick(e);
+    if (
+      e.button === 0 &&
+      !e.metaKey &&
+      !e.ctrlKey &&
+      !e.shiftKey &&
+      !e.altKey &&
+      !e.defaultPrevented
+    ) {
+      e.preventDefault();
+      router.push(href);
+    }
+  };
+
   return (
     <NextLink
       href={href as ComponentProps<typeof NextLink>["href"]}
       prefetch={shouldPrefetch}
       scroll={scroll}
       data-active={isActive || undefined}
-      onClick={onClick}
+      onClick={handleClick}
       {...props}
     >
       {children}

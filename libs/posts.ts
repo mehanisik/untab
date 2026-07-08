@@ -1,5 +1,6 @@
 import { cache } from "react";
-import { fetchSanity, QUERIES, type Post } from "./sanity";
+import { fetchSanity } from "./live";
+import { type Post, QUERIES } from "./sanity";
 
 /**
  * Fetches all blog posts, ordered by publishedAt desc.
@@ -22,11 +23,14 @@ export const getPosts = cache(async (): Promise<Post[]> => {
  * Uses fetchSanity with revalidation tags for efficient caching.
  */
 export const getPostBySlug = cache(
-	async (slug: string): Promise<Post | null> => {
+	async (slug: string, opts?: { stega?: boolean }): Promise<Post | null> => {
 		try {
-			const post = await fetchSanity<Post>(QUERIES.postBySlug, { slug }, [
-				`post:${slug}`,
-			]);
+			const post = await fetchSanity<Post>(
+				QUERIES.postBySlug,
+				{ slug },
+				[`post:${slug}`],
+				opts,
+			);
 			return post || null;
 		} catch (error) {
 			console.error(`Error fetching post with slug ${slug}:`, error);

@@ -1,59 +1,47 @@
-import { gsap } from "gsap";
+import gsap from "gsap";
+
+export const REVEAL = {
+	ease: "expo.out",
+	duration: 0.9,
+	y: 32,
+	start: "top 80%",
+	// Bidirectional replay: reveal on enter, reverse out whenever the section
+	// leaves the viewport (scrolling either way), and replay when it re-enters.
+	// Positions map to GSAP's onEnter onLeave onEnterBack onLeaveBack — so
+	// scrolling down past a section hides it, and scrolling back up replays it.
+	toggleActions: "play reverse play reverse",
+} as const;
 
 /**
- * GSAP Animation Registry & Presets
- * Standardized high-fidelity motion sequences for Untab Studio.
+ * Wraps a GSAP setup function so it only runs when the user does NOT prefer
+ * reduced motion. Returns a cleanup compatible with `useGSAP`.
+ *
+ * Usage:
+ *   useGSAP(() => withMotion(() => {
+ *     gsap.from(".x", { ... });
+ *   }), { scope: ref });
  */
+type MotionCleanup = () => void;
 
-export const EASINGS = {
-	expoOut: "expo.out",
-	expoInOut: "expo.inOut",
-	power4Out: "power4.out",
-	power2Out: "power2.out",
-	elasticOut: "elastic.out(1, 0.3)",
-	backOut: "back.out(1.7)",
-};
-
-export const ANIMATIONS = {
-	/** Standard reveal from bottom */
-	revealUp: (el: gsap.TweenTarget, vars: gsap.TweenVars = {}) => {
-		return gsap.from(el, {
-			y: 60,
-			opacity: 0,
-			duration: 1.2,
-			ease: EASINGS.expoOut,
-			...vars,
-		});
-	},
-
-	/** Fade in sequence */
-	fadeIn: (el: gsap.TweenTarget, vars: gsap.TweenVars = {}) => {
-		return gsap.from(el, {
-			opacity: 0,
-			duration: 0.8,
-			ease: "power2.out",
-			...vars,
-		});
-	},
-
-	/** Staggered list items reveal */
-	staggerReveal: (el: gsap.TweenTarget, vars: gsap.TweenVars = {}) => {
-		return gsap.from(el, {
-			y: 30,
-			opacity: 0,
-			duration: 1,
-			stagger: 0.1,
-			ease: EASINGS.expoOut,
-			...vars,
-		});
-	},
-
-	/** Subtle scale-up on hover */
-	hoverScale: (el: gsap.TweenTarget) => {
-		return gsap.to(el, {
-			scale: 1.02,
-			duration: 0.4,
-			ease: EASINGS.power4Out,
-		});
-	},
-};
+export function withMotion(
+	// biome-ignore lint/suspicious/noConfusingVoidType: setup may return cleanup or nothing, matching useGSAP's callback signature
+	setup: () => MotionCleanup | void,
+	onReduced?: () => void,
+): MotionCleanup {
+	const mm = gsap.matchMedia();
+	mm.add(
+		{
+			animated: "(prefers-reduced-motion: no-preference)",
+			reduced: "(prefers-reduced-motion: reduce)",
+		},
+		(ctx) => {
+			const { animated, reduced } = ctx.conditions as {
+				animated: boolean;
+				reduced: boolean;
+			};
+			if (animated) return setup();
+			if (reduced) onReduced?.();
+		},
+	);
+	return () => mm.revert();
+}

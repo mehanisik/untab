@@ -1,157 +1,157 @@
 "use client";
 
-import { cn } from "~/libs/utils";
-import { HugeiconsIcon } from "@hugeicons/react";
-import {
-	Rocket01Icon,
-	Shield02Icon,
-	Time01Icon,
-	UserGroupIcon,
-} from "@hugeicons/core-free-icons";
+import { useId } from "react";
 import { useFadeInOnScroll } from "~/hooks/use-scroll-animation";
-import { useEffect, useEffectEvent, useRef, useState } from "react";
-
-// biome-ignore lint/suspicious/noExplicitAny: Hugeicons icon objects have complex internal structures
-const ICON_MAP: Record<string, any> = {
-	rocket: Rocket01Icon,
-	shield: Shield02Icon,
-	time: Time01Icon,
-	team: UserGroupIcon,
-};
-
-interface Feature {
-	title: string;
-	description: string;
-	icon: string;
-}
+import type { HomepageFeatureItem } from "~/libs/sanity";
+import { cn } from "~/libs/utils";
 
 interface FeaturesProps {
 	title?: string;
-	features?: Feature[];
+	features?: HomepageFeatureItem[];
 }
 
-const DEFAULT_FEATURES = [
+// Presentation only — poster colour + tilt, applied by card index. Kept in
+// code (per "data > presentation"); the CMS supplies the editorial content.
+const POSTER_STYLES = [
+	{ bg: "#f15c7e", rotate: -1.4 },
+	{ bg: "#7c8df0", rotate: 1.2 },
+	{ bg: "#d8e85e", rotate: -0.8 },
+	{ bg: "#a892ff", rotate: 1.6 },
+];
+
+const DEFAULT_FEATURES: HomepageFeatureItem[] = [
 	{
-		icon: "rocket",
 		title: "Strategic Blueprinting",
 		description:
-			"We transform complex visions into high-performance digital architectures. Our approach ensures your product is built on a foundation designed for success.",
+			"We turn ambiguous visions into high-performance architectures. A clear plan, a defensible system, foundations designed for scale.",
+		location: "WARSAW, PL",
+		stat: "99%",
+		caption: "of our clients need this",
 	},
 	{
-		icon: "shield",
 		title: "Technical Risk Management",
 		description:
-			"Early identification and mitigation of technical debt and security risks. We protect your investment by ensuring long-term maintainability.",
+			"Early identification and mitigation of technical debt, security risk, and operational fragility. The system you ship today is the system that holds tomorrow.",
+		location: "AUDIT, OPS",
+		stat: "0",
+		caption: "incidents in production",
 	},
 	{
-		icon: "time",
-		title: "Engineering Excellence",
+		title: "Technical Pedigree",
 		description:
-			"Leveraging the absolute latest in web technology to deliver superior performance. We ship stable, tested, and optimized code that scales with your growth.",
+			"Years of shipping production systems, distilled into how we build. Battle-tested patterns and modern tooling, applied with discipline.",
+		location: "SHIP, QA",
+		stat: "100%",
+		caption: "tested before release",
 	},
 	{
-		icon: "team",
 		title: "Transparent Partnership",
 		description:
-			"A collaborative model built on open communication and shared goals. We operate as an extension of your team, providing expert guidance at every step.",
+			"An extension of your team. Open communication, shared goals, weekly working sessions. Expert guidance at every step, no black boxes.",
+		location: "PARTNER, EU",
+		stat: "1:1",
+		caption: "with the founders, weekly",
 	},
 ];
 
-function FeatureCard({
-	feature,
-	index,
-	onVisible,
-}: {
-	feature: Feature;
-	index: number;
-	onVisible: (index: number) => void;
-}) {
-	const IconComponent = ICON_MAP[feature.icon] || Rocket01Icon;
-	const cardRef = useRef<HTMLDivElement>(null);
-	const [isActive, setIsActive] = useState(false);
-	const onIntersect = useEffectEvent((isIntersecting: boolean) => {
-		setIsActive(isIntersecting);
-		if (isIntersecting) {
-			onVisible(index);
-		}
-	});
-
-	useEffect(() => {
-		const observer = new IntersectionObserver(
-			([entry]) => {
-				onIntersect(entry.isIntersecting);
-			},
-			{
-				threshold: 0.6,
-				rootMargin: "-20% 0px -20% 0px",
-			},
-		);
-
-		if (cardRef.current) observer.observe(cardRef.current);
-		return () => observer.disconnect();
-	}, []);
+function Poster({ meta, index }: { meta: HomepageFeatureItem; index: number }) {
+	const dotsId = useId();
+	const grainId = useId();
+	const style = POSTER_STYLES[index % POSTER_STYLES.length];
 
 	return (
 		<div
-			ref={cardRef}
 			className={cn(
-				"group relative transition-all duration-700",
-				isActive ? "opacity-100" : "opacity-100",
+				"relative aspect-3/4 w-full overflow-hidden rounded-sm shadow-xl transition-all duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform",
+				"group-hover:-translate-y-1.5 group-hover:rotate-0 group-hover:shadow-[0_35px_70px_-15px_rgba(0,0,0,0.6)]",
 			)}
+			style={{
+				backgroundColor: style.bg,
+				transform: `rotate(${style.rotate}deg)`,
+			}}
 		>
-			<div className="flex gap-3 sm:gap-8 items-start">
-				<span
-					aria-hidden="true"
-					className={cn(
-						"text-3xl font-light tabular-nums transition-colors duration-500 sm:text-7xl md:text-8xl lg:text-9xl",
-						isActive ? "text-foreground" : "text-zinc-500",
-					)}
-				>
-					{String(index + 1).padStart(2, "0")}
-				</span>
-
-				<div className="flex-1 pt-2 sm:pt-4">
-					<div className="flex items-center gap-3 sm:gap-4 mb-3 sm:mb-4">
-						<div
-							className={cn(
-								"flex size-8 sm:size-10 items-center justify-center rounded-full transition-all duration-500",
-								isActive
-									? "bg-foreground text-background"
-									: "bg-muted text-muted-foreground",
-							)}
-						>
-							<HugeiconsIcon
-								icon={IconComponent}
-								className="size-4 sm:size-5"
-								strokeWidth={1.5}
-							/>
-						</div>
-						<h3
-							className={cn(
-								"text-xl font-medium tracking-tight text-foreground sm:text-2xl md:text-3xl transition-opacity duration-500",
-								isActive ? "opacity-100" : "opacity-70",
-							)}
-						>
-							{feature.title}
-						</h3>
-					</div>
-					<p
-						className={cn(
-							"text-muted-foreground leading-relaxed text-sm sm:text-base font-light max-w-lg transition-all duration-500",
-							isActive ? "opacity-100" : "opacity-80",
-						)}
+			<svg
+				aria-hidden
+				className="absolute inset-0 h-full w-full"
+				preserveAspectRatio="xMidYMid slice"
+				viewBox="0 0 240 320"
+			>
+				<title>poster</title>
+				<defs>
+					<pattern
+						id={dotsId}
+						patternUnits="userSpaceOnUse"
+						width="4"
+						height="4"
 					>
-						{feature.description}
-					</p>
+						<circle cx="2" cy="2" r="0.85" fill="rgba(0,0,0,0.92)" />
+					</pattern>
+					<filter id={grainId}>
+						<feTurbulence
+							baseFrequency="0.9"
+							numOctaves="2"
+							stitchTiles="stitch"
+						/>
+						<feColorMatrix values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.18 0" />
+					</filter>
+				</defs>
+				<circle cx="120" cy="118" r="76" fill={`url(#${dotsId})`} />
+				<circle cx="120" cy="218" r="86" fill={`url(#${dotsId})`} />
+				<rect
+					width="100%"
+					height="100%"
+					filter={`url(#${grainId})`}
+					opacity="0.7"
+				/>
+			</svg>
+
+			<div className="absolute inset-0 flex flex-col p-4 text-black">
+				<div className="flex items-start justify-between font-mono text-[10px] tracking-[0.18em] sm:text-[11px]">
+					<span>{meta.location}</span>
+					<span className="font-black text-2xl leading-none sm:text-3xl">
+						{String(index + 1).padStart(2, "0")}
+					</span>
+				</div>
+
+				<div className="mt-auto flex items-end justify-between gap-3">
+					<span className="font-black text-5xl leading-[0.85] tracking-[-0.04em] sm:text-6xl">
+						{meta.stat}
+					</span>
+					<span className="max-w-[55%] text-right font-mono text-[10px] leading-tight tracking-tight sm:text-[11px]">
+						{meta.caption}
+					</span>
 				</div>
 			</div>
 
 			<div
-				className={cn(
-					"mt-12 h-px w-full transition-all duration-700",
-					isActive ? "bg-border" : "bg-border/30",
-				)}
+				aria-hidden
+				className="poster-sheen pointer-events-none absolute inset-0 mix-blend-soft-light"
 			/>
+		</div>
+	);
+}
+
+function PosterCard({
+	feature,
+	index,
+}: {
+	feature: HomepageFeatureItem;
+	index: number;
+}) {
+	const ref = useFadeInOnScroll<HTMLDivElement>({ delay: index * 0.06 });
+
+	return (
+		<div ref={ref} className="group flex flex-col">
+			<Poster meta={feature} index={index} />
+
+			<div className="mt-5">
+				<h3 className="text-[clamp(1.15rem,1.5vw,1.4rem)] font-medium leading-tight tracking-[-0.01em] text-foreground">
+					{feature.title}
+				</h3>
+				<p className="mt-2 text-pretty font-light text-[14px] text-muted-foreground leading-[1.55]">
+					{feature.description}
+				</p>
+			</div>
 		</div>
 	);
 }
@@ -160,68 +160,25 @@ export function Features({
 	title = "How we work",
 	features = DEFAULT_FEATURES,
 }: FeaturesProps) {
-	const headerRef = useFadeInOnScroll<HTMLDivElement>({ delay: 0 });
-	const [activeIndex, setActiveIndex] = useState(0);
+	const headingRef = useFadeInOnScroll<HTMLHeadingElement>({ delay: 0 });
 
 	return (
-		<section className="relative bg-background py-20 md:py-32 lg:py-48">
-			<div className="mx-auto max-w-[1440px] px-6 md:px-12 lg:px-24">
-				<div className="grid gap-12 lg:grid-cols-2 lg:gap-24">
-					<div className="relative hidden lg:block">
-						<div className="sticky top-32 flex flex-col justify-center min-h-[60vh]">
-							<div ref={headerRef}>
-								<h2 className="mb-8 text-5xl font-medium tracking-tight text-foreground lg:text-7xl">
-									{title}
-								</h2>
+		<section className="relative bg-background py-24 md:py-32 lg:py-40">
+			<div className="container px-6 md:px-12 lg:px-24">
+				<h2
+					ref={headingRef}
+					className="mb-12 flex items-baseline gap-3 font-medium text-foreground leading-none tracking-[-0.03em] text-[clamp(2rem,5vw,4rem)] md:mb-16"
+				>
+					{title}
+					<span className="font-mono text-[11px] tracking-[0.2em] text-foreground/40 tabular-nums">
+						({String(features.length).padStart(2, "0")})
+					</span>
+				</h2>
 
-								<p className="mb-12 text-lg text-muted-foreground leading-relaxed font-light max-w-md">
-									Strike the optimal balance between investment and impact. We
-									work as a true partner to help you build not just software,
-									but a sustainable business advantage.
-								</p>
-
-								<div className="flex items-center gap-3">
-									<span className="text-sm text-muted-foreground tabular-nums">
-										{String(activeIndex + 1).padStart(2, "0")}
-									</span>
-									<div
-										className="h-px flex-1 max-w-32 bg-border overflow-hidden"
-										aria-hidden="true"
-									>
-										<div
-											className="h-full bg-foreground transition-all duration-500"
-											style={{
-												width: `${((activeIndex + 1) / features.length) * 100}%`,
-											}}
-										/>
-									</div>
-									<span className="text-sm text-muted-foreground tabular-nums">
-										{String(features.length).padStart(2, "0")}
-									</span>
-								</div>
-							</div>
-						</div>
-					</div>
-
-					<div className="lg:hidden mb-12">
-						<h2 className="mb-4 text-3xl font-medium tracking-tight text-foreground sm:text-4xl">
-							{title}
-						</h2>
-						<p className="text-base text-muted-foreground font-light leading-relaxed">
-							Strike the optimal balance between investment and impact.
-						</p>
-					</div>
-
-					<div className="flex flex-col gap-12 lg:gap-32 py-12 lg:py-[10vh]">
-						{features.map((feature, index) => (
-							<FeatureCard
-								key={feature.title}
-								feature={feature}
-								index={index}
-								onVisible={setActiveIndex}
-							/>
-						))}
-					</div>
+				<div className="grid grid-cols-1 gap-x-6 gap-y-12 sm:grid-cols-2 md:gap-x-8 lg:grid-cols-4">
+					{features.map((feature, index) => (
+						<PosterCard key={feature.title} feature={feature} index={index} />
+					))}
 				</div>
 			</div>
 		</section>

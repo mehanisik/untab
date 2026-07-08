@@ -5,11 +5,12 @@ interface EnvConfig {
 	RESEND_API_KEY?: string;
 	CONTACT_EMAIL?: string;
 	SENDER_EMAIL?: string;
-	NEXT_PUBLIC_UMAMI_WEBSITE_ID?: string;
+	NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN?: string;
+	NEXT_PUBLIC_POSTHOG_HOST?: string;
 	ARCJET_API_KEY?: string;
 }
 
-export function validateEnv(): EnvConfig {
+function validateEnv(): EnvConfig {
 	// Skip validation during CI/static-analysis builds where real secrets are
 	// unavailable. The hosting platform enforces real values at deploy time.
 	if (process.env.SKIP_ENV_VALIDATION === "true") {
@@ -25,7 +26,9 @@ export function validateEnv(): EnvConfig {
 			RESEND_API_KEY: process.env.RESEND_API_KEY,
 			CONTACT_EMAIL: process.env.CONTACT_EMAIL,
 			SENDER_EMAIL: process.env.SENDER_EMAIL,
-			NEXT_PUBLIC_UMAMI_WEBSITE_ID: process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID,
+			NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN:
+				process.env.NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN,
+			NEXT_PUBLIC_POSTHOG_HOST: process.env.NEXT_PUBLIC_POSTHOG_HOST,
 			ARCJET_API_KEY: process.env.ARCJET_API_KEY,
 		};
 	}
@@ -49,7 +52,7 @@ export function validateEnv(): EnvConfig {
 			new URL(NEXT_PUBLIC_BASE_URL);
 		} catch {
 			errors.push(
-				"NEXT_PUBLIC_BASE_URL must be a valid URL (e.g., https://untabstudio.com)",
+				"NEXT_PUBLIC_BASE_URL must be a valid URL like https://untabstudio.com",
 			);
 		}
 	}
@@ -78,6 +81,14 @@ export function validateEnv(): EnvConfig {
 				"ARCJET_API_KEY is required in production for action protection",
 			);
 		}
+
+		// Analytics is non-critical, so warn (don't crash the site) when the
+		// PostHog token is missing — otherwise it fails silently at init.
+		if (!process.env.NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN) {
+			console.warn(
+				"[env] NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN is not set — PostHog analytics will be disabled in production.",
+			);
+		}
 	}
 
 	if (errors.length > 0) {
@@ -94,7 +105,9 @@ export function validateEnv(): EnvConfig {
 		RESEND_API_KEY,
 		CONTACT_EMAIL,
 		SENDER_EMAIL,
-		NEXT_PUBLIC_UMAMI_WEBSITE_ID: process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID,
+		NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN:
+			process.env.NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN,
+		NEXT_PUBLIC_POSTHOG_HOST: process.env.NEXT_PUBLIC_POSTHOG_HOST,
 		ARCJET_API_KEY: process.env.ARCJET_API_KEY,
 	};
 }

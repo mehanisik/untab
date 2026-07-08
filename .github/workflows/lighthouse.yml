@@ -1,20 +1,13 @@
 name: Lighthouse
 
+# Manual-only: a full build + Chromium audit on every push is the priciest
+# workflow here, and `bun run lighthouse` covers local checks. Trigger from
+# the Actions tab (or `gh workflow run lighthouse.yml`) before releases.
 on:
-  pull_request:
-    branches: [main]
-  push:
-    branches: [main]
   workflow_dispatch:
-
-concurrency:
-  group: lighthouse-${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 permissions:
   contents: read
-  # Lets the action post the audit summary as a PR comment.
-  pull-requests: write
 
 env:
   CI: true

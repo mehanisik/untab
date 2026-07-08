@@ -1,66 +1,32 @@
 "use client";
 
-import { useGSAP } from "@gsap/react";
-import { Moon01Icon, Sun01Icon } from "@hugeicons/core-free-icons";
+import { Moon02Icon, Sun03Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
-import gsap from "gsap";
 import { useTheme } from "next-themes";
-import * as React from "react";
-import { Button } from "~/components/ui/button";
+import { useEffect, useState } from "react";
 
 export function ThemeToggle() {
-	const { setTheme, resolvedTheme } = useTheme();
-	const [mounted, setMounted] = React.useState(false);
-	const iconRef = React.useRef<HTMLDivElement>(null);
+	const { resolvedTheme, setTheme } = useTheme();
+	const [mounted, setMounted] = useState(false);
 
-	React.useEffect(() => {
+	useEffect(() => {
 		setMounted(true);
 	}, []);
 
-	useGSAP(() => {
-		if (!(mounted && iconRef.current)) return;
-
-		gsap.fromTo(
-			iconRef.current,
-			{ rotate: -90, opacity: 0, scale: 0.5 },
-			{ rotate: 0, opacity: 1, scale: 1, duration: 0.5, ease: "back.out(1.7)" },
-		);
-	}, [resolvedTheme, mounted]);
-
-	if (!mounted) {
-		return <div className="size-9" />;
-	}
-
-	const toggleTheme = () => {
-		setTheme(resolvedTheme === "dark" ? "light" : "dark");
-	};
-
-	if (!mounted) {
-		return <div className="size-9" />;
-	}
-
-	const renderIcon = () => {
-		if (resolvedTheme === "dark") {
-			return (
-				<HugeiconsIcon icon={Sun01Icon} className="size-4" strokeWidth={1.5} />
-			);
-		}
-		return (
-			<HugeiconsIcon icon={Moon01Icon} className="size-4" strokeWidth={1.5} />
-		);
-	};
+	const isDark = mounted ? resolvedTheme === "dark" : true;
 
 	return (
-		<Button
-			variant="ghost"
-			size="icon"
-			className="relative size-9 rounded-full border border-border/40 hover:bg-accent hover:text-accent-foreground"
-			onClick={toggleTheme}
-			aria-label="Toggle theme"
+		<button
+			type="button"
+			onClick={() => setTheme(isDark ? "light" : "dark")}
+			aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
+			className="relative inline-flex size-9 items-center justify-center rounded-full text-foreground/70 transition-colors hover:text-foreground"
 		>
-			<div ref={iconRef} className="flex items-center justify-center">
-				{renderIcon()}
-			</div>
-		</Button>
+			<HugeiconsIcon
+				icon={isDark ? Sun03Icon : Moon02Icon}
+				className="size-[18px] transition-transform duration-300"
+				strokeWidth={1.5}
+			/>
+		</button>
 	);
 }

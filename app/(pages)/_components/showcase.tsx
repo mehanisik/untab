@@ -1,7 +1,7 @@
 "use client";
 
-import { useFadeInOnScroll } from "~/hooks/use-scroll-animation";
 import React, { useEffect, useRef, useState } from "react";
+import { useFadeInOnScroll } from "~/hooks/use-scroll-animation";
 import { cn } from "~/libs/utils";
 
 function AnimatedLine() {
@@ -10,10 +10,11 @@ function AnimatedLine() {
 
 	useEffect(() => {
 		const observer = new IntersectionObserver(
+			// Two-way: track intersection in both directions so the line and dots
+			// revert (fade/scale back out) when scrolled above and replay on the
+			// way back down, matching the reverse reveal of the title/content.
 			([entry]) => {
-				if (entry.isIntersecting) {
-					setIsVisible(true);
-				}
+				setIsVisible(entry.isIntersecting);
 			},
 			{ threshold: 0.3 },
 		);
@@ -65,18 +66,16 @@ function AnimatedLine() {
 
 			<div
 				className={cn(
-					"w-px flex-1 origin-top bg-muted-foreground/30 transition-transform duration-1000 ease-out",
+					"w-px flex-1 origin-top bg-muted-foreground/30 transition-transform delay-300 duration-1000 ease-out",
 					isVisible ? "scale-y-100" : "scale-y-0",
 				)}
-				style={{ transitionDelay: "300ms" }}
 			/>
 
 			<div
 				className={cn(
-					"size-[34px] shrink-0 transition-all duration-700",
+					"size-[34px] shrink-0 transition-all delay-[800ms] duration-700",
 					isVisible ? "opacity-100 scale-100" : "opacity-0 scale-50",
 				)}
-				style={{ transitionDelay: "800ms" }}
 			>
 				<svg
 					aria-hidden="true"
@@ -124,7 +123,7 @@ export function Showcase({
 
 	return (
 		<section id="showcase" className="relative min-h-dvh bg-background py-24">
-			<div className="mx-auto flex max-w-[1440px] justify-between px-6 md:px-12 lg:px-24">
+			<div className="container flex justify-between px-6 md:px-12 lg:px-24">
 				<h2
 					ref={titleRef}
 					className="text-3xl font-medium tracking-tight text-foreground md:text-4xl"

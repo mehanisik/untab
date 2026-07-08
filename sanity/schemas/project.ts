@@ -1,5 +1,5 @@
-import { defineField, defineType } from "sanity";
 import { CaseIcon } from "@sanity/icons";
+import { defineField, defineType } from "sanity";
 
 export default defineType({
 	name: "project",
@@ -10,6 +10,7 @@ export default defineType({
 		{ name: "general", title: "General" },
 		{ name: "client", title: "Client" },
 		{ name: "content", title: "Content" },
+		{ name: "caseStudy", title: "Case Study" },
 		{ name: "media", title: "Media" },
 		{ name: "branding", title: "Branding" },
 		{ name: "tech", title: "Tech & Tools" },
@@ -98,13 +99,69 @@ export default defineType({
 			options: {
 				hotspot: true,
 			},
+			fields: [
+				{
+					name: "alt",
+					title: "Alt text",
+					type: "string",
+					description:
+						"Describe the image for search engines and screen readers. Falls back to the project title.",
+				},
+			],
+		}),
+		defineField({
+			name: "cardImage",
+			title: "Work Card Image",
+			type: "image",
+			group: "media",
+			options: {
+				hotspot: true,
+			},
+			description:
+				"Curated image for homepage/work cards. Use a polished browser, app, or poster composition. Falls back to Hero Image.",
+			fields: [
+				{
+					name: "alt",
+					title: "Alt text",
+					type: "string",
+					description:
+						"Describe the image for search engines and screen readers. Falls back to the project title.",
+				},
+			],
+		}),
+		defineField({
+			name: "previewVideo",
+			title: "Hover Preview Video",
+			type: "file",
+			group: "media",
+			options: {
+				accept: "video/mp4,video/webm",
+			},
+			description:
+				"Optional short, muted loop for animated projects. Keep it lightweight; the Work Card Image is used as the poster/fallback.",
 		}),
 		defineField({
 			name: "gallery",
 			title: "Project Gallery",
 			type: "array",
 			group: "media",
-			of: [{ type: "image", options: { hotspot: true } }],
+			of: [
+				{
+					type: "image",
+					options: { hotspot: true },
+					fields: [
+						{
+							name: "alt",
+							title: "Alt text",
+							type: "string",
+							description:
+								"Describe the image for search engines and screen readers.",
+						},
+					],
+				},
+			],
+			description:
+				"Shown as the case study media column, after the hero image.",
 		}),
 		defineField({
 			name: "content",
@@ -137,6 +194,38 @@ export default defineType({
 					of: [{ type: "string" }],
 				}),
 			],
+		}),
+		defineField({
+			name: "about",
+			title: "About (paragraphs)",
+			type: "array",
+			group: "caseStudy",
+			of: [{ type: "string" }],
+			description:
+				"Each entry is one paragraph shown in the case study sidebar.",
+		}),
+		defineField({
+			name: "services",
+			title: "Services",
+			type: "array",
+			group: "caseStudy",
+			of: [{ type: "string" }],
+			description: "e.g. Design Site, Animations, Webflow.",
+		}),
+		defineField({
+			name: "timeline",
+			title: "Timeline",
+			type: "string",
+			group: "caseStudy",
+			description: "e.g. 2 months.",
+		}),
+		defineField({
+			name: "honors",
+			title: "Honors / Awards",
+			type: "array",
+			group: "caseStudy",
+			of: [{ type: "string" }],
+			description: "e.g. Awwwards x 1, CSSDA x 1.",
 		}),
 		defineField({
 			name: "testimonial",
@@ -205,6 +294,8 @@ export default defineType({
 			type: "array",
 			group: "tech",
 			of: [{ type: "string" }],
+			description:
+				'Powers the case study "Stack" list and the featured-work tags.',
 		}),
 		defineField({
 			name: "tools",

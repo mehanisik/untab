@@ -1,18 +1,21 @@
-import { getProjects, type Project } from "~/libs/projects";
-import { WorkView } from "./_components/work-view";
+import type { Metadata } from "next";
+import { generatePageMetadata } from "~/libs/metadata";
+import { getProjects } from "~/libs/projects";
+import { WorkList } from "./_components";
+
+export const metadata: Metadata = generatePageMetadata({
+	title: "Case studies",
+	description:
+		"Selected projects from Untab Studio. Brand-led websites, platforms, and digital products built with ambitious teams.",
+	url: "/work",
+});
 
 export default async function WorkPage() {
-	let projects: Project[] = [];
+	const projects = await getProjects();
 
-	try {
-		projects = await getProjects();
-	} catch (error) {
-		console.error("Failed to fetch projects:", error);
-	}
-
-	if (!Array.isArray(projects)) {
-		projects = [];
-	}
-
-	return <WorkView projects={projects} />;
+	return (
+		<main className="grow bg-background pt-14">
+			<WorkList projects={projects} />
+		</main>
+	);
 }
