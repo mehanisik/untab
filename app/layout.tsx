@@ -11,7 +11,6 @@ import { Providers } from "~/components/providers";
 import { RouterTransitionProvider } from "~/components/route-transition";
 import { VisualEditingWrapper } from "~/components/visual-editing";
 import { SanityLive } from "~/libs/live";
-import { SOCIAL_SAME_AS } from "~/libs/socials";
 import { Orchestra } from "~/orchestra";
 import AppData from "~/package.json";
 
@@ -116,7 +115,6 @@ export default function RootLayout({
 									],
 									description:
 										"An independent software studio in Warsaw building brand-led websites, platforms, and digital products for ambitious teams worldwide.",
-									sameAs: SOCIAL_SAME_AS,
 								},
 								{
 									"@type": "WebSite",

@@ -1,14 +1,6 @@
 "use client";
 
 import { useGSAP } from "@gsap/react";
-import {
-	DribbbleIcon,
-	GithubIcon,
-	InstagramIcon,
-	Linkedin01Icon,
-	NewTwitterIcon,
-} from "@hugeicons/core-free-icons";
-import { HugeiconsIcon } from "@hugeicons/react";
 import gsap from "gsap";
 import { useRef } from "react";
 import { Container } from "~/components/container";
@@ -16,21 +8,12 @@ import { LogoWordmark } from "~/components/logo-wordmark";
 import { Link } from "~/components/ui/link";
 import { withMotion } from "~/libs/gsap/presets";
 import type { Contact } from "~/libs/sanity";
-import { SOCIALS } from "~/libs/socials";
 import { pad } from "~/libs/utils";
 import { ContactFormPanel } from "./contact-form-panel";
 
 // Split-card contact layout: a theme-aware info panel on the left, a fixed
 // brand coral form block on the right with ink type. The card flips with the
 // theme; the coral block is a brand statement and stays put in both.
-
-const socialLinks = [
-	{ label: "LinkedIn", icon: Linkedin01Icon, href: SOCIALS.linkedin },
-	{ label: "Instagram", icon: InstagramIcon, href: SOCIALS.instagram },
-	{ label: "Twitter", icon: NewTwitterIcon, href: SOCIALS.twitter },
-	{ label: "Dribbble", icon: DribbbleIcon, href: SOCIALS.dribbble },
-	{ label: "GitHub", icon: GithubIcon, href: SOCIALS.github },
-];
 
 export function ContactForm({
 	headingLines = [],
@@ -98,7 +81,7 @@ export function ContactForm({
 				</h2>
 				<div className="contact-card overflow-hidden rounded-2xl border border-foreground/10 bg-card text-card-foreground shadow-sm">
 					<div className="grid grid-cols-1 lg:grid-cols-[2fr_3fr]">
-						{/* Left: brand, contact channels, socials */}
+						{/* Left: brand + contact channels */}
 						<div className="flex flex-col gap-12 p-7 sm:p-10 lg:p-12">
 							<Link
 								href="/"
@@ -149,24 +132,6 @@ export function ContactForm({
 									</div>
 								))}
 							</div>
-
-							<ul className="contact-aside flex flex-wrap gap-3">
-								{socialLinks.map((social) => (
-									<li key={social.label}>
-										<Link
-											href={social.href}
-											aria-label={social.label}
-											className="flex size-10 items-center justify-center rounded-full border border-foreground/15 text-foreground transition-colors duration-200 hover:border-transparent hover:bg-[var(--brand-coral)] hover:text-[var(--dark)]"
-										>
-											<HugeiconsIcon
-												icon={social.icon}
-												className="size-4"
-												strokeWidth={1.5}
-											/>
-										</Link>
-									</li>
-								))}
-							</ul>
 						</div>
 
 						{/* Right: coral form block */}
