@@ -167,7 +167,7 @@ function PostCard({
 				{post.mainImage ? (
 					<Image
 						src={post.mainImage}
-						alt=""
+						alt={post.title}
 						fill
 						priority={priority}
 						sizes="(min-width: 1024px) 30vw, (min-width: 640px) 45vw, 100vw"

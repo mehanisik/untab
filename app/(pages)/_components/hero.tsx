@@ -364,8 +364,10 @@ export function Hero({ videoUrl = "/hero.mp4", projects }: HeroProps) {
 									loop
 									muted
 									playsInline
+									preload="metadata"
+									poster="/hero-poster.webp"
 									suppressHydrationWarning
-									className="block size-full rounded-md md:rounded-xl object-cover [backface-visibility:hidden]"
+									className="block size-full rounded-md md:rounded-xl object-cover backface-hidden"
 								>
 									<source src={videoUrl} type="video/mp4" />
 								</video>

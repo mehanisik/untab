@@ -1,8 +1,11 @@
+import { getSettings } from "~/libs/live";
 import { Footer, Navbar } from "./_components";
 
-export default function PagesLayout({
+export default async function PagesLayout({
 	children,
 }: Readonly<{ children: React.ReactNode }>) {
+	const settings = await getSettings();
+
 	return (
 		<div className="container relative flex flex-col bg-background text-foreground transition-colors duration-500">
 			<a
@@ -17,7 +20,13 @@ export default function PagesLayout({
 			<div id="main-content" className="contents">
 				{children}
 			</div>
-			<Footer />
+			<Footer
+				footerTagline={settings?.footerTagline}
+				studioTypeLabel={settings?.studioTypeLabel}
+				contactEmail={settings?.contactEmail}
+				studioCity={settings?.studioCity}
+				timezone={settings?.timezone}
+			/>
 		</div>
 	);
 }

@@ -1,14 +1,10 @@
-import posthog from "posthog-js";
 import { getStoredPreferences } from "~/components/cookie-consent";
+import { loadPostHog } from "~/libs/posthog";
 
-posthog.init(process.env.NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN!, {
-	api_host: "/ingest",
-	ui_host: "https://eu.posthog.com",
-	defaults: "2026-01-30",
-	opt_out_capturing_by_default: true,
-});
-
+// Only pull in and initialise posthog-js if this visitor has already accepted
+// analytics on a previous visit. Everyone else pays zero bytes for it until
+// (and unless) they consent via the cookie banner.
 const prefs = getStoredPreferences();
 if (prefs?.analytics) {
-	posthog.opt_in_capturing();
+	void loadPostHog();
 }

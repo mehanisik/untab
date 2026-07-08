@@ -1,8 +1,8 @@
 "use client";
 
-import posthog from "posthog-js";
 import { useEffect } from "react";
 import { Link } from "~/components/ui/link";
+import { getPostHog } from "~/libs/posthog";
 
 interface ErrorPageProps {
 	error: Error & { digest?: string };
@@ -12,7 +12,7 @@ interface ErrorPageProps {
 export default function ErrorPage({ error, reset }: ErrorPageProps) {
 	useEffect(() => {
 		console.error("Global error boundary caught:", error);
-		posthog.captureException(error);
+		getPostHog()?.captureException(error);
 	}, [error]);
 
 	return (

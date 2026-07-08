@@ -5,8 +5,11 @@ import gsap from "gsap";
 import { useRef } from "react";
 import { withMotion } from "~/libs/gsap/presets";
 
-export function BlogHero() {
+const DEFAULT_TITLE = ["Insights,", "notes & articles."];
+
+export function BlogHero({ title }: { title?: string[] }) {
 	const sectionRef = useRef<HTMLElement>(null);
+	const lines = title && title.length > 0 ? title : DEFAULT_TITLE;
 
 	useGSAP(
 		() =>
@@ -33,8 +36,11 @@ export function BlogHero() {
 			<div className="container px-6 md:px-12 lg:px-24">
 				<div className="overflow-hidden">
 					<h1 className="font-medium uppercase leading-[0.92] tracking-[-0.04em] text-foreground text-[clamp(2.25rem,6vw,4rem)]">
-						<span className="hero-line block">Insights,</span>
-						<span className="hero-line block">notes &amp; articles.</span>
+						{lines.map((line) => (
+							<span key={line} className="hero-line block">
+								{line}
+							</span>
+						))}
 					</h1>
 				</div>
 			</div>

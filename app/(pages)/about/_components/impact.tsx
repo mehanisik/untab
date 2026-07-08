@@ -3,32 +3,15 @@
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { useRef } from "react";
+import type { AboutStat } from "~/libs/sanity";
 
-interface Stat {
-	value: string;
-	body: string;
+interface ImpactProps {
+	eyebrow?: string;
+	title?: string;
+	stats: AboutStat[];
 }
 
-const STATS: Stat[] = [
-	{
-		value: "2021",
-		body: "The year we started. What began as a small team in Warsaw has grown into a global practice working with founders across continents.",
-	},
-	{
-		value: "40+",
-		body: "Strategists, designers, and engineers. Projects shipped end-to-end as one team, each bringing a perspective that the work is better for.",
-	},
-	{
-		value: "$120m+",
-		body: "Raised by our clients over the past four years. The systems we build together help them turn that capital into outcomes.",
-	},
-	{
-		value: "8m+",
-		body: "People who interact with the products we've helped design and ship. Quietly, every day, in the background of their work.",
-	},
-];
-
-export function Impact() {
+export function Impact({ eyebrow, title, stats }: ImpactProps) {
 	const rootRef = useRef<HTMLElement>(null);
 
 	useGSAP(
@@ -39,8 +22,8 @@ export function Impact() {
 			const mm = gsap.matchMedia();
 
 			mm.add("(prefers-reduced-motion: no-preference)", () => {
-				const eyebrow = root.querySelector<HTMLElement>(".impact-eyebrow");
-				const title = root.querySelector<HTMLElement>(".impact-title");
+				const eyebrowEl = root.querySelector<HTMLElement>(".impact-eyebrow");
+				const titleEl = root.querySelector<HTMLElement>(".impact-title");
 				const rows = root.querySelectorAll<HTMLElement>(".impact-row");
 
 				const trigger = {
@@ -49,8 +32,8 @@ export function Impact() {
 					toggleActions: "play reverse play reverse",
 				} as const;
 
-				if (eyebrow) {
-					gsap.from(eyebrow, {
+				if (eyebrowEl) {
+					gsap.from(eyebrowEl, {
 						y: 14,
 						opacity: 0,
 						duration: 0.7,
@@ -59,8 +42,8 @@ export function Impact() {
 					});
 				}
 
-				if (title) {
-					gsap.from(title, {
+				if (titleEl) {
+					gsap.from(titleEl, {
 						y: 28,
 						opacity: 0,
 						duration: 0.9,
@@ -92,31 +75,37 @@ export function Impact() {
 		{ scope: rootRef },
 	);
 
+	if (!stats.length) return null;
+
 	return (
 		<section
 			ref={rootRef}
 			id="about-impact"
 			className="w-full bg-surface-deep text-surface-deep-foreground py-20 md:py-28 lg:py-32 px-6 md:px-12 lg:px-24"
-			aria-label="Untab's technical pedigree in numbers"
+			aria-label="Untab studio, in facts"
 		>
 			<div className="container">
 				<div className="grid grid-cols-1 gap-10 md:grid-cols-12 md:gap-10">
 					<div className="md:col-span-3 lg:col-span-3">
-						<p className="impact-eyebrow text-[11px] font-medium uppercase tracking-[0.28em] opacity-60">
-							Technical pedigree
-						</p>
+						{eyebrow ? (
+							<p className="impact-eyebrow text-[11px] font-medium uppercase tracking-[0.28em] opacity-60">
+								{eyebrow}
+							</p>
+						) : null}
 					</div>
 					<div className="md:col-span-9 lg:col-span-9">
-						<h2 className="impact-title text-2xl md:text-3xl lg:text-4xl font-medium tracking-tight">
-							A pedigree, measured in outcomes
-						</h2>
+						{title ? (
+							<h2 className="impact-title text-2xl md:text-3xl lg:text-4xl font-medium tracking-tight">
+								{title}
+							</h2>
+						) : null}
 					</div>
 				</div>
 
 				<ul className="mt-16 md:mt-20 border-t border-current/15">
-					{STATS.map((s) => (
+					{stats.map((s) => (
 						<li
-							key={s.value}
+							key={`${s.value}-${s.label}`}
 							className="impact-row grid grid-cols-1 gap-6 border-b border-current/15 py-10 md:grid-cols-12 md:gap-10 md:py-12 lg:py-14"
 						>
 							<div className="md:col-span-3 lg:col-span-3" aria-hidden />
@@ -127,7 +116,7 @@ export function Impact() {
 							</div>
 							<div className="md:col-span-5 lg:col-span-5 flex items-center">
 								<p className="max-w-md text-pretty text-sm md:text-base leading-[1.65] opacity-70">
-									{s.body}
+									{s.label}
 								</p>
 							</div>
 						</li>

@@ -99,6 +99,15 @@ export default defineType({
 			options: {
 				hotspot: true,
 			},
+			fields: [
+				{
+					name: "alt",
+					title: "Alt text",
+					type: "string",
+					description:
+						"Describe the image for search engines and screen readers. Falls back to the project title.",
+				},
+			],
 		}),
 		defineField({
 			name: "cardImage",
@@ -110,6 +119,15 @@ export default defineType({
 			},
 			description:
 				"Curated image for homepage/work cards. Use a polished browser, app, or poster composition. Falls back to Hero Image.",
+			fields: [
+				{
+					name: "alt",
+					title: "Alt text",
+					type: "string",
+					description:
+						"Describe the image for search engines and screen readers. Falls back to the project title.",
+				},
+			],
 		}),
 		defineField({
 			name: "previewVideo",
@@ -127,7 +145,21 @@ export default defineType({
 			title: "Project Gallery",
 			type: "array",
 			group: "media",
-			of: [{ type: "image", options: { hotspot: true } }],
+			of: [
+				{
+					type: "image",
+					options: { hotspot: true },
+					fields: [
+						{
+							name: "alt",
+							title: "Alt text",
+							type: "string",
+							description:
+								"Describe the image for search engines and screen readers.",
+						},
+					],
+				},
+			],
 			description:
 				"Shown as the case study media column, after the hero image.",
 		}),

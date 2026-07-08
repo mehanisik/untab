@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { generatePageMetadata } from "~/libs/metadata";
+import { JsonLd } from "~/components/json-ld";
+import { generatePageMetadata, SITE_URL } from "~/libs/metadata";
 import { getPostBySlug, getPosts } from "~/libs/posts";
 import { Article } from "./_components";
 
@@ -28,16 +29,17 @@ export async function generateMetadata({
 	params,
 }: PageProps): Promise<Metadata> {
 	const { slug } = await params;
-	const post = await getPostBySlug(slug);
+	// stega:false — keep invisible Visual-Editing chars out of <head>.
+	const post = await getPostBySlug(slug, { stega: false });
 
 	if (!post) {
-		return generatePageMetadata({ title: "Article | Untab Studio" });
+		return generatePageMetadata({ title: "Article" });
 	}
 
 	const cover = post.seo?.image ?? post.mainImage;
 
 	return generatePageMetadata({
-		title: `${post.seo?.title ?? post.title} | Untab Studio`,
+		title: post.seo?.title ?? post.title,
 		description: post.seo?.description ?? post.excerpt,
 		url: `/blog/${post.slug}`,
 		type: "article",
@@ -54,8 +56,45 @@ export default async function BlogPostPage({ params }: PageProps) {
 
 	if (!post) notFound();
 
+	const url = `${SITE_URL}/blog/${post.slug}`;
+
 	return (
 		<main className="grow bg-background pt-14">
+			<JsonLd
+				data={{
+					"@context": "https://schema.org",
+					"@type": "BlogPosting",
+					headline: post.title,
+					description: post.seo?.description ?? post.excerpt,
+					image: post.seo?.image ?? post.mainImage,
+					datePublished: post.publishedAt,
+					author: post.author?.name
+						? { "@type": "Person", name: post.author.name }
+						: undefined,
+					publisher: {
+						"@type": "Organization",
+						name: "Untab Studio",
+						logo: { "@type": "ImageObject", url: `${SITE_URL}/logo.png` },
+					},
+					mainEntityOfPage: url,
+					url,
+				}}
+			/>
+			<JsonLd
+				data={{
+					"@context": "https://schema.org",
+					"@type": "BreadcrumbList",
+					itemListElement: [
+						{
+							"@type": "ListItem",
+							position: 1,
+							name: "Blog",
+							item: `${SITE_URL}/blog`,
+						},
+						{ "@type": "ListItem", position: 2, name: post.title, item: url },
+					],
+				}}
+			/>
 			<Article post={post} />
 		</main>
 	);

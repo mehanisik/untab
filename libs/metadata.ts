@@ -56,6 +56,9 @@ function getBaseUrl(): string {
 
 const APP_BASE_URL = getBaseUrl();
 
+/** Absolute site origin, for canonical URLs and JSON-LD @id references. */
+export const SITE_URL = APP_BASE_URL;
+
 /**
  * Generate complete metadata object for pages
  *

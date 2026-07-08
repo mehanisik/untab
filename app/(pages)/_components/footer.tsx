@@ -14,8 +14,17 @@ import { useId, useRef } from "react";
 import { LogoWordmark } from "~/components/logo-wordmark";
 import { Link } from "~/components/ui/link";
 import { withMotion } from "~/libs/gsap/presets";
+import type { Settings } from "~/libs/sanity";
 import { SOCIALS } from "~/libs/socials";
 
+const DEFAULT_TAGLINE =
+	"An independent software studio in Warsaw, building brand-led websites, platforms, and digital products with ambitious teams around the world.";
+const DEFAULT_EMAIL = "contact@untabstudio.com";
+const DEFAULT_CITY = "Warsaw, Poland";
+const DEFAULT_TIMEZONE = "CET · UTC+1";
+
+// Nav routes stay in code — they map to real pages, so they can't be edited
+// away into broken links from the CMS.
 const studioLinks = [
 	{ label: "Home", href: "/" },
 	{ label: "Work", href: "/work" },
@@ -23,13 +32,6 @@ const studioLinks = [
 	{ label: "About", href: "/about" },
 	{ label: "Blog", href: "/blog" },
 	{ label: "Contact", href: "/contact" },
-];
-
-const contactLinks: Array<{ label: string; href?: string }> = [
-	{ label: "hello@untabstudio.com", href: "mailto:hello@untabstudio.com" },
-	{ label: "Book a call", href: "/contact" },
-	{ label: "Warsaw, Poland" },
-	{ label: "CET · UTC+1" },
 ];
 
 const socialLinks = [
@@ -45,10 +47,33 @@ const SECTION_LABEL =
 const LINK =
 	"inline-block text-[15px] text-surface-deep-foreground transition-opacity duration-200 hover:opacity-70";
 
-export function Footer() {
+type FooterProps = Pick<
+	Settings,
+	| "footerTagline"
+	| "studioTypeLabel"
+	| "contactEmail"
+	| "studioCity"
+	| "timezone"
+>;
+
+export function Footer({
+	footerTagline,
+	studioTypeLabel = "Software Studio",
+	contactEmail,
+	studioCity,
+	timezone,
+}: FooterProps = {}) {
 	const year = new Date().getFullYear();
 	const footerRef = useRef<HTMLElement>(null);
 	const grainId = useId();
+
+	const email = contactEmail ?? DEFAULT_EMAIL;
+	const contactLinks: Array<{ label: string; href?: string }> = [
+		{ label: email, href: `mailto:${email}` },
+		{ label: "Book a call", href: "/contact" },
+		{ label: studioCity ?? DEFAULT_CITY },
+		{ label: timezone ?? DEFAULT_TIMEZONE },
+	];
 
 	useGSAP(
 		() =>
@@ -168,12 +193,10 @@ export function Footer() {
 							className="fx-logo block h-10 md:h-12 w-auto text-surface-deep-foreground"
 						/>
 						<p className="fx-tagline-line max-w-sm text-pretty text-[15px] font-light leading-[1.6] text-surface-deep-foreground">
-							An independent software studio in Warsaw, building brand-led
-							websites, platforms, and digital products with ambitious teams
-							around the world.
+							{footerTagline ?? DEFAULT_TAGLINE}
 						</p>
 						<p className="fx-tagline-line text-[11px] font-medium uppercase tracking-[0.22em] text-surface-deep-foreground">
-							Software Studio
+							{studioTypeLabel}
 						</p>
 					</div>
 

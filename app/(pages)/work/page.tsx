@@ -4,7 +4,7 @@ import { getProjects } from "~/libs/projects";
 import { WorkList } from "./_components";
 
 export const metadata: Metadata = generatePageMetadata({
-	title: "Case studies | Untab Studio",
+	title: "Case studies",
 	description:
 		"Selected projects from Untab Studio. Brand-led websites, platforms, and digital products built with ambitious teams.",
 	url: "/work",

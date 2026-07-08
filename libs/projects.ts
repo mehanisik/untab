@@ -39,13 +39,17 @@ export interface Project {
 	description: string;
 	accentColor?: string;
 	image: string;
+	// Editor-authored alt text (falls back to the project title in components).
+	imageAlt?: string;
 	// Normalised 0–1 focal point set in Sanity Studio. When present the hero
 	// mosaic crops around it; otherwise it falls back to a content-aware crop.
 	imageHotspot?: { x: number; y: number };
 	cardImage?: string;
+	cardImageAlt?: string;
 	cardImageHotspot?: { x: number; y: number };
 	previewVideo?: string;
 	gallery?: string[];
+	galleryAlt?: (string | null)[];
 	client?: {
 		name?: string;
 		logo?: string;
@@ -121,12 +125,13 @@ export const getProjects = cache(async (): Promise<Project[]> => {
 });
 
 export const getProjectBySlug = cache(
-	async (slug: string): Promise<Project | null> => {
+	async (slug: string, opts?: { stega?: boolean }): Promise<Project | null> => {
 		try {
 			const project = await fetchSanity<Project>(
 				QUERIES.projectBySlug,
 				{ slug },
 				[`project:${slug}`],
+				opts,
 			);
 			if (project) {
 				const clean = sanitize(project);
@@ -134,17 +139,22 @@ export const getProjectBySlug = cache(
 				// GROQ already resolves image/gallery to URL strings.
 				const image = clean.image || PROJECT_IMAGE_FALLBACK;
 				const gallery = clean.gallery ?? [];
+				// Prefer editor-authored alt; otherwise a descriptive, non-empty
+				// fallback built from the project title and category (never "").
+				const fallbackAlt = clean.category
+					? `${clean.title} — ${clean.category}`
+					: clean.title;
 				const media: MediaItem[] = [
 					{
 						kind: "image",
 						src: image,
-						alt: `${clean.title} hero`,
+						alt: clean.imageAlt || fallbackAlt,
 						aspect: sanityAspect(image),
 					},
 					...gallery.map((src, i) => ({
 						kind: "image" as const,
 						src,
-						alt: `${clean.title} ${String(i + 2).padStart(2, "0")}`,
+						alt: clean.galleryAlt?.[i] || `${fallbackAlt}, image ${i + 2}`,
 						aspect: sanityAspect(src),
 					})),
 				];

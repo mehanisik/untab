@@ -2,91 +2,72 @@
 
 import { useId } from "react";
 import { useFadeInOnScroll } from "~/hooks/use-scroll-animation";
+import type { HomepageFeatureItem } from "~/libs/sanity";
 import { cn } from "~/libs/utils";
-
-interface PosterMeta {
-	location: string;
-	stat: string;
-	caption: string;
-	bg: string;
-	rotate: number;
-}
-
-interface Feature {
-	title: string;
-	description: string;
-	poster: PosterMeta;
-}
 
 interface FeaturesProps {
 	title?: string;
-	features?: Feature[];
+	features?: HomepageFeatureItem[];
 }
 
-const DEFAULT_FEATURES: Feature[] = [
+// Presentation only — poster colour + tilt, applied by card index. Kept in
+// code (per "data > presentation"); the CMS supplies the editorial content.
+const POSTER_STYLES = [
+	{ bg: "#f15c7e", rotate: -1.4 },
+	{ bg: "#7c8df0", rotate: 1.2 },
+	{ bg: "#d8e85e", rotate: -0.8 },
+	{ bg: "#a892ff", rotate: 1.6 },
+];
+
+const DEFAULT_FEATURES: HomepageFeatureItem[] = [
 	{
 		title: "Strategic Blueprinting",
 		description:
 			"We turn ambiguous visions into high-performance architectures. A clear plan, a defensible system, foundations designed for scale.",
-		poster: {
-			location: "WARSAW, PL",
-			stat: "99%",
-			caption: "of our clients need this",
-			bg: "#f15c7e",
-			rotate: -1.4,
-		},
+		location: "WARSAW, PL",
+		stat: "99%",
+		caption: "of our clients need this",
 	},
 	{
 		title: "Technical Risk Management",
 		description:
 			"Early identification and mitigation of technical debt, security risk, and operational fragility. The system you ship today is the system that holds tomorrow.",
-		poster: {
-			location: "AUDIT, OPS",
-			stat: "0",
-			caption: "incidents in production",
-			bg: "#7c8df0",
-			rotate: 1.2,
-		},
+		location: "AUDIT, OPS",
+		stat: "0",
+		caption: "incidents in production",
 	},
 	{
 		title: "Technical Pedigree",
 		description:
 			"Years of shipping production systems, distilled into how we build. Battle-tested patterns and modern tooling, applied with discipline.",
-		poster: {
-			location: "SHIP, QA",
-			stat: "100%",
-			caption: "tested before release",
-			bg: "#d8e85e",
-			rotate: -0.8,
-		},
+		location: "SHIP, QA",
+		stat: "100%",
+		caption: "tested before release",
 	},
 	{
 		title: "Transparent Partnership",
 		description:
 			"An extension of your team. Open communication, shared goals, weekly working sessions. Expert guidance at every step, no black boxes.",
-		poster: {
-			location: "PARTNER, EU",
-			stat: "1:1",
-			caption: "with the founders, weekly",
-			bg: "#a892ff",
-			rotate: 1.6,
-		},
+		location: "PARTNER, EU",
+		stat: "1:1",
+		caption: "with the founders, weekly",
 	},
 ];
 
-function Poster({ meta, index }: { meta: PosterMeta; index: number }) {
+function Poster({ meta, index }: { meta: HomepageFeatureItem; index: number }) {
 	const dotsId = useId();
 	const grainId = useId();
+	const style = POSTER_STYLES[index % POSTER_STYLES.length];
 
 	return (
 		<div
 			className={cn(
-				"relative aspect-[3/4] w-full overflow-hidden rounded-sm shadow-xl transition-all duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform",
+				"relative aspect-3/4 w-full overflow-hidden rounded-sm shadow-xl transition-all duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform",
 				"group-hover:-translate-y-1.5 group-hover:rotate-0 group-hover:shadow-[0_35px_70px_-15px_rgba(0,0,0,0.6)]",
 			)}
 			style={{
-				backgroundColor: meta.bg,
-				transform: `rotate(${meta.rotate}deg)`,
+				backgroundColor: style.bg,
+				transform: `rotate(${style.rotate}deg)`,
 			}}
 		>
 			<svg
@@ -150,12 +131,18 @@ function Poster({ meta, index }: { meta: PosterMeta; index: number }) {
 	);
 }
 
-function PosterCard({ feature, index }: { feature: Feature; index: number }) {
+function PosterCard({
+	feature,
+	index,
+}: {
+	feature: HomepageFeatureItem;
+	index: number;
+}) {
 	const ref = useFadeInOnScroll<HTMLDivElement>({ delay: index * 0.06 });
 
 	return (
 		<div ref={ref} className="group flex flex-col">
-			<Poster meta={feature.poster} index={index} />
+			<Poster meta={feature} index={index} />
 
 			<div className="mt-5">
 				<h3 className="text-[clamp(1.15rem,1.5vw,1.4rem)] font-medium leading-tight tracking-[-0.01em] text-foreground">

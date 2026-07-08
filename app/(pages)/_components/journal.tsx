@@ -12,6 +12,7 @@ import type { Post } from "~/libs/sanity";
 
 interface JournalProps {
 	posts: Post[];
+	label?: string;
 }
 
 const DATE_FORMATTER = new Intl.DateTimeFormat("en-US", {
@@ -20,7 +21,7 @@ const DATE_FORMATTER = new Intl.DateTimeFormat("en-US", {
 	day: "numeric",
 });
 
-export function Journal({ posts }: JournalProps) {
+export function Journal({ posts, label = "Journal" }: JournalProps) {
 	const sectionRef = useRef<HTMLElement>(null);
 
 	const items = posts.slice(0, 3);
@@ -80,7 +81,7 @@ export function Journal({ posts }: JournalProps) {
 						id="journal-title"
 						className="journal-title text-4xl sm:text-5xl md:text-6xl lg:text-[clamp(3rem,2rem+2.4vw,4.25rem)] font-medium leading-none tracking-[-0.03em] text-foreground"
 					>
-						Journal
+						{label}
 					</h2>
 
 					<Link

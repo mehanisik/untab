@@ -1,15 +1,15 @@
+import { CogIcon, EnvelopeIcon, HomeIcon, UsersIcon } from "@sanity/icons";
 import { visionTool } from "@sanity/vision";
 import { defineConfig } from "sanity";
+import type { ListItemBuilder, StructureBuilder } from "sanity/structure";
 import { structureTool } from "sanity/structure";
-import type { StructureBuilder, ListItemBuilder } from "sanity/structure";
-import { schemaTypes } from "./sanity/schemas";
 import { getEnv } from "./libs/validate-env";
-import { CogIcon } from "@sanity/icons";
+import { schemaTypes } from "./sanity/schemas";
 
 const env = getEnv();
 
 const singletonActions = new Set(["publish", "discardChanges", "restore"]);
-const singletonTypes = new Set(["settings"]);
+const singletonTypes = new Set(["settings", "homepage", "about", "contact"]);
 
 export default defineConfig({
 	basePath: "/studio",
@@ -30,6 +30,23 @@ export default defineConfig({
 							.child(
 								S.document().schemaType("settings").documentId("settings"),
 							),
+						S.listItem()
+							.title("Homepage")
+							.id("homepage")
+							.icon(HomeIcon)
+							.child(
+								S.document().schemaType("homepage").documentId("homepage"),
+							),
+						S.listItem()
+							.title("About Page")
+							.id("about")
+							.icon(UsersIcon)
+							.child(S.document().schemaType("about").documentId("about")),
+						S.listItem()
+							.title("Contact Page")
+							.id("contact")
+							.icon(EnvelopeIcon)
+							.child(S.document().schemaType("contact").documentId("contact")),
 						S.divider(),
 						...S.documentTypeListItems().filter(
 							(listItem: ListItemBuilder) =>

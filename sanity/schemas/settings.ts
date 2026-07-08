@@ -1,5 +1,5 @@
-import { defineField, defineType } from "sanity";
 import { CogIcon } from "@sanity/icons";
+import { defineField, defineType } from "sanity";
 
 export default defineType({
 	name: "settings",
@@ -8,10 +8,63 @@ export default defineType({
 	icon: CogIcon,
 	groups: [
 		{ name: "general", title: "General" },
+		{ name: "contact", title: "Contact" },
 		{ name: "social", title: "Social Media" },
 		{ name: "footer", title: "Footer" },
+		{ name: "labels", title: "Section Labels" },
 	],
 	fields: [
+		defineField({
+			name: "contactEmail",
+			title: "Contact Email",
+			type: "string",
+			group: "contact",
+			description: "Shared across the footer and contact page.",
+			validation: (rule) => rule.email(),
+		}),
+		defineField({
+			name: "studioCity",
+			title: "Studio City",
+			type: "string",
+			group: "contact",
+			description: 'e.g. "Warsaw, Poland".',
+		}),
+		defineField({
+			name: "timezone",
+			title: "Timezone",
+			type: "string",
+			group: "contact",
+			description: 'e.g. "CET · UTC+1".',
+		}),
+		defineField({
+			name: "footerTagline",
+			title: "Footer Tagline",
+			type: "text",
+			rows: 3,
+			group: "footer",
+		}),
+		defineField({
+			name: "studioTypeLabel",
+			title: "Studio Type Label",
+			type: "string",
+			group: "footer",
+			description: 'Small label under the tagline, e.g. "Software Studio".',
+		}),
+		defineField({
+			name: "blogHeroTitle",
+			title: "Blog Hero Title",
+			type: "array",
+			of: [{ type: "string" }],
+			group: "labels",
+			description: "Blog page hero, one entry per line.",
+		}),
+		defineField({
+			name: "journalLabel",
+			title: "Journal Section Label",
+			type: "string",
+			group: "labels",
+			description: 'Homepage journal heading, e.g. "Journal".',
+		}),
 		defineField({
 			name: "title",
 			title: "Site Title",

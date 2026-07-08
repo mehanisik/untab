@@ -12,6 +12,7 @@ import { useEffect, useRef, useState } from "react";
 import { sendContactEmail } from "~/app/actions/contact";
 import { PROJECT_TYPES } from "~/libs/contact";
 import { withMotion } from "~/libs/gsap/presets";
+import { getPostHog } from "~/libs/posthog";
 
 const COOLDOWN_MS = 10_000;
 const MESSAGE_MAX = 5000;
@@ -138,6 +139,13 @@ export function ContactFormPanel() {
 			return;
 		}
 
+		// Conversion event — the one metric that matters for a studio site.
+		// No PII: only the (optional) project-type bucket. Fires solely if the
+		// visitor consented to analytics; otherwise getPostHog() is null.
+		getPostHog()?.capture("contact_form_submitted", {
+			project_type: projectType ?? "unspecified",
+		});
+
 		setSubmitState({ status: "success" });
 		setProjectType(null);
 		setMessageLength(0);
@@ -155,7 +163,9 @@ export function ContactFormPanel() {
 			ref={formRef}
 			onSubmit={handleSubmit}
 			noValidate
-			className="space-y-7"
+			// ph-no-capture: keep name/email/message out of PostHog session
+			// replays and autocapture (PII).
+			className="ph-no-capture space-y-7"
 		>
 			<input
 				type="text"

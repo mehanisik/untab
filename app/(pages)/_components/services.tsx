@@ -4,64 +4,20 @@ import { useGSAP } from "@gsap/react";
 import { ArrowDown01Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import gsap from "gsap";
+import { stegaClean } from "next-sanity";
 import { useId, useRef, useState } from "react";
-import {
-	BrandingMark,
-	ContentMark,
-	PlatformMark,
-	StrategyMark,
-	SystemMark,
-} from "~/components/service-marks";
+import { SERVICE_MARKS } from "~/components/service-marks";
 import { Link } from "~/components/ui/link";
 import { withMotion } from "~/libs/gsap/presets";
+import type { Service } from "~/libs/sanity";
 import { cn, pad } from "~/libs/utils";
-
-// The landing index of what /services covers in depth: five rows, one
-// line each. Kept deliberately terse; the deep dive lives on /services.
-const SERVICES = [
-	{
-		mark: <StrategyMark />,
-		title: "Strategy",
-		description:
-			"Clarity and direction before anything gets built. Insight, not assumptions.",
-		meta: "Discovery · Positioning · Workshops",
-	},
-	{
-		mark: <BrandingMark />,
-		title: "Brand",
-		description:
-			"Visual and verbal systems that resonate and endure, across every touchpoint.",
-		meta: "Identity · Naming · Motion",
-	},
-	{
-		mark: <ContentMark />,
-		title: "Website",
-		description:
-			"Brand-led marketing sites that work hard, with guardrails your team can trust.",
-		meta: "Architecture · Interface · Animation",
-	},
-	{
-		mark: <SystemMark />,
-		title: "Product",
-		description:
-			"Digital products that solve real problems and adapt as things change.",
-		meta: "Flows · Prototyping · Design systems",
-	},
-	{
-		mark: <PlatformMark />,
-		title: "Development",
-		description:
-			"Robust builds for growth, performance, and long-term flexibility.",
-		meta: "Backend · Front-end · Mobile",
-	},
-];
 
 // One grid for the row and its panel keeps the expanded copy aligned
 // exactly under the title, whatever the mark column measures.
 const ROW_GRID =
 	"grid grid-cols-[2.75rem_1fr_1.5rem] items-center gap-x-5 md:grid-cols-[3.75rem_1fr_1.75rem] md:gap-x-8";
 
-export function Services() {
+export function Services({ services }: { services: Service[] }) {
 	const sectionRef = useRef<HTMLElement>(null);
 	const panelBaseId = useId();
 	const [openIndex, setOpenIndex] = useState<number | null>(null);
@@ -116,7 +72,7 @@ export function Services() {
 			<div className="container px-6 md:px-12 lg:px-24">
 				<h2 className="svc-intro mb-8 font-mono text-[11px] uppercase tracking-[0.25em] text-foreground/50 md:mb-10">
 					Our services{" "}
-					<span className="tabular-nums">({pad(SERVICES.length)})</span>
+					<span className="tabular-nums">({pad(services.length)})</span>
 				</h2>
 
 				<p className="svc-intro max-w-[24ch] text-balance font-medium leading-[1.08] tracking-[-0.03em] text-[clamp(1.9rem,4vw,3.5rem)]">
@@ -127,9 +83,12 @@ export function Services() {
 				</p>
 
 				<div className="group/list mt-14 md:mt-20">
-					{SERVICES.map((service, index) => {
+					{services.map((service, index) => {
 						const open = openIndex === index;
 						const panelId = `${panelBaseId}-panel-${index}`;
+						// Clean stega-encoded markers before the lookup — the raw dev
+						// string carries invisible chars that break the key match.
+						const Mark = SERVICE_MARKS[stegaClean(service.mark)] ?? null;
 						return (
 							<div
 								key={service.title}
@@ -154,7 +113,7 @@ export function Services() {
 										)}
 										aria-hidden
 									>
-										{service.mark}
+										{Mark ? <Mark /> : null}
 									</span>
 									<span className="min-w-0 truncate font-medium leading-[1.05] tracking-[-0.02em] text-[clamp(1.35rem,2.8vw,2.2rem)] transition-transform duration-300 ease-out group-hover:translate-x-1.5">
 										{service.title}
@@ -185,7 +144,7 @@ export function Services() {
 											<span aria-hidden />
 											<div className="space-y-2.5">
 												<p className="max-w-[46ch] text-pretty text-[14px] leading-relaxed text-foreground/60 md:text-[15px]">
-													{service.description}
+													{service.summary}
 												</p>
 												<p className="font-mono text-[11px] uppercase tracking-[0.18em] text-foreground/40">
 													{service.meta}

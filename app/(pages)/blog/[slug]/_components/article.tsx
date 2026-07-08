@@ -1,7 +1,7 @@
 "use client";
 
 import { useGSAP } from "@gsap/react";
-import { type PortableTextComponents, PortableText } from "@portabletext/react";
+import { PortableText, type PortableTextComponents } from "@portabletext/react";
 import gsap from "gsap";
 import { useRef } from "react";
 import { Image } from "~/components/ui/image";

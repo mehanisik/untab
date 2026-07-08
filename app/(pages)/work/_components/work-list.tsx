@@ -216,7 +216,10 @@ function WorkTile({ project, index }: { project: Project; index: number }) {
 			<div className="relative aspect-[16/10] w-full overflow-hidden rounded-lg bg-foreground/[0.035]">
 				<Image
 					src={sanityFitMax(cardImage, 1600)}
-					alt=""
+					alt={
+						project.cardImageAlt ||
+						`${project.title}${project.category ? ` — ${project.category}` : ""}`
+					}
 					fill
 					priority={index < 3}
 					sizes="(min-width: 1024px) 30vw, (min-width: 640px) 50vw, 100vw"

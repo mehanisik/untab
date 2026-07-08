@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect } from "react";
-import posthog from "posthog-js";
 import * as CookieConsent from "vanilla-cookieconsent";
+import { getPostHog, loadPostHog } from "~/libs/posthog";
 
 const CONSENT_KEY = "cookie-consent";
 
@@ -24,9 +24,11 @@ function syncConsent() {
 	);
 
 	if (analyticsAccepted) {
-		posthog.opt_in_capturing();
+		// Load posthog-js on demand, then start capturing.
+		loadPostHog().then((posthog) => posthog.opt_in_capturing());
 	} else {
-		posthog.opt_out_capturing();
+		// If it was loaded earlier this session, stop it; otherwise nothing to do.
+		getPostHog()?.opt_out_capturing();
 	}
 }
 

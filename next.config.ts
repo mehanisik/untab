@@ -81,7 +81,12 @@ const nextConfig: NextConfig = {
 		turbopackFileSystemCacheForDev: process.env.NODE_ENV !== "production",
 		taint: true,
 		// isolatedDevBuild: true,
-		optimizePackageImports: ["gsap", "@base-ui/react", "lenis"],
+		optimizePackageImports: [
+			"gsap",
+			"lenis",
+			"@hugeicons/react",
+			"@hugeicons/core-free-icons",
+		],
 	},
 	devIndicators: false,
 	images: {
@@ -93,10 +98,7 @@ const nextConfig: NextConfig = {
 				protocol: "https",
 				hostname: "cdn.sanity.io",
 			},
-			{
-				protocol: "https",
-				hostname: "cdn.shopify.com",
-			},
+			// Last-resort hero fallback only (never fires when projects have images).
 			{
 				protocol: "https",
 				hostname: "picsum.photos",
@@ -104,10 +106,6 @@ const nextConfig: NextConfig = {
 			{
 				protocol: "https",
 				hostname: "fastly.picsum.photos",
-			},
-			{
-				protocol: "https",
-				hostname: "cdn.prod.website-files.com",
 			},
 		],
 		minimumCacheTTL: 60 * 60 * 24 * 30, // 30 days

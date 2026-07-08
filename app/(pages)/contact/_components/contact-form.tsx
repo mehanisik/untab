@@ -15,48 +15,14 @@ import { Container } from "~/components/container";
 import { LogoWordmark } from "~/components/logo-wordmark";
 import { Link } from "~/components/ui/link";
 import { withMotion } from "~/libs/gsap/presets";
+import type { Contact } from "~/libs/sanity";
 import { SOCIALS } from "~/libs/socials";
-import { ContactFormPanel } from "./contact-form-panel";
 import { pad } from "~/libs/utils";
+import { ContactFormPanel } from "./contact-form-panel";
 
 // Split-card contact layout: a theme-aware info panel on the left, a fixed
 // brand coral form block on the right with ink type. The card flips with the
 // theme; the coral block is a brand statement and stays put in both.
-const INFO_BLOCKS = [
-	{
-		title: "Chat to us",
-		body: "Our friendly team is here to help.",
-		detail: (
-			<a
-				href="mailto:hello@untabstudio.com"
-				className="font-medium text-foreground underline-offset-4 transition-colors hover:text-[var(--brand-coral-accent)] hover:underline"
-			>
-				hello@untabstudio.com
-			</a>
-		),
-	},
-	{
-		title: "Based in",
-		body: "Working with teams across Europe and beyond.",
-		detail: (
-			<p className="font-medium text-foreground">
-				Warsaw, Poland
-				<span className="block text-[13px] font-normal text-foreground/55">
-					CET · UTC+1
-				</span>
-			</p>
-		),
-	},
-	{
-		title: "Availability",
-		body: "Mon to Fri, 9am to 5pm CET.",
-		detail: (
-			<p className="font-medium text-foreground">
-				Replies within one business day
-			</p>
-		),
-	},
-];
 
 const socialLinks = [
 	{ label: "LinkedIn", icon: Linkedin01Icon, href: SOCIALS.linkedin },
@@ -66,7 +32,11 @@ const socialLinks = [
 	{ label: "GitHub", icon: GithubIcon, href: SOCIALS.github },
 ];
 
-export function ContactForm() {
+export function ContactForm({
+	headingLines = [],
+	intro,
+	infoBlocks = [],
+}: Contact) {
 	const sectionRef = useRef<HTMLElement>(null);
 
 	useGSAP(
@@ -124,7 +94,7 @@ export function ContactForm() {
 			<Container>
 				<h2 className="contact-eyebrow mb-8 font-mono text-[11px] uppercase tracking-[0.25em] text-foreground/50 md:mb-10">
 					Contact{" "}
-					<span className="tabular-nums">({pad(INFO_BLOCKS.length)})</span>
+					<span className="tabular-nums">({pad(infoBlocks.length)})</span>
 				</h2>
 				<div className="contact-card overflow-hidden rounded-2xl border border-foreground/10 bg-card text-card-foreground shadow-sm">
 					<div className="grid grid-cols-1 lg:grid-cols-[2fr_3fr]">
@@ -139,7 +109,7 @@ export function ContactForm() {
 							</Link>
 
 							<div className="flex flex-1 flex-col">
-								{INFO_BLOCKS.map((block, index) => (
+								{infoBlocks.map((block, index) => (
 									<div
 										key={block.title}
 										className="contact-aside flex items-baseline gap-5 border-t border-foreground/10 py-6 first:border-t-0 first:pt-0 lg:py-7"
@@ -151,10 +121,30 @@ export function ContactForm() {
 											<p className="text-[11px] font-medium uppercase tracking-[0.22em] text-foreground/55">
 												{block.title}
 											</p>
-											<p className="text-pretty text-foreground/55">
-												{block.body}
-											</p>
-											<div className="pt-1 text-[15px]">{block.detail}</div>
+											{block.body ? (
+												<p className="text-pretty text-foreground/55">
+													{block.body}
+												</p>
+											) : null}
+											<div className="pt-1 text-[15px]">
+												{block.email ? (
+													<a
+														href={`mailto:${block.email}`}
+														className="font-medium text-foreground underline-offset-4 transition-colors hover:text-[var(--brand-coral-accent)] hover:underline"
+													>
+														{block.email}
+													</a>
+												) : (
+													<p className="font-medium text-foreground">
+														{block.detailText}
+														{block.detailSubtext ? (
+															<span className="block text-[13px] font-normal text-foreground/55">
+																{block.detailSubtext}
+															</span>
+														) : null}
+													</p>
+												)}
+											</div>
 										</div>
 									</div>
 								))}
@@ -182,21 +172,18 @@ export function ContactForm() {
 						{/* Right: coral form block */}
 						<div className="bg-[var(--brand-coral)] p-7 text-[var(--dark)] sm:p-10 lg:rounded-l-2xl lg:p-12">
 							<h1 className="max-w-[18ch] font-medium leading-[1.05] tracking-[-0.03em] text-[clamp(1.9rem,3.4vw,2.9rem)]">
-								<span className="block overflow-hidden pb-0.5">
-									<span className="contact-headline-line block">
-										Got an idea? We&apos;ve got
+								{headingLines.map((line) => (
+									<span key={line} className="block overflow-hidden pb-0.5">
+										<span className="contact-headline-line block">{line}</span>
 									</span>
-								</span>
-								<span className="block overflow-hidden pb-0.5">
-									<span className="contact-headline-line block">
-										the craft. Let&apos;s team up.
-									</span>
-								</span>
+								))}
 							</h1>
 
-							<p className="contact-aside mt-4 text-[15px] leading-relaxed text-[var(--dark)]/70">
-								Tell us more about yourself and what you&apos;ve got in mind.
-							</p>
+							{intro ? (
+								<p className="contact-aside mt-4 text-[15px] leading-relaxed text-[var(--dark)]/70">
+									{intro}
+								</p>
+							) : null}
 
 							<div className="contact-panel mt-10">
 								<ContactFormPanel />

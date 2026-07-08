@@ -1,5 +1,6 @@
+import { cacheTag } from "next/cache";
 import { defineLive } from "next-sanity/live";
-import { client } from "./sanity";
+import { client, type Settings } from "./sanity";
 
 // Read token lets sanityFetch use stega in dev for Visual Editing overlays.
 // Live updates of published content work without it (public dataset). Only a
@@ -18,33 +19,40 @@ const { SanityLive, sanityFetch } = defineLive({
 	browserToken: false,
 	strict: true,
 });
+
 export { SanityLive };
 
 const stega = process.env.NODE_ENV === "development" && Boolean(token);
 
 /**
- * Cached Sanity fetch. Sanity Live revalidates the cache via syncTags as
- * content changes; the optional custom tags keep the /api/revalidate webhook
- * working as a manual fallback.
+ * Cache-first Sanity read for `cacheComponents`. The "use cache" boundary is
+ * tagged with cacheTag(...tags) so the /api/revalidate webhook's
+ * revalidateTag() busts exactly the affected pages on publish — inner fetch
+ * tags do NOT propagate to a "use cache" entry, so this tagging is required.
+ * Cache lifetime comes from the `default` cacheLife profile in next.config.
  */
 export async function fetchSanity<T>(
 	query: string,
 	params: Record<string, unknown> = {},
 	tags?: string[],
+	opts?: { stega?: boolean },
 ): Promise<T> {
 	"use cache";
+	if (tags?.length) cacheTag(...tags);
 	const { data } = await sanityFetch({
 		query,
 		params,
 		perspective: "published",
-		stega,
+		// Metadata/SEO reads pass stega:false so invisible Visual-Editing chars
+		// never leak into <head>. Body reads keep the dev-only default.
+		stega: opts?.stega ?? stega,
 		tags,
 	});
 	return data as T;
 }
 
 export async function getSettings() {
-	return fetchSanity<{ logo: string; heroVideo?: string }>(
+	return fetchSanity<Settings>(
 		`*[_type == "settings"][0]{
     ...,
     "logo": logo.asset->url,

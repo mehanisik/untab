@@ -5,7 +5,12 @@ import gsap from "gsap";
 import { useRef } from "react";
 import { withMotion } from "~/libs/gsap/presets";
 
-export function Intro() {
+interface IntroProps {
+	eyebrow?: string;
+	headingLines?: string[];
+}
+
+export function Intro({ eyebrow, headingLines = [] }: IntroProps) {
 	const sectionRef = useRef<HTMLElement>(null);
 
 	useGSAP(
@@ -57,21 +62,17 @@ export function Intro() {
 								aria-hidden
 								className="size-1.5 rounded-full bg-foreground"
 							/>
-							Who are we?
+							{eyebrow}
 						</p>
 					</div>
 
 					<div className="md:col-span-9 lg:col-span-9">
 						<h2 className="text-balance text-3xl sm:text-4xl md:text-5xl lg:text-[clamp(2.75rem,1.5rem+3.2vw,4.75rem)] font-medium leading-[1.05] tracking-[-0.03em] text-foreground">
-							<span className="intro-line block">An independent software</span>
-							<span className="intro-line block">
-								studio in Warsaw who care,
-							</span>
-							<span className="intro-line block">
-								build relationships, sweat
-							</span>
-							<span className="intro-line block">the details, and ship</span>
-							<span className="intro-line block">considered products.</span>
+							{headingLines.map((line) => (
+								<span key={line} className="intro-line block">
+									{line}
+								</span>
+							))}
 						</h2>
 					</div>
 				</div>

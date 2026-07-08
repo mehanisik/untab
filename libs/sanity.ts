@@ -27,6 +27,99 @@ export interface Post {
 	};
 }
 
+export type ServiceMark =
+	| "strategy"
+	| "brand"
+	| "website"
+	| "product"
+	| "development"
+	| "cloud";
+
+export interface Service {
+	title: string;
+	mark: ServiceMark;
+	lead?: string;
+	main?: string;
+	cardDescription?: string;
+	summary?: string;
+	meta?: string;
+}
+
+export interface Settings {
+	logo?: string;
+	heroVideo?: string;
+	contactEmail?: string;
+	studioCity?: string;
+	timezone?: string;
+	footerTagline?: string;
+	studioTypeLabel?: string;
+	blogHeroTitle?: string[];
+	journalLabel?: string;
+}
+
+export interface ContactInfoBlock {
+	title: string;
+	body?: string;
+	email?: string;
+	detailText?: string;
+	detailSubtext?: string;
+}
+
+export interface Contact {
+	headingLines?: string[];
+	intro?: string;
+	infoBlocks?: ContactInfoBlock[];
+}
+
+export interface HomepageFeatureItem {
+	title: string;
+	description: string;
+	location?: string;
+	stat?: string;
+	caption?: string;
+}
+
+export interface HomepagePillar {
+	title: string;
+	description: string;
+}
+
+export interface Homepage {
+	intro?: { eyebrow?: string; headingLines?: string[] };
+	showcase?: { title?: string; headingLines?: string[]; description?: string };
+	features?: { title?: string; items?: HomepageFeatureItem[] };
+	collaboration?: {
+		title?: string;
+		quote?: string;
+		attribution?: string;
+		note?: string;
+		pillars?: HomepagePillar[];
+	};
+	vision?: {
+		kicker?: string;
+		description?: string;
+		linkText?: string;
+		heading?: string;
+	};
+}
+
+export interface AboutStat {
+	value: string;
+	label: string;
+}
+
+export interface About {
+	brandImage?: string;
+	eyebrow?: string;
+	headingLines?: string[];
+	intro?: string[];
+	studioStatement?: string;
+	studioLinkLabel?: string;
+	statsEyebrow?: string;
+	statsTitle?: string;
+	stats?: AboutStat[];
+}
+
 const env = getEnv();
 
 export const client = createClient({
@@ -60,8 +153,10 @@ export const QUERIES = {
     title,
     "slug": slug.current,
     "image": image.asset->url,
+    "imageAlt": image.alt,
     "imageHotspot": image.hotspot{x, y},
     "cardImage": cardImage.asset->url,
+    "cardImageAlt": cardImage.alt,
     "cardImageHotspot": cardImage.hotspot{x, y},
     "previewVideo": previewVideo.asset->url,
     "gallery": gallery[].asset->url,
@@ -91,9 +186,12 @@ export const QUERIES = {
     timeline,
     honors,
     "image": image.asset->url,
+    "imageAlt": image.alt,
     "cardImage": cardImage.asset->url,
+    "cardImageAlt": cardImage.alt,
     "previewVideo": previewVideo.asset->url,
     "gallery": gallery[].asset->url,
+    "galleryAlt": gallery[].alt,
     client {
       name,
       "logo": logo.asset->url,
@@ -159,5 +257,47 @@ export const QUERIES = {
     socials,
     footerText,
     copyright
+  }`,
+	about: `*[_type == "about"][0] {
+    "brandImage": brandImage.asset->url,
+    eyebrow,
+    headingLines,
+    intro,
+    studioStatement,
+    studioLinkLabel,
+    statsEyebrow,
+    statsTitle,
+    stats[] { value, label }
+  }`,
+	projectCount: `count(*[_type == "project"])`,
+	contact: `*[_id == "contact"][0] {
+    headingLines,
+    intro,
+    infoBlocks[] { title, body, email, detailText, detailSubtext }
+  }`,
+	homepage: `*[_id == "homepage"][0] {
+    intro { eyebrow, headingLines },
+    showcase { title, headingLines, description },
+    features {
+      title,
+      items[] { title, description, location, stat, caption }
+    },
+    collaboration {
+      title,
+      quote,
+      attribution,
+      note,
+      pillars[] { title, description }
+    },
+    vision { kicker, description, linkText, heading }
+  }`,
+	services: `*[_type == "service"] | order(order asc) {
+    title,
+    mark,
+    lead,
+    main,
+    cardDescription,
+    summary,
+    meta
   }`,
 };

@@ -81,6 +81,14 @@ function validateEnv(): EnvConfig {
 				"ARCJET_API_KEY is required in production for action protection",
 			);
 		}
+
+		// Analytics is non-critical, so warn (don't crash the site) when the
+		// PostHog token is missing — otherwise it fails silently at init.
+		if (!process.env.NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN) {
+			console.warn(
+				"[env] NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN is not set — PostHog analytics will be disabled in production.",
+			);
+		}
 	}
 
 	if (errors.length > 0) {

@@ -1,7 +1,7 @@
 "use client";
 
-import { useFadeInOnScroll } from "~/hooks/use-scroll-animation";
 import React, { useEffect, useRef, useState } from "react";
+import { useFadeInOnScroll } from "~/hooks/use-scroll-animation";
 import { cn } from "~/libs/utils";
 
 function AnimatedLine() {

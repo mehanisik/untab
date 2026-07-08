@@ -8,6 +8,9 @@
 /* a group parent they simply render static.                           */
 /* ------------------------------------------------------------------ */
 
+import type { ComponentType } from "react";
+import type { ServiceMark } from "~/libs/sanity";
+
 // SVG children transform in user units; fill-box keeps each part's
 // origin on itself so scales and tilts stay local.
 const PART =
@@ -190,3 +193,37 @@ export function SystemMark() {
 		</svg>
 	);
 }
+
+export function CloudMark() {
+	return (
+		<svg viewBox="0 0 120 120" fill="none" aria-hidden className="size-full">
+			<title>A cloud with an upload arrow</title>
+			<path
+				d="M40 82 C31 82 24 75 24 66 C24 58 30 51 38 50 C39 39 48 31 60 31 C71 31 80 38 82 49 C90 50 96 57 96 66 C96 75 89 82 80 82 Z"
+				stroke="currentColor"
+				strokeWidth="2"
+				strokeLinejoin="round"
+			/>
+			{/* The upload arrow lifts into the cloud on hover. */}
+			<path
+				d="M60 76 L60 54 M51 63 L60 54 L69 63"
+				stroke="currentColor"
+				strokeWidth="2"
+				strokeLinecap="round"
+				strokeLinejoin="round"
+				className={`${PART} motion-safe:group-hover:-translate-y-[6px]`}
+			/>
+		</svg>
+	);
+}
+
+// Maps a CMS `mark` key to its component, so services can be data-driven while
+// the marks themselves stay in code.
+export const SERVICE_MARKS: Record<ServiceMark, ComponentType> = {
+	strategy: StrategyMark,
+	brand: BrandingMark,
+	website: ContentMark,
+	product: SystemMark,
+	development: PlatformMark,
+	cloud: CloudMark,
+};

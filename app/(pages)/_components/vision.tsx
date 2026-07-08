@@ -7,6 +7,7 @@ import { Link } from "~/components/ui/link";
 import { withMotion } from "~/libs/gsap/presets";
 
 interface VisionProps {
+	kicker?: string;
 	description?: string;
 	linkText?: string;
 	heading?: string;
@@ -41,6 +42,7 @@ function VisionArcs() {
 }
 
 export function Vision({
+	kicker = "Next step",
 	description = "We have the perfect combination of mindset, skills, processes, and pricing structure. Together, we'll transform your ideas into the best-in-class digital experience.",
 	linkText = "Let's talk",
 	heading = "about your vision.",
@@ -124,7 +126,7 @@ export function Vision({
 			<div className="container relative flex flex-col gap-14 px-6 py-24 sm:py-32 md:px-12 md:py-40 lg:px-24">
 				<div className="max-w-md">
 					<p className="vision-kicker mb-6 font-mono text-[11px] uppercase tracking-[0.25em] text-foreground/50">
-						Next step
+						{kicker}
 					</p>
 					<p className="text-pretty text-lg font-medium leading-relaxed text-foreground">
 						{words.map((word, index) => (
