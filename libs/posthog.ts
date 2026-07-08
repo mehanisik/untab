@@ -9,14 +9,19 @@ let loading: Promise<PostHog> | null = null;
 
 /**
  * Dynamically import and initialise posthog-js. Safe to call repeatedly — the
- * SDK is imported and `init()` runs at most once. Resolves to the live client.
+ * SDK is imported and `init()` runs at most once. Resolves to the live client,
+ * or null when no project token is configured (skips init entirely rather than
+ * loading the SDK and warning about a missing token).
  */
-export function loadPostHog(): Promise<PostHog> {
+export function loadPostHog(): Promise<PostHog> | null {
 	if (instance) return Promise.resolve(instance);
 	if (loading) return loading;
 
+	const token = process.env.NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN;
+	if (!token) return null;
+
 	loading = import("posthog-js").then(({ default: posthog }) => {
-		posthog.init(process.env.NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN!, {
+		posthog.init(token, {
 			api_host: "/ingest",
 			ui_host: "https://eu.posthog.com",
 			defaults: "2026-01-30",
