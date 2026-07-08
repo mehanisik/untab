@@ -164,16 +164,18 @@ html.dark {
   body {
     margin: 0;
     padding: 0;
+    /* Full-bleed section backgrounds use 100vw layers; clip (not hidden, so
+       vertical scroll + ScrollTrigger pinning are unaffected) prevents them
+       from creating a horizontal scroll. Applied to BOTH html and body because
+       mobile browsers may scroll on the documentElement, which body-only clip
+       misses. */
+    overflow-x: clip;
   }
   * {
     @apply border-border outline-ring/50;
   }
   body {
     @apply bg-background text-foreground antialiased;
-    /* Full-bleed section backgrounds use 100vw layers; clip (not hidden, so
-       vertical scroll + ScrollTrigger pinning are unaffected) prevents the
-       scrollbar width from creating a horizontal scroll. */
-    overflow-x: clip;
   }
 }
 
