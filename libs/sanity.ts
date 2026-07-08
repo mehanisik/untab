@@ -148,7 +148,7 @@ export const QUERIES = {
     bio,
     socials
   }`,
-	projects: `*[_type == "project"] | order(year desc) {
+	projects: `*[_type == "project"] | order(orderRank asc, year desc) {
     _id,
     title,
     "slug": slug.current,
