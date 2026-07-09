@@ -39,6 +39,29 @@ const LOGO_PIECES = [
 	},
 ] as const;
 
+// Once the intro has played, a session flag lets subsequent hard loads (reloads,
+// back-forward, re-entry within the tab) skip straight to content. The animation
+// is a first-impression flourish, not something to re-pay on every visit - and
+// re-playing it on every load also drags Lighthouse's Speed Index (the overlay
+// covers content until the timeline finishes).
+const INTRO_SEEN_KEY = "untab:intro-seen";
+
+function introAlreadySeen(): boolean {
+	try {
+		return sessionStorage.getItem(INTRO_SEEN_KEY) === "1";
+	} catch {
+		return false;
+	}
+}
+
+function markIntroSeen(): void {
+	try {
+		sessionStorage.setItem(INTRO_SEEN_KEY, "1");
+	} catch {
+		// sessionStorage unavailable (private mode, blocked) - just replay.
+	}
+}
+
 /**
  * Isolates the `useLenis` store subscription so the async arrival of the
  * Lenis instance re-renders only this empty component, never the animated
@@ -80,9 +103,18 @@ export function IntroPreloader() {
 				() => {
 					const finish = () => {
 						doneRef.current = true;
+						markIntroSeen();
 						lenisRef.current?.start();
 						setDone(true);
 					};
+
+					// Already played this session: skip the timeline entirely.
+					// useGSAP runs in a layout effect, so finishing here removes
+					// the overlay before the browser paints it - no flash.
+					if (introAlreadySeen()) {
+						finish();
+						return;
+					}
 
 					const pieces = pieceRefs.current.filter(
 						(piece): piece is HTMLDivElement => piece !== null,
@@ -117,31 +149,31 @@ export function IntroPreloader() {
 							rotate: 0,
 							opacity: 1,
 							scale: 1,
-							duration: 0.9,
+							duration: 0.6,
 							ease: "expo.out",
-							stagger: { each: 0.05, from: "edges" },
+							stagger: { each: 0.04, from: "edges" },
 							force3D: true,
 						},
-						0.15,
+						0.1,
 					)
 						// Swap the clipped quadrants for one whole logo so no
 						// hairline seams show along the clip edges.
-						.to(finalRef.current, { opacity: 1, duration: 0.2 }, 0.95)
-						.to(pieces, { opacity: 0, duration: 0.15 }, 1)
+						.to(finalRef.current, { opacity: 1, duration: 0.15 }, 0.62)
+						.to(pieces, { opacity: 0, duration: 0.1 }, 0.66)
 						.to(
 							contentRef.current,
 							{
 								y: -28,
 								opacity: 0,
-								duration: 0.4,
+								duration: 0.3,
 								ease: "power3.in",
 							},
-							"+=0.25",
+							"+=0.12",
 						)
 						.to(
 							overlayRef.current,
-							{ yPercent: -100, duration: 0.8, ease: "expo.inOut" },
-							"<0.08",
+							{ yPercent: -100, duration: 0.6, ease: "expo.inOut" },
+							"<0.06",
 						);
 				},
 				// Reduced motion: skip the intro entirely.
