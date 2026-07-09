@@ -83,7 +83,14 @@ export default function RootLayout({
 					</div>
 					<CookieConsentBanner />
 				</Providers>
-				<SanityLive includeDrafts={false} />
+				{/* Live content subscription only in dev/preview. In production,
+				    published content updates flow through the /api/revalidate
+				    webhook (revalidateTag) + cacheLife, so the browser live
+				    connection is redundant weight on every public page load.
+				    Mirrors the dev-only gating of VisualEditing and Orchestra. */}
+				{process.env.NODE_ENV === "development" && (
+					<SanityLive includeDrafts={false} />
+				)}
 				<ReactTempus patch />
 				<script
 					type="application/ld+json"
