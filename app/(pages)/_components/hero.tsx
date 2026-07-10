@@ -2,7 +2,8 @@
 
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
+import { preload } from "react-dom";
 import { useTempus } from "tempus/react";
 import { Image } from "~/components/ui/image";
 import { withMotion } from "~/libs/gsap/presets";
@@ -118,6 +119,29 @@ function collectTileImages(projects: Project[] | undefined): string[] {
 }
 
 export function Hero({ videoUrl = "/hero.mp4", projects }: HeroProps) {
+	// The video's poster IS the LCP element, but browsers fetch poster images
+	// at low priority — on throttled mobile it queued ~3.5s behind JS chunks.
+	// Preloading it at high priority moves the LCP paint next to FCP.
+	preload("/hero-poster.webp", { as: "image", fetchPriority: "high" });
+
+	// `autoplay` makes the browser pull the whole ~1.3MB video the moment the
+	// element appears, and that download lands in the LCP critical chain on
+	// slow connections (it also dominates Lighthouse's mobile simulation).
+	// Attach the src only after `window.load`: the preloaded poster fills the
+	// stage instantly and the intro overlay covers the first moments anyway,
+	// so the later start is invisible - the video simply fades from poster to
+	// motion once the page is settled.
+	const [videoSrc, setVideoSrc] = useState<string | null>(null);
+	useEffect(() => {
+		const attach = () => setVideoSrc(videoUrl);
+		if (document.readyState === "complete") {
+			attach();
+			return;
+		}
+		window.addEventListener("load", attach, { once: true });
+		return () => window.removeEventListener("load", attach);
+	}, [videoUrl]);
+
 	const containerRef = useRef<HTMLElement>(null);
 	const scrollActiveRef = useRef(false);
 	const quickXRef = useRef<gsap.QuickToFunc | null>(null);
@@ -144,7 +168,15 @@ export function Hero({ videoUrl = "/hero.mp4", projects }: HeroProps) {
 				const intro = gsap.timeline({
 					defaults: { ease: "expo.out", duration: 0.9 },
 				});
-				intro.from(float, { autoAlpha: 0, scale: 0.96, duration: 1.1 }, 0);
+				// The fade-in `from` hides the poster (the LCP element) until
+				// hydration + tween completes - on a throttled phone that pushes
+				// LCP past 3.5s. Mobile gets no scroll scrub either, so keep the
+				// entrance flourish desktop-only and let the poster paint straight
+				// from the server HTML on phones.
+				const isDesktop = window.matchMedia("(min-width: 768px)").matches;
+				if (isDesktop) {
+					intro.from(float, { autoAlpha: 0, scale: 0.96, duration: 1.1 }, 0);
+				}
 
 				// The bob lives on its own wrapper so it never shares a transform
 				// with the scroll scrub, which exclusively owns .hero-float. A
@@ -196,7 +228,6 @@ export function Hero({ videoUrl = "/hero.mp4", projects }: HeroProps) {
 					quickYRef.current = null;
 				};
 
-				const isDesktop = window.matchMedia("(min-width: 768px)").matches;
 				if (!isDesktop) return cleanupListeners;
 
 				const grid = root.querySelector<HTMLElement>(".hero-grid");
@@ -364,13 +395,12 @@ export function Hero({ videoUrl = "/hero.mp4", projects }: HeroProps) {
 									loop
 									muted
 									playsInline
-									preload="metadata"
+									preload="none"
 									poster="/hero-poster.webp"
+									src={videoSrc ?? undefined}
 									suppressHydrationWarning
-									className="block size-full rounded-md md:rounded-xl object-cover backface-hidden"
-								>
-									<source src={videoUrl} type="video/mp4" />
-								</video>
+									className="block size-full rounded-md md:rounded-xl object-contain md:object-cover backface-hidden"
+								/>
 							</div>
 						</div>
 					</div>

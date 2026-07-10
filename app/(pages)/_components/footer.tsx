@@ -1,21 +1,12 @@
 "use client";
 
 import { useGSAP } from "@gsap/react";
-import {
-	DribbbleIcon,
-	GithubIcon,
-	InstagramIcon,
-	Linkedin01Icon,
-	NewTwitterIcon,
-} from "@hugeicons/core-free-icons";
-import { HugeiconsIcon } from "@hugeicons/react";
 import gsap from "gsap";
-import { useId, useRef } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { LogoWordmark } from "~/components/logo-wordmark";
 import { Link } from "~/components/ui/link";
 import { withMotion } from "~/libs/gsap/presets";
 import type { Settings } from "~/libs/sanity";
-import { SOCIALS } from "~/libs/socials";
 
 const DEFAULT_TAGLINE =
 	"An independent software studio in Warsaw, building brand-led websites, platforms, and digital products with ambitious teams around the world.";
@@ -32,14 +23,6 @@ const studioLinks = [
 	{ label: "About", href: "/about" },
 	{ label: "Blog", href: "/blog" },
 	{ label: "Contact", href: "/contact" },
-];
-
-const socialLinks = [
-	{ label: "LinkedIn", icon: Linkedin01Icon, href: SOCIALS.linkedin },
-	{ label: "Instagram", icon: InstagramIcon, href: SOCIALS.instagram },
-	{ label: "Twitter", icon: NewTwitterIcon, href: SOCIALS.twitter },
-	{ label: "Dribbble", icon: DribbbleIcon, href: SOCIALS.dribbble },
-	{ label: "GitHub", icon: GithubIcon, href: SOCIALS.github },
 ];
 
 const SECTION_LABEL =
@@ -63,7 +46,15 @@ export function Footer({
 	studioCity,
 	timezone,
 }: FooterProps = {}) {
-	const year = new Date().getFullYear();
+	// Reading the clock during render marks the whole route dynamic under
+	// cacheComponents (next-prerender-current-time-client) — and because the
+	// footer sits in the (pages) layout, that single call knocked EVERY page
+	// out of the static prerender. Resolve the year after mount instead; the
+	// prerendered HTML shows the fallback until hydration.
+	const [year, setYear] = useState(2026);
+	useEffect(() => {
+		setYear(new Date().getFullYear());
+	}, []);
 	const footerRef = useRef<HTMLElement>(null);
 	const grainId = useId();
 
@@ -185,8 +176,8 @@ export function Footer({
 				</svg>
 			</div>
 
-			<div className="fx-inner container relative px-6 py-20 md:px-12 md:py-24 lg:px-24">
-				<div className="grid grid-cols-1 gap-16 md:grid-cols-12 md:gap-10 lg:gap-12">
+			<div className="fx-inner container relative px-6 py-16 md:px-12 md:py-24 lg:px-24">
+				<div className="grid grid-cols-1 gap-12 md:grid-cols-12 md:gap-10 lg:gap-12">
 					<div className="flex flex-col items-start gap-6 md:col-span-6 lg:col-span-5">
 						<LogoWordmark
 							aria-label="Untab Studio"
@@ -200,70 +191,51 @@ export function Footer({
 						</p>
 					</div>
 
-					<nav
-						aria-label="Studio"
-						className="md:col-span-3 md:col-start-7 lg:col-span-2 lg:col-start-7"
-					>
-						<h3 className={`fx-col-label ${SECTION_LABEL}`}>Untab</h3>
-						<ul className="mt-6 flex flex-col gap-3">
-							{studioLinks.map((link) => (
-								<li key={link.label} className="fx-link">
-									<Link href={link.href} className={LINK}>
-										{link.label}
-									</Link>
-								</li>
-							))}
-						</ul>
-					</nav>
-
-					<div className="md:col-span-3 lg:col-span-2 lg:col-start-9">
-						<h3 className={`fx-col-label ${SECTION_LABEL}`}>Contact</h3>
-						<ul className="mt-6 flex flex-col gap-3">
-							{contactLinks.map((item) =>
-								item.href ? (
-									<li key={item.label} className="fx-link">
-										<Link href={item.href} className={LINK}>
-											{item.label}
+					{/* Link groups sit 2-up on phones to cut the tall single-column
+					    stack; `md:contents` dissolves this wrapper at md+ so the
+					    original 12-column placement below is unchanged. */}
+					<div className="grid grid-cols-2 gap-10 sm:gap-8 md:contents">
+						<nav
+							aria-label="Studio"
+							className="md:col-span-3 md:col-start-7 lg:col-span-2 lg:col-start-7"
+						>
+							<h3 className={`fx-col-label ${SECTION_LABEL}`}>Untab</h3>
+							<ul className="mt-6 flex flex-col gap-3">
+								{studioLinks.map((link) => (
+									<li key={link.label} className="fx-link">
+										<Link href={link.href} className={LINK}>
+											{link.label}
 										</Link>
 									</li>
-								) : (
-									<li
-										key={item.label}
-										className="fx-link text-[15px] text-surface-deep-foreground"
-									>
-										{item.label}
-									</li>
-								),
-							)}
-						</ul>
-					</div>
+								))}
+							</ul>
+						</nav>
 
-					<nav
-						aria-label="Social"
-						className="md:col-span-3 md:col-start-10 lg:col-span-2 lg:col-start-11"
-					>
-						<h3 className={`fx-col-label ${SECTION_LABEL}`}>Follow us</h3>
-						<ul className="mt-6 flex flex-col gap-3">
-							{socialLinks.map((social) => (
-								<li key={social.label} className="fx-link">
-									<Link
-										href={social.href}
-										className={`${LINK} group inline-flex items-center gap-2.5`}
-									>
-										<HugeiconsIcon
-											icon={social.icon}
-											className="size-4 text-surface-deep-foreground"
-											strokeWidth={1.5}
-										/>
-										<span>{social.label}</span>
-									</Link>
-								</li>
-							))}
-						</ul>
-					</nav>
+						<div className="md:col-span-3 lg:col-span-2 lg:col-start-9">
+							<h3 className={`fx-col-label ${SECTION_LABEL}`}>Contact</h3>
+							<ul className="mt-6 flex flex-col gap-3">
+								{contactLinks.map((item) =>
+									item.href ? (
+										<li key={item.label} className="fx-link">
+											<Link href={item.href} className={LINK}>
+												{item.label}
+											</Link>
+										</li>
+									) : (
+										<li
+											key={item.label}
+											className="fx-link text-[15px] text-surface-deep-foreground"
+										>
+											{item.label}
+										</li>
+									),
+								)}
+							</ul>
+						</div>
+					</div>
 				</div>
 
-				<div className="fx-divider mt-20 md:mt-24 h-px w-full bg-surface-deep-foreground/12" />
+				<div className="fx-divider mt-14 md:mt-24 h-px w-full bg-surface-deep-foreground/12" />
 
 				<div className="mt-6 flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
 					<p className="fx-meta text-xs text-surface-deep-foreground">

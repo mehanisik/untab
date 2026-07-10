@@ -11,7 +11,6 @@ import { Providers } from "~/components/providers";
 import { RouterTransitionProvider } from "~/components/route-transition";
 import { VisualEditingWrapper } from "~/components/visual-editing";
 import { SanityLive } from "~/libs/live";
-import { SOCIAL_SAME_AS } from "~/libs/socials";
 import { Orchestra } from "~/orchestra";
 import AppData from "~/package.json";
 
@@ -84,7 +83,14 @@ export default function RootLayout({
 					</div>
 					<CookieConsentBanner />
 				</Providers>
-				<SanityLive includeDrafts={false} />
+				{/* Live content subscription only in dev/preview. In production,
+				    published content updates flow through the /api/revalidate
+				    webhook (revalidateTag) + cacheLife, so the browser live
+				    connection is redundant weight on every public page load.
+				    Mirrors the dev-only gating of VisualEditing and Orchestra. */}
+				{process.env.NODE_ENV === "development" && (
+					<SanityLive includeDrafts={false} />
+				)}
 				<ReactTempus patch />
 				<script
 					type="application/ld+json"
@@ -116,7 +122,6 @@ export default function RootLayout({
 									],
 									description:
 										"An independent software studio in Warsaw building brand-led websites, platforms, and digital products for ambitious teams worldwide.",
-									sameAs: SOCIAL_SAME_AS,
 								},
 								{
 									"@type": "WebSite",

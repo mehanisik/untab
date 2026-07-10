@@ -1,7 +1,18 @@
-import { CogIcon, EnvelopeIcon, HomeIcon, UsersIcon } from "@sanity/icons";
+import {
+	CaseIcon,
+	CogIcon,
+	EnvelopeIcon,
+	HomeIcon,
+	UsersIcon,
+} from "@sanity/icons";
+import { orderableDocumentListDeskItem } from "@sanity/orderable-document-list";
 import { visionTool } from "@sanity/vision";
 import { defineConfig } from "sanity";
-import type { ListItemBuilder, StructureBuilder } from "sanity/structure";
+import type {
+	ListItemBuilder,
+	StructureBuilder,
+	StructureResolverContext,
+} from "sanity/structure";
 import { structureTool } from "sanity/structure";
 import { getEnv } from "./libs/validate-env";
 import { schemaTypes } from "./sanity/schemas";
@@ -19,7 +30,7 @@ export default defineConfig({
 	dataset: env.NEXT_PUBLIC_SANITY_DATASET || "production",
 	plugins: [
 		structureTool({
-			structure: (S: StructureBuilder) =>
+			structure: (S: StructureBuilder, context: StructureResolverContext) =>
 				S.list()
 					.title("Content")
 					.items([
@@ -48,10 +59,20 @@ export default defineConfig({
 							.icon(EnvelopeIcon)
 							.child(S.document().schemaType("contact").documentId("contact")),
 						S.divider(),
-						...S.documentTypeListItems().filter(
-							(listItem: ListItemBuilder) =>
-								!singletonTypes.has(listItem.getId() || ""),
-						),
+						// Draggable, manually-orderable Projects list.
+						orderableDocumentListDeskItem({
+							type: "project",
+							title: "Projects",
+							icon: CaseIcon,
+							S,
+							context,
+						}),
+						...S.documentTypeListItems().filter((listItem: ListItemBuilder) => {
+							const id = listItem.getId() || "";
+							// Exclude singletons and the auto-generated Projects list
+							// (replaced by the orderable one above).
+							return !singletonTypes.has(id) && id !== "project";
+						}),
 					]),
 		}),
 		visionTool(),

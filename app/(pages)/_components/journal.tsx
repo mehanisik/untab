@@ -100,9 +100,9 @@ export function Journal({ posts, label = "Journal" }: JournalProps) {
 				</div>
 
 				<ul className="mt-12 grid grid-cols-1 gap-5 md:mt-16 md:grid-cols-2 md:gap-6 lg:grid-cols-3">
-					{items.map((post, index) => (
+					{items.map((post) => (
 						<li key={post._id} className="journal-card">
-							<JournalCard post={post} priority={index === 0} />
+							<JournalCard post={post} />
 						</li>
 					))}
 				</ul>
@@ -111,7 +111,7 @@ export function Journal({ posts, label = "Journal" }: JournalProps) {
 	);
 }
 
-function JournalCard({ post, priority }: { post: Post; priority: boolean }) {
+function JournalCard({ post }: { post: Post }) {
 	const date = post.publishedAt
 		? DATE_FORMATTER.format(new Date(post.publishedAt))
 		: null;
@@ -127,7 +127,6 @@ function JournalCard({ post, priority }: { post: Post; priority: boolean }) {
 						src={post.mainImage}
 						alt={post.title}
 						fill
-						priority={priority}
 						sizes="(min-width: 1024px) 30vw, (min-width: 768px) 45vw, 100vw"
 						className="size-full object-cover transition-transform duration-700 ease-[cubic-bezier(.22,1,.36,1)] group-hover:scale-[1.04]"
 					/>
