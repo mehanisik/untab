@@ -93,11 +93,10 @@ export function CaseStudies({ projects }: CaseStudiesProps) {
 					className="w-full overflow-x-auto snap-x snap-mandatory [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden md:snap-none"
 				>
 					<div ref={trackRef} className="flex w-max items-start gap-5 md:gap-8">
-						{featured.map((project, index) => (
+						{featured.map((project) => (
 							<ProjectCard
 								key={project._id ?? project.slug}
 								project={project}
-								index={index}
 							/>
 						))}
 					</div>
@@ -107,7 +106,7 @@ export function CaseStudies({ projects }: CaseStudiesProps) {
 	);
 }
 
-function ProjectCard({ project, index }: { project: Project; index: number }) {
+function ProjectCard({ project }: { project: Project }) {
 	const cardImage = projectCardImage(project);
 
 	return (
@@ -120,7 +119,6 @@ function ProjectCard({ project, index }: { project: Project; index: number }) {
 					src={sanityFitMax(cardImage, 1600)}
 					alt={project.title}
 					fill
-					priority={index === 0}
 					sizes="(max-width: 640px) 82vw, (max-width: 768px) 60vw, (max-width: 1024px) 44vw, 38vw"
 					quality={90}
 					objectFit="cover"
