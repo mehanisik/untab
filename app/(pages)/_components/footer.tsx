@@ -2,7 +2,7 @@
 
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
-import { useId, useRef } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { LogoWordmark } from "~/components/logo-wordmark";
 import { Link } from "~/components/ui/link";
 import { withMotion } from "~/libs/gsap/presets";
@@ -46,7 +46,15 @@ export function Footer({
 	studioCity,
 	timezone,
 }: FooterProps = {}) {
-	const year = new Date().getFullYear();
+	// Reading the clock during render marks the whole route dynamic under
+	// cacheComponents (next-prerender-current-time-client) — and because the
+	// footer sits in the (pages) layout, that single call knocked EVERY page
+	// out of the static prerender. Resolve the year after mount instead; the
+	// prerendered HTML shows the fallback until hydration.
+	const [year, setYear] = useState(2026);
+	useEffect(() => {
+		setYear(new Date().getFullYear());
+	}, []);
 	const footerRef = useRef<HTMLElement>(null);
 	const grainId = useId();
 
