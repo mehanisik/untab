@@ -1,4 +1,5 @@
 import arcjet, {
+	cloudflare,
 	detectBot,
 	filter,
 	sensitiveInfo,
@@ -11,6 +12,7 @@ const AJ_KEY = process.env.ARCJET_API_KEY;
 
 export const aj = arcjet({
 	key: AJ_KEY!,
+	proxies: [cloudflare()],
 	rules: [
 		shield({
 			mode: "LIVE",
