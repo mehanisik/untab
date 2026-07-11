@@ -20,7 +20,6 @@ function formatDate(value: string) {
 	});
 }
 
-/** Sanity asset refs encode dimensions as `image-<id>-<w>x<h>-<format>`. */
 function dimensionsFromRef(ref?: string) {
 	const fallback = { width: 1600, height: 900 };
 	if (!ref) return fallback;
@@ -75,7 +74,11 @@ const portableComponents: PortableTextComponents = {
 		strong: ({ children }) => (
 			<strong className="font-semibold text-foreground">{children}</strong>
 		),
-		em: ({ children }) => <em className="italic">{children}</em>,
+		em: ({ children }) => (
+			<em className="italic [font-family:var(--font-switzer-italic),var(--font-switzer),sans-serif]">
+				{children}
+			</em>
+		),
 		code: ({ children }) => (
 			<code className="rounded bg-foreground/10 px-1.5 py-0.5 font-mono text-[0.9em]">
 				{children}
@@ -143,7 +146,6 @@ export function Article({ post }: { post: Post }) {
 			className="w-full bg-background pt-8 pb-24 text-foreground sm:pt-12 md:pb-32"
 		>
 			<div className={`container ${PAGE_PADDING}`}>
-				{/* Back link */}
 				<Link
 					href="/blog"
 					className="article-reveal inline-flex items-center gap-2 text-[13px] font-medium uppercase tracking-[0.18em] text-foreground/55 transition-colors hover:text-foreground"
@@ -151,7 +153,6 @@ export function Article({ post }: { post: Post }) {
 					<span aria-hidden>←</span> All articles
 				</Link>
 
-				{/* Header */}
 				<header className="article-reveal mx-auto mt-10 max-w-3xl sm:mt-14">
 					<div className="flex flex-wrap items-center gap-x-3 gap-y-2 text-[11px] font-medium uppercase tracking-[0.2em] text-foreground/50">
 						{categories.length > 0 ? (
@@ -199,7 +200,6 @@ export function Article({ post }: { post: Post }) {
 					) : null}
 				</header>
 
-				{/* Cover */}
 				{post.mainImage ? (
 					<div className="article-reveal mx-auto mt-10 max-w-5xl sm:mt-14">
 						<div className="relative aspect-[16/9] w-full overflow-hidden rounded-xl bg-foreground/[0.04]">
@@ -215,7 +215,6 @@ export function Article({ post }: { post: Post }) {
 					</div>
 				) : null}
 
-				{/* Body */}
 				<div className="article-reveal mx-auto mt-12 max-w-[68ch] sm:mt-16">
 					{post.body && post.body.length > 0 ? (
 						<PortableText value={post.body} components={portableComponents} />
@@ -226,7 +225,6 @@ export function Article({ post }: { post: Post }) {
 					)}
 				</div>
 
-				{/* Footer */}
 				<div className="mx-auto mt-16 max-w-[68ch] border-t border-foreground/15 pt-8 sm:mt-20">
 					<Link
 						href="/blog"

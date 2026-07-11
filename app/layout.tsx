@@ -21,14 +21,22 @@ const switzer = localFont({
 			style: "normal",
 			weight: "100 900",
 		},
+	],
+	variable: "--font-switzer",
+	display: "swap",
+});
+
+const switzerItalic = localFont({
+	src: [
 		{
 			path: "../public/fonts/Switzer-VariableItalic.woff2",
 			style: "italic",
 			weight: "100 900",
 		},
 	],
-	variable: "--font-switzer",
+	variable: "--font-switzer-italic",
 	display: "swap",
+	preload: false,
 });
 
 import { generatePageMetadata } from "~/libs/metadata";
@@ -43,8 +51,6 @@ export const metadata: Metadata = {
 		description:
 			"The details are the work. Untab is an independent software studio in Warsaw building brand-led websites, platforms, and digital products for ambitious teams worldwide.",
 	}),
-	// Child pages pass a bare title (e.g. "About") — the template appends the
-	// brand so every <title> reads "About | Untab Studio" without hardcoding.
 	title: {
 		default: "Untab Studio - Digital Product Studio Warsaw",
 		template: "%s | Untab Studio",
@@ -63,12 +69,14 @@ export default function RootLayout({
 }: Readonly<{
 	children: React.ReactNode;
 }>) {
-	// Warm the TCP/TLS connection to Sanity's image CDN before the first
-	// <Image> requests it, shaving connection-setup latency off the LCP path.
 	preconnect("https://cdn.sanity.io", { crossOrigin: "anonymous" });
 
 	return (
-		<html lang="en" className={switzer.variable} suppressHydrationWarning>
+		<html
+			lang="en"
+			className={`${switzer.variable} ${switzerItalic.variable}`}
+			suppressHydrationWarning
+		>
 			<Script async>{`window.satusVersion = '${AppData.version}';`}</Script>
 			<body
 				className="antialiased w-full font-normal font-sans"
@@ -83,11 +91,6 @@ export default function RootLayout({
 					</div>
 					<CookieConsentBanner />
 				</Providers>
-				{/* Live content subscription only in dev/preview. In production,
-				    published content updates flow through the /api/revalidate
-				    webhook (revalidateTag) + cacheLife, so the browser live
-				    connection is redundant weight on every public page load.
-				    Mirrors the dev-only gating of VisualEditing and Orchestra. */}
 				{process.env.NODE_ENV === "development" && (
 					<SanityLive includeDrafts={false} />
 				)}
