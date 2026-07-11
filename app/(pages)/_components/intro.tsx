@@ -1,9 +1,4 @@
-"use client";
-
-import { useGSAP } from "@gsap/react";
-import gsap from "gsap";
-import { useRef } from "react";
-import { withMotion } from "~/libs/gsap/presets";
+import { IntroFx } from "./fx/intro-fx";
 
 interface IntroProps {
 	eyebrow?: string;
@@ -11,46 +6,8 @@ interface IntroProps {
 }
 
 export function Intro({ eyebrow, headingLines = [] }: IntroProps) {
-	const sectionRef = useRef<HTMLElement>(null);
-
-	useGSAP(
-		() =>
-			withMotion(() => {
-				const root = sectionRef.current;
-				if (!root) return;
-
-				const eyebrow = root.querySelector<HTMLElement>(".intro-eyebrow");
-				const lines = root.querySelectorAll<HTMLElement>(".intro-line");
-
-				// One timeline, one ScrollTrigger (per GSAP docs — never put
-				// triggers on child tweens or fan out several with delays).
-				const tl = gsap.timeline({
-					defaults: { ease: "expo.out" },
-					scrollTrigger: {
-						trigger: root,
-						start: "top 75%",
-						toggleActions: "play reverse play reverse",
-					},
-				});
-
-				if (eyebrow) {
-					tl.from(eyebrow, { y: 16, autoAlpha: 0, duration: 0.7 }, 0);
-				}
-
-				if (lines.length) {
-					tl.from(
-						lines,
-						{ y: 28, autoAlpha: 0, duration: 0.9, stagger: 0.07 },
-						0.1,
-					);
-				}
-			}),
-		{ scope: sectionRef },
-	);
-
 	return (
-		<section
-			ref={sectionRef}
+		<IntroFx
 			id="intro"
 			className="relative w-full bg-background text-foreground py-24 md:py-32 lg:py-40"
 		>
@@ -77,6 +34,6 @@ export function Intro({ eyebrow, headingLines = [] }: IntroProps) {
 					</div>
 				</div>
 			</div>
-		</section>
+		</IntroFx>
 	);
 }

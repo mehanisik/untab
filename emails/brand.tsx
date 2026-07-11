@@ -1,11 +1,5 @@
 import { Img, Link, Section, Text } from "@react-email/components";
 
-/**
- * Shared brand chrome for transactional emails: palette constants, the ink
- * header band with the wordmark, and the mono meta footer. Colours are
- * inlined hex mirroring app/globals.css because email clients cannot read
- * CSS variables.
- */
 export const ASSETS = "https://untabstudio.com";
 export const CREAM = "#ece7de";
 export const CARD = "#f6f3ec";

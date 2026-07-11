@@ -1,12 +1,6 @@
 import { HomeIcon } from "@sanity/icons";
 import { defineArrayMember, defineField, defineType } from "sanity";
 
-/**
- * Homepage singleton. The homepage is a fixed, designed layout (not a
- * reorderable page builder), so each section is a nested object modelled by
- * what it IS, not how it looks. Presentation-only values (poster colours,
- * rotation, grid config) stay in code.
- */
 export default defineType({
 	name: "homepage",
 	title: "Homepage",

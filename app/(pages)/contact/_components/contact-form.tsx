@@ -11,10 +11,6 @@ import type { Contact } from "~/libs/sanity";
 import { pad } from "~/libs/utils";
 import { ContactFormPanel } from "./contact-form-panel";
 
-// Split-card contact layout: a theme-aware info panel on the left, a fixed
-// brand coral form block on the right with ink type. The card flips with the
-// theme; the coral block is a brand statement and stays put in both.
-
 export function ContactForm({
 	headingLines = [],
 	intro,
@@ -57,8 +53,6 @@ export function ContactForm({
 						{ yPercent: 110, duration: 0.9, stagger: 0.1 },
 						0.25,
 					)
-					// The form reveals as one block so an interrupted tween can
-					// never strand individual fields invisible.
 					.from(
 						root.querySelector(".contact-panel"),
 						{ y: 20, autoAlpha: 0, duration: 0.8 },
@@ -81,7 +75,6 @@ export function ContactForm({
 				</h2>
 				<div className="contact-card overflow-hidden rounded-2xl border border-foreground/10 bg-card text-card-foreground shadow-sm">
 					<div className="grid grid-cols-1 lg:grid-cols-[2fr_3fr]">
-						{/* Left: brand + contact channels */}
 						<div className="flex flex-col gap-12 p-7 sm:p-10 lg:p-12">
 							<Link
 								href="/"
@@ -134,7 +127,6 @@ export function ContactForm({
 							</div>
 						</div>
 
-						{/* Right: coral form block */}
 						<div className="bg-[var(--brand-coral)] p-7 text-[var(--dark)] sm:p-10 lg:rounded-l-2xl lg:p-12">
 							<h1 className="max-w-[18ch] font-medium leading-[1.05] tracking-[-0.03em] text-[clamp(1.9rem,3.4vw,2.9rem)]">
 								{headingLines.map((line) => (

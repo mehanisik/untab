@@ -4,9 +4,6 @@ import { fetchSanity } from "./live";
 import { PROJECT_IMAGE_FALLBACK, sanityAspect } from "./project-media";
 import { QUERIES } from "./sanity";
 
-// Strip zero-width / invisible Unicode characters that Sanity content sometimes
-// carries (ZWSP, ZWNJ, ZWJ, word joiner, BOM, combining grapheme joiner, etc.).
-// These corrupt rendered widths and break tight layouts.
 const INVISIBLE_CHARS = /­|͏|؜|឴|឵|᠎|[​-‏]|[‪-‮]|[⁠-⁤]|[⁪-⁯]|﻿/g;
 
 const cleanString = (value: unknown): unknown => {
@@ -39,10 +36,7 @@ export interface Project {
 	description: string;
 	accentColor?: string;
 	image: string;
-	// Editor-authored alt text (falls back to the project title in components).
 	imageAlt?: string;
-	// Normalised 0–1 focal point set in Sanity Studio. When present the hero
-	// mosaic crops around it; otherwise it falls back to a content-aware crop.
 	imageHotspot?: { x: number; y: number };
 	cardImage?: string;
 	cardImageAlt?: string;
@@ -84,9 +78,6 @@ export interface Project {
 		appStore?: string;
 	};
 	featured?: boolean;
-	// Case study (detail page) fields. `about`/`services`/`timeline`/`honors`
-	// come straight from Sanity; `stack`/`visitUrl`/`media` are derived from
-	// existing fields (techStack, links/client, image+gallery) in the loader.
 	about?: string[];
 	services?: string[];
 	timeline?: string;
@@ -109,7 +100,6 @@ export const getProjects = cache(async (): Promise<Project[]> => {
 					...p,
 					slug,
 					href: `/work/${slug}`,
-					// GROQ already resolves image to a URL string (image.asset->url).
 					image: p.image || PROJECT_IMAGE_FALLBACK,
 					cardImage: p.cardImage || p.image || PROJECT_IMAGE_FALLBACK,
 					gradient: p.gradient || "from-zinc-900 to-zinc-800",
@@ -136,11 +126,8 @@ export const getProjectBySlug = cache(
 			if (project) {
 				const clean = sanitize(project);
 				const slugVal = clean.slug;
-				// GROQ already resolves image/gallery to URL strings.
 				const image = clean.image || PROJECT_IMAGE_FALLBACK;
 				const gallery = clean.gallery ?? [];
-				// Prefer editor-authored alt; otherwise a descriptive, non-empty
-				// fallback built from the project title and category (never "").
 				const fallbackAlt = clean.category
 					? `${clean.title} — ${clean.category}`
 					: clean.title;

@@ -7,11 +7,6 @@ type WebhookPayload = {
 	slug?: string | { current?: string };
 };
 
-/**
- * Sanity webhook endpoint. Expires the cache tags used by fetchSanity
- * ("project", "project:<slug>", "post", "post:<slug>", ...) whenever a
- * document is created, updated, or deleted in the Studio.
- */
 export async function POST(req: NextRequest) {
 	const secret = process.env.SANITY_REVALIDATE_SECRET;
 	if (!secret) {

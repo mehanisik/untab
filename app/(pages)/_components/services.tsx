@@ -1,71 +1,18 @@
-"use client";
-
-import { useGSAP } from "@gsap/react";
-import { ArrowDown01Icon } from "@hugeicons/core-free-icons";
-import { HugeiconsIcon } from "@hugeicons/react";
-import gsap from "gsap";
 import { stegaClean } from "next-sanity";
-import { useId, useRef, useState } from "react";
-import { SERVICE_MARKS } from "~/components/service-marks";
 import { Link } from "~/components/ui/link";
-import { withMotion } from "~/libs/gsap/presets";
 import type { Service } from "~/libs/sanity";
-import { cn, pad } from "~/libs/utils";
-
-// One grid for the row and its panel keeps the expanded copy aligned
-// exactly under the title, whatever the mark column measures.
-const ROW_GRID =
-	"grid grid-cols-[2.75rem_1fr_1.5rem] items-center gap-x-5 md:grid-cols-[3.75rem_1fr_1.75rem] md:gap-x-8";
+import { pad } from "~/libs/utils";
+import { ServicesAccordion } from "./fx/services-accordion";
+import { ServicesFx } from "./fx/services-fx";
 
 export function Services({ services }: { services: Service[] }) {
-	const sectionRef = useRef<HTMLElement>(null);
-	const panelBaseId = useId();
-	const [openIndex, setOpenIndex] = useState<number | null>(null);
-
-	useGSAP(
-		() =>
-			withMotion(() => {
-				const root = sectionRef.current;
-				if (!root) return;
-
-				const intro = root.querySelectorAll(".svc-intro");
-				if (intro.length) {
-					gsap.from(intro, {
-						y: 28,
-						autoAlpha: 0,
-						duration: 0.9,
-						ease: "expo.out",
-						stagger: 0.1,
-						scrollTrigger: {
-							trigger: root,
-							start: "top 75%",
-							toggleActions: "play reverse play reverse",
-						},
-					});
-				}
-
-				const rows = root.querySelectorAll(".svc-row");
-				if (rows.length) {
-					gsap.from(rows, {
-						y: 32,
-						autoAlpha: 0,
-						duration: 0.8,
-						ease: "expo.out",
-						stagger: 0.08,
-						scrollTrigger: {
-							trigger: rows[0] as Element,
-							start: "top 85%",
-							toggleActions: "play reverse play reverse",
-						},
-					});
-				}
-			}),
-		{ scope: sectionRef },
-	);
+	const cleanedServices = services.map((service) => ({
+		...service,
+		mark: stegaClean(service.mark),
+	}));
 
 	return (
-		<section
-			ref={sectionRef}
+		<ServicesFx
 			aria-label="Our services"
 			className="bg-background py-24 text-foreground md:py-32 lg:py-40"
 		>
@@ -82,81 +29,7 @@ export function Services({ services }: { services: Service[] }) {
 					</span>
 				</p>
 
-				<div className="group/list mt-14 md:mt-20">
-					{services.map((service, index) => {
-						const open = openIndex === index;
-						const panelId = `${panelBaseId}-panel-${index}`;
-						// Clean stega-encoded markers before the lookup — the raw dev
-						// string carries invisible chars that break the key match.
-						const Mark = SERVICE_MARKS[stegaClean(service.mark)] ?? null;
-						return (
-							<div
-								key={service.title}
-								className="svc-row border-t border-foreground/10 last:border-b"
-							>
-								<button
-									type="button"
-									aria-expanded={open}
-									aria-controls={panelId}
-									onClick={() => setOpenIndex(open ? null : index)}
-									className={cn(
-										ROW_GRID,
-										"group w-full py-6 text-left transition-opacity duration-300 md:py-8 md:group-hover/list:opacity-40 md:hover:opacity-100",
-									)}
-								>
-									<span
-										className={cn(
-											"size-11 transition-colors duration-300 md:size-14",
-											open
-												? "text-[var(--brand-coral-accent)]"
-												: "text-foreground/60 group-hover:text-foreground",
-										)}
-										aria-hidden
-									>
-										{Mark ? <Mark /> : null}
-									</span>
-									<span className="min-w-0 truncate font-medium leading-[1.05] tracking-[-0.02em] text-[clamp(1.35rem,2.8vw,2.2rem)] transition-transform duration-300 ease-out group-hover:translate-x-1.5">
-										{service.title}
-									</span>
-									<HugeiconsIcon
-										icon={ArrowDown01Icon}
-										aria-hidden
-										strokeWidth={1.5}
-										className={cn(
-											"size-5 justify-self-end text-foreground/50 transition-[color,transform] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:translate-y-0.5 group-hover:text-foreground md:size-6",
-											open && "rotate-180 group-hover:translate-y-0",
-										)}
-									/>
-								</button>
-
-								{/* Grid-rows expansion: animates height without measuring,
-								    and collapses cleanly if a row above opens. */}
-								<section
-									id={panelId}
-									aria-label={service.title}
-									className={cn(
-										"grid transition-[grid-template-rows] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none",
-										open ? "grid-rows-[1fr]" : "grid-rows-[0fr]",
-									)}
-								>
-									<div className="overflow-hidden">
-										<div className={cn(ROW_GRID, "pb-7 md:pb-9")}>
-											<span aria-hidden />
-											<div className="space-y-2.5">
-												<p className="max-w-[46ch] text-pretty text-[14px] leading-relaxed text-foreground/60 md:text-[15px]">
-													{service.summary}
-												</p>
-												<p className="font-mono text-[11px] uppercase tracking-[0.18em] text-foreground/40">
-													{service.meta}
-												</p>
-											</div>
-										</div>
-									</div>
-								</section>
-							</div>
-						);
-					})}
-				</div>
+				<ServicesAccordion services={cleanedServices} />
 
 				<div className="svc-intro mt-10 flex justify-end md:mt-12">
 					<Link
@@ -168,6 +41,6 @@ export function Services({ services }: { services: Service[] }) {
 					</Link>
 				</div>
 			</div>
-		</section>
+		</ServicesFx>
 	);
 }

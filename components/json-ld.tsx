@@ -1,7 +1,3 @@
-/**
- * Renders a JSON-LD structured-data <script>. Server component; the data is
- * app-controlled (never user HTML), so dangerouslySetInnerHTML is safe here.
- */
 export function JsonLd({ data }: { data: Record<string, unknown> }) {
 	return (
 		<script

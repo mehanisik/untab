@@ -15,8 +15,6 @@ export type ImageProps = Omit<NextImageProps, "objectFit" | "alt"> & {
 	ref?: Ref<HTMLImageElement>;
 	alt?: string;
 	aspectRatio?: number;
-	/** Opt-in card hover zoom (block mode only). Off by default so the CSS
-	 *  transition never fights GSAP transforms on the same element. */
 	hoverZoom?: boolean;
 };
 
@@ -25,16 +23,8 @@ const breakpoints = {
 };
 
 const SANITY_HOST = "cdn.sanity.io";
-// Sanity asset filenames encode intrinsic size: <id>-<width>x<height>.<ext>
 const SANITY_DIMENSIONS = /-(\d+)x(\d+)\.[a-z0-9]+(?:\?|$)/i;
 
-/**
- * Serve Sanity images straight from Sanity's image CDN instead of proxying
- * through /_next/image: the CDN resizes per srcset width, `auto=format`
- * negotiates AVIF/WebP from the Accept header, and Vercel image-transform
- * quota is never touched. Pre-cropped renditions (w+h+fit=crop, e.g. the
- * hero poster tiles) keep their crop-box ratio at each srcset width.
- */
 const sanityLoader: ImageLoader = ({ src, width, quality }) => {
 	const url = new URL(src);
 	const prevW = Number(url.searchParams.get("w"));
@@ -104,11 +94,6 @@ const getFinalPlaceholder = (
 	return aspectRatio || blurDataURL ? "blur" : "empty";
 };
 
-/**
- * Block mode needs a real intrinsic ratio so the browser reserves the right
- * space before load (CLS). Prefer explicit props, then the aspectRatio prop,
- * then dimensions parsed from the Sanity filename; 1x1 only as a last resort.
- */
 function blockDimensions(
 	src: NextImageProps["src"],
 	aspectRatio: number | undefined,
@@ -148,9 +133,6 @@ export function Image({
 	hoverZoom = false,
 	...props
 }: ImageProps) {
-	// Next 16 deprecated `priority` in favor of `preload`. Keep accepting
-	// `priority` from call sites but translate it to the modern equivalents:
-	// a <link rel="preload"> in <head>, eager loading, and high fetch priority.
 	const shouldPreload = preload ?? priority;
 	const finalLoading = loading ?? (shouldPreload ? "eager" : "lazy");
 	const finalFetchPriority =
@@ -164,8 +146,6 @@ export function Image({
 	const isSvg = typeof src === "string" && src.includes(".svg");
 	const isSanity = typeof src === "string" && src.includes(SANITY_HOST);
 
-	// Block mode renders w-full/h-auto, so width/height only inform the
-	// intrinsic aspect ratio the browser uses to reserve space.
 	const dims =
 		block && !(width && height) ? blockDimensions(src, aspectRatio) : null;
 	const finalWidth = width ?? (block ? dims?.width : undefined);

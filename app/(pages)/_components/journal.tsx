@@ -1,14 +1,9 @@
-"use client";
-
-import { useGSAP } from "@gsap/react";
 import { ArrowUpRight01Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
-import gsap from "gsap";
-import { useRef } from "react";
 import { Image } from "~/components/ui/image";
 import { Link } from "~/components/ui/link";
-import { withMotion } from "~/libs/gsap/presets";
 import type { Post } from "~/libs/sanity";
+import { JournalFx } from "./fx/journal-fx";
 
 interface JournalProps {
 	posts: Post[];
@@ -22,55 +17,12 @@ const DATE_FORMATTER = new Intl.DateTimeFormat("en-US", {
 });
 
 export function Journal({ posts, label = "Journal" }: JournalProps) {
-	const sectionRef = useRef<HTMLElement>(null);
-
 	const items = posts.slice(0, 3);
-
-	useGSAP(
-		() =>
-			withMotion(() => {
-				const root = sectionRef.current;
-				if (!root) return;
-
-				const title = root.querySelector<HTMLElement>(".journal-title");
-				const cta = root.querySelector<HTMLElement>(".journal-cta");
-				const cards = root.querySelectorAll<HTMLElement>(".journal-card");
-
-				// One timeline, one ScrollTrigger; reverses out when scrolling
-				// back above the section.
-				const tl = gsap.timeline({
-					defaults: { ease: "expo.out" },
-					scrollTrigger: {
-						trigger: root,
-						start: "top 75%",
-						toggleActions: "play reverse play reverse",
-					},
-				});
-
-				if (title) {
-					tl.from(title, { y: 24, autoAlpha: 0, duration: 0.8 }, 0);
-				}
-
-				if (cards.length) {
-					tl.from(
-						cards,
-						{ y: 56, autoAlpha: 0, duration: 0.9, stagger: 0.1 },
-						0.15,
-					);
-				}
-
-				if (cta) {
-					tl.from(cta, { y: 14, autoAlpha: 0, duration: 0.7 }, 0.2);
-				}
-			}),
-		{ scope: sectionRef, dependencies: [items.length] },
-	);
 
 	if (items.length === 0) return null;
 
 	return (
-		<section
-			ref={sectionRef}
+		<JournalFx
 			id="journal"
 			aria-labelledby="journal-title"
 			className="relative w-full bg-background py-24 md:py-32 lg:py-40"
@@ -107,7 +59,7 @@ export function Journal({ posts, label = "Journal" }: JournalProps) {
 					))}
 				</ul>
 			</div>
-		</section>
+		</JournalFx>
 	);
 }
 

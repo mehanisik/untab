@@ -1,13 +1,6 @@
 import { CaseIcon } from "@sanity/icons";
 import { defineField, defineType } from "sanity";
 
-/**
- * A single service/discipline. Feeds two surfaces:
- *  - the landing accordion (mark, summary, meta)
- *  - the /services cards (lead + main two-line title, cardDescription)
- * The `mark` value selects a built-in SVG icon rendered in code (marks are
- * React components, not CMS images), so keep it to the known keys below.
- */
 export default defineType({
 	name: "service",
 	title: "Service",

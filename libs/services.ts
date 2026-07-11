@@ -2,11 +2,6 @@ import { cache } from "react";
 import { fetchSanity } from "./live";
 import { QUERIES, type Service } from "./sanity";
 
-/**
- * Grounded defaults mirroring the studio's disciplines. Used when Sanity has
- * no `service` documents yet or the fetch fails, so both the landing accordion
- * and the /services cards always render.
- */
 export const SERVICES_FALLBACK: Service[] = [
 	{
 		title: "Strategy",
@@ -76,10 +71,6 @@ export const SERVICES_FALLBACK: Service[] = [
 	},
 ];
 
-/**
- * Fetches the ordered service list. Falls back to SERVICES_FALLBACK when the
- * dataset has no services yet, so the landing and /services pages never empty.
- */
 export const getServices = cache(async (): Promise<Service[]> => {
 	try {
 		const services = await fetchSanity<Service[]>(QUERIES.services, {}, [

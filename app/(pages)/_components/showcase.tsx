@@ -1,111 +1,6 @@
-"use client";
-
-import React, { useEffect, useRef, useState } from "react";
-import { useFadeInOnScroll } from "~/hooks/use-scroll-animation";
-import { cn } from "~/libs/utils";
-
-function AnimatedLine() {
-	const ref = useRef<HTMLDivElement>(null);
-	const [isVisible, setIsVisible] = useState(false);
-
-	useEffect(() => {
-		const observer = new IntersectionObserver(
-			// Two-way: track intersection in both directions so the line and dots
-			// revert (fade/scale back out) when scrolled above and replay on the
-			// way back down, matching the reverse reveal of the title/content.
-			([entry]) => {
-				setIsVisible(entry.isIntersecting);
-			},
-			{ threshold: 0.3 },
-		);
-
-		if (ref.current) {
-			observer.observe(ref.current);
-		}
-
-		return () => observer.disconnect();
-	}, []);
-
-	return (
-		<div
-			ref={ref}
-			className="mx-5 mt-8 flex max-h-[557px] flex-col items-center gap-6"
-		>
-			<div
-				className={cn(
-					"size-[34px] shrink-0 transition-all duration-700",
-					isVisible ? "opacity-100 scale-100" : "opacity-0 scale-50",
-				)}
-			>
-				<svg
-					aria-hidden="true"
-					viewBox="0 0 34 34"
-					fill="none"
-					xmlns="http://www.w3.org/2000/svg"
-					className="size-full"
-				>
-					<circle
-						cx="17"
-						cy="17"
-						r="2"
-						fill="currentColor"
-						fillOpacity="0.95"
-						className="text-foreground"
-					/>
-					<rect
-						x="0.5"
-						y="0.5"
-						width="33"
-						height="33"
-						rx="16.5"
-						stroke="currentColor"
-						className="text-foreground"
-					/>
-				</svg>
-			</div>
-
-			<div
-				className={cn(
-					"w-px flex-1 origin-top bg-muted-foreground/30 transition-transform delay-300 duration-1000 ease-out",
-					isVisible ? "scale-y-100" : "scale-y-0",
-				)}
-			/>
-
-			<div
-				className={cn(
-					"size-[34px] shrink-0 transition-all delay-[800ms] duration-700",
-					isVisible ? "opacity-100 scale-100" : "opacity-0 scale-50",
-				)}
-			>
-				<svg
-					aria-hidden="true"
-					viewBox="0 0 34 34"
-					fill="none"
-					xmlns="http://www.w3.org/2000/svg"
-					className="size-full"
-				>
-					<circle
-						cx="17"
-						cy="17"
-						r="2"
-						fill="currentColor"
-						fillOpacity="0.95"
-						className="text-foreground"
-					/>
-					<rect
-						x="0.5"
-						y="0.5"
-						width="33"
-						height="33"
-						rx="16.5"
-						stroke="currentColor"
-						className="text-foreground"
-					/>
-				</svg>
-			</div>
-		</div>
-	);
-}
+import { Fragment } from "react";
+import { AnimatedLine } from "./fx/animated-line";
+import { ShowcaseFx } from "./fx/showcase-fx";
 
 interface ShowcaseProps {
 	title?: string;
@@ -118,36 +13,30 @@ export function Showcase({
 	heading = ["Minimum", "Perfect", "Experiences"],
 	description = "Digital products, webapps, mobile apps, brands and marketing websites you'll be excited to put in front of your customers and investors.",
 }: ShowcaseProps) {
-	const titleRef = useFadeInOnScroll<HTMLHeadingElement>({ delay: 0 });
-	const contentRef = useFadeInOnScroll<HTMLDivElement>({ delay: 0.4 });
-
 	return (
-		<section id="showcase" className="relative min-h-dvh bg-background py-24">
+		<ShowcaseFx
+			id="showcase"
+			className="relative min-h-dvh bg-background py-24"
+		>
 			<div className="container flex justify-between px-6 md:px-12 lg:px-24">
-				<h2
-					ref={titleRef}
-					className="text-3xl font-medium tracking-tight text-foreground md:text-4xl"
-				>
+				<h2 className="showcase-reveal-title text-3xl font-medium tracking-tight text-foreground md:text-4xl">
 					{title}
 				</h2>
 
 				<AnimatedLine />
 
-				<div
-					ref={contentRef}
-					className="mt-[544px] flex max-w-[559px] flex-col gap-8"
-				>
+				<div className="showcase-reveal-content mt-[544px] flex max-w-[559px] flex-col gap-8">
 					<h3 className="text-4xl font-medium tracking-tight text-foreground md:text-5xl lg:text-6xl">
 						{heading.map((line) => (
-							<React.Fragment key={line}>
+							<Fragment key={line}>
 								{line}
 								<br />
-							</React.Fragment>
+							</Fragment>
 						))}
 					</h3>
 					<p className="text-base text-muted-foreground">{description}</p>
 				</div>
 			</div>
-		</section>
+		</ShowcaseFx>
 	);
 }

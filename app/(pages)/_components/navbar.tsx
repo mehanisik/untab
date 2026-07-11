@@ -216,7 +216,6 @@ export function Navbar() {
 				</div>
 			</nav>
 
-			{/* Mobile Menu */}
 			<div
 				ref={menuRef}
 				className="absolute top-14 left-0 w-full overflow-hidden bg-background/95 backdrop-blur-xl md:hidden"

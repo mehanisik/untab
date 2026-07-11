@@ -24,11 +24,8 @@ function syncConsent() {
 	);
 
 	if (analyticsAccepted) {
-		// Load posthog-js on demand, then start capturing. Null when no token
-		// is configured — analytics stays off without a console warning.
 		loadPostHog()?.then((posthog) => posthog.opt_in_capturing());
 	} else {
-		// If it was loaded earlier this session, stop it; otherwise nothing to do.
 		getPostHog()?.opt_out_capturing();
 	}
 }

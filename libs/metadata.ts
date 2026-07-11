@@ -1,12 +1,5 @@
 import type { Metadata } from "next";
 
-/**
- * Metadata Generation Utilities
- *
- * Helpers to generate consistent metadata across pages,
- * reducing duplication and ensuring SEO best practices.
- */
-
 interface GenerateMetadataOptions {
 	title?: string;
 	description?: string;
@@ -36,7 +29,6 @@ const DEFAULT_KEYWORDS = [
 	"Creative Agency Warsaw",
 ];
 
-// Get base URL from environment, fail fast if missing in production
 function getBaseUrl(): string {
 	const url = process.env.NEXT_PUBLIC_BASE_URL;
 	if (!url) {
@@ -48,7 +40,6 @@ function getBaseUrl(): string {
 				"NEXT_PUBLIC_BASE_URL environment variable is required in production. Please set it to your production URL.",
 			);
 		}
-		// Dev/CI fallback
 		return "http://localhost:3000";
 	}
 	return url;
@@ -56,27 +47,8 @@ function getBaseUrl(): string {
 
 const APP_BASE_URL = getBaseUrl();
 
-/** Absolute site origin, for canonical URLs and JSON-LD @id references. */
 export const SITE_URL = APP_BASE_URL;
 
-/**
- * Generate complete metadata object for pages
- *
- * @example
- * ```ts
- * export async function generateMetadata({ params }) {
- *   const page = await fetchPage(params.slug)
- *
- *   return generatePageMetadata({
- *     title: page.metadata?.title || page.title,
- *     description: page.metadata?.description,
- *     image: { url: page.metadata?.image?.asset?.url },
- *     url: `/page/${params.slug}`,
- *     noIndex: page.metadata?.noIndex,
- *   })
- * }
- * ```
- */
 export function generatePageMetadata(
 	options: GenerateMetadataOptions,
 ): Metadata {
@@ -95,10 +67,6 @@ export function generatePageMetadata(
 	} = options;
 
 	const fullUrl = url ? `${APP_BASE_URL}${url}` : APP_BASE_URL;
-	// Only set explicit og/twitter images when the page provides one (e.g.
-	// Sanity documents). Otherwise omit `images` entirely so Next's
-	// file-convention app/opengraph-image.png / twitter-image.png (correct
-	// 1200x630-ratio cards) are used instead of a distorted logo fallback.
 	const ogImages = image?.url
 		? [
 				{

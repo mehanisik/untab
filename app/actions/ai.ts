@@ -37,8 +37,6 @@ Return a JSON object exactly with these fields:
 
 Focus on digital product design, web development, and modern technology (Next.js 15+, React 19).`;
 
-		// Primary: gemini-3-flash-preview (latest Dec 2025)
-		// Fallback: gemini-1.5-flash
 		const models = ["gemini-3-flash-preview", "gemini-1.5-flash"];
 		let lastError: Error | null = null;
 

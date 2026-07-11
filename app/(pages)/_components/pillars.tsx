@@ -1,10 +1,6 @@
-"use client";
-
-import { useGSAP } from "@gsap/react";
-import gsap from "gsap";
-import { Fragment, useRef } from "react";
-import { withMotion } from "~/libs/gsap/presets";
+import { Fragment } from "react";
 import { pad } from "~/libs/utils";
+import { PillarsFx } from "./fx/pillars-fx";
 
 const DEFAULT_PILLARS = [
 	{
@@ -41,8 +37,6 @@ interface PillarsProps {
 	}[];
 }
 
-// Capsule outline with a curved chevron, both drawn in stroke-by-stroke on
-// scroll. On hover the capsule fills with the accent and the arrow flips dark.
 function ArrowPill() {
 	return (
 		<svg
@@ -82,8 +76,6 @@ export function Pillars({
 	note = DEFAULT_NOTE,
 	pillars: dynamicPillars,
 }: PillarsProps) {
-	const sectionRef = useRef<HTMLElement>(null);
-
 	const displayPillars =
 		dynamicPillars?.map((p) => ({
 			title: p.title,
@@ -93,104 +85,14 @@ export function Pillars({
 	const total = displayPillars.length;
 	const words = quote.split(" ");
 
-	useGSAP(
-		() =>
-			withMotion(() => {
-				const root = sectionRef.current;
-				if (!root) return;
-
-				// Quote rises word by word out of overflow masks.
-				const quoteWords = gsap.utils.toArray<HTMLElement>("[data-word]", root);
-				if (quoteWords.length) {
-					gsap.fromTo(
-						quoteWords,
-						{ yPercent: 115 },
-						{
-							yPercent: 0,
-							duration: 0.9,
-							ease: "expo.out",
-							stagger: 0.03,
-							scrollTrigger: {
-								trigger: root,
-								start: "top 70%",
-								toggleActions: "play reverse play reverse",
-							},
-						},
-					);
-				}
-
-				const fades = gsap.utils.toArray<HTMLElement>("[data-fade]", root);
-				if (fades.length) {
-					gsap.fromTo(
-						fades,
-						{ y: 24, autoAlpha: 0 },
-						{
-							y: 0,
-							autoAlpha: 1,
-							duration: 0.9,
-							ease: "expo.out",
-							stagger: 0.12,
-							delay: 0.35,
-							scrollTrigger: {
-								trigger: root,
-								start: "top 70%",
-								toggleActions: "play reverse play reverse",
-							},
-						},
-					);
-				}
-
-				// Each row slides in while its pill draws itself: capsule first,
-				// then the chevron.
-				const rows = gsap.utils.toArray<HTMLElement>("[data-row]", root);
-				rows.forEach((row) => {
-					const shapes = Array.from(
-						row.querySelectorAll<SVGGeometryElement>("[stroke]"),
-					);
-					for (const shape of shapes) {
-						const len = shape.getTotalLength();
-						shape.style.strokeDasharray = `${len}`;
-						shape.style.strokeDashoffset = `${len}`;
-					}
-
-					const tl = gsap.timeline({
-						scrollTrigger: {
-							trigger: row,
-							start: "top 85%",
-							toggleActions: "play reverse play reverse",
-						},
-					});
-					tl.fromTo(
-						row,
-						{ y: 32, autoAlpha: 0 },
-						{ y: 0, autoAlpha: 1, duration: 0.8, ease: "expo.out" },
-					).to(
-						shapes,
-						{
-							strokeDashoffset: 0,
-							duration: 0.9,
-							ease: "power2.inOut",
-							stagger: 0.15,
-						},
-						0.1,
-					);
-				});
-			}),
-		{ scope: sectionRef },
-	);
-
 	return (
-		<section
-			ref={sectionRef}
-			className="bg-background py-24 text-foreground md:py-32 lg:py-40"
-		>
+		<PillarsFx className="bg-background py-24 text-foreground md:py-32 lg:py-40">
 			<div className="container px-6 md:px-12 lg:px-24">
 				<h2 className="mb-14 font-mono text-[11px] uppercase tracking-[0.25em] text-foreground/50 md:mb-20">
 					{title} <span className="tabular-nums">({pad(total)})</span>
 				</h2>
 
 				<div className="grid gap-16 md:grid-cols-2 md:gap-12 lg:gap-24">
-					{/* Left: accent quote, attribution, and the honest aside */}
 					<div className="flex flex-col md:pt-2">
 						<blockquote className="max-w-[18ch] text-balance font-medium leading-[1.08] tracking-[-0.02em] text-[clamp(2rem,4.2vw,3.6rem)] text-[var(--brand-coral-accent)]">
 							{words.map((word, index) => (
@@ -222,7 +124,6 @@ export function Pillars({
 						</p>
 					</div>
 
-					{/* Right: pillar list with self-drawing arrow pills */}
 					<ul className="flex flex-col gap-10 md:gap-12">
 						{displayPillars.map((pillar) => (
 							<li
@@ -246,6 +147,6 @@ export function Pillars({
 					</ul>
 				</div>
 			</div>
-		</section>
+		</PillarsFx>
 	);
 }

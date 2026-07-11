@@ -1,11 +1,6 @@
 import { EnvelopeIcon } from "@sanity/icons";
 import { defineArrayMember, defineField, defineType } from "sanity";
 
-/**
- * Contact page singleton — the coral block heading/intro and the left-hand
- * info blocks. Each info block's detail is either an email (rendered as a
- * mailto link) or a text line with an optional smaller subline.
- */
 export default defineType({
 	name: "contact",
 	title: "Contact Page",

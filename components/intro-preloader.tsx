@@ -39,11 +39,6 @@ const LOGO_PIECES = [
 	},
 ] as const;
 
-// Once the intro has played, a session flag lets subsequent hard loads (reloads,
-// back-forward, re-entry within the tab) skip straight to content. The animation
-// is a first-impression flourish, not something to re-pay on every visit - and
-// re-playing it on every load also drags Lighthouse's Speed Index (the overlay
-// covers content until the timeline finishes).
 const INTRO_SEEN_KEY = "untab:intro-seen";
 
 function introAlreadySeen(): boolean {
@@ -57,16 +52,10 @@ function introAlreadySeen(): boolean {
 function markIntroSeen(): void {
 	try {
 		sessionStorage.setItem(INTRO_SEEN_KEY, "1");
-	} catch {
-		// sessionStorage unavailable (private mode, blocked) - just replay.
-	}
+		// biome-ignore lint/suspicious/noEmptyBlockStatements: sessionStorage may be unavailable (private mode)
+	} catch {}
 }
 
-/**
- * Isolates the `useLenis` store subscription so the async arrival of the
- * Lenis instance re-renders only this empty component, never the animated
- * overlay tree. Holds scroll for as long as the intro is covering.
- */
 function LenisHold({
 	lenisRef,
 	doneRef,
@@ -84,10 +73,6 @@ function LenisHold({
 	return null;
 }
 
-/**
- * One-time intro shown on the initial (hard) page load. Client-side route
- * changes never remount the root layout, so this plays once per visit.
- */
 export function IntroPreloader() {
 	const [done, setDone] = useState(false);
 	const doneRef = useRef(false);
@@ -108,9 +93,6 @@ export function IntroPreloader() {
 						setDone(true);
 					};
 
-					// Already played this session: skip the timeline entirely.
-					// useGSAP runs in a layout effect, so finishing here removes
-					// the overlay before the browser paints it - no flash.
 					if (introAlreadySeen()) {
 						finish();
 						return;
@@ -156,8 +138,6 @@ export function IntroPreloader() {
 						},
 						0.1,
 					)
-						// Swap the clipped quadrants for one whole logo so no
-						// hairline seams show along the clip edges.
 						.to(finalRef.current, { opacity: 1, duration: 0.15 }, 0.62)
 						.to(pieces, { opacity: 0, duration: 0.1 }, 0.66)
 						.to(
@@ -176,7 +156,6 @@ export function IntroPreloader() {
 							"<0.06",
 						);
 				},
-				// Reduced motion: skip the intro entirely.
 				() => {
 					doneRef.current = true;
 					lenisRef.current?.start();

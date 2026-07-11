@@ -15,8 +15,6 @@ export default async function PagesLayout({
 				Skip to content
 			</a>
 			<Navbar />
-			{/* display:contents keeps the flex layout while giving the skip link
-			    a stable anchor around whatever <main> each page renders. */}
 			<div id="main-content" className="contents">
 				{children}
 			</div>

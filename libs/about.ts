@@ -2,12 +2,6 @@ import { cache } from "react";
 import { fetchSanity } from "./live";
 import { type About, QUERIES } from "./sanity";
 
-/**
- * Grounded, verifiable defaults for the About page. Every stat here is
- * defensible from the real project data — no invented team sizes, funding
- * totals, or reach figures. The live project count is prepended at render
- * time (see the About page), so it is intentionally not listed as a stat.
- */
 export const ABOUT_FALLBACK: About = {
 	eyebrow: "About Untab",
 	headingLines: ["We exist between", "what is and what", "is emerging."],
@@ -27,8 +21,6 @@ export const ABOUT_FALLBACK: About = {
 				"Disciplines under one roof — strategy, brand, website, product, and development.",
 		},
 		{
-			// Earliest project year in the live Sanity dataset. Re-derive from
-			// *[_type=="project"]|order(year asc)[0] if the backlog changes.
 			value: "2024",
 			label: "Shipping client work end-to-end since.",
 		},
@@ -39,7 +31,6 @@ export const ABOUT_FALLBACK: About = {
 	],
 };
 
-/** Removes null/undefined/empty values so a partial CMS doc falls back per-field. */
 function pruneEmpty(input: About): Partial<About> {
 	const out: Partial<About> = {};
 	for (const [key, value] of Object.entries(input)) {
@@ -51,10 +42,6 @@ function pruneEmpty(input: About): Partial<About> {
 	return out;
 }
 
-/**
- * Fetches the About singleton, merging any CMS content over the grounded
- * fallback so the page always renders real, defensible copy.
- */
 export const getAbout = cache(async (): Promise<About> => {
 	try {
 		const about = await fetchSanity<About | null>(QUERIES.about, {}, ["about"]);
@@ -65,7 +52,6 @@ export const getAbout = cache(async (): Promise<About> => {
 	return ABOUT_FALLBACK;
 });
 
-/** Live count of published projects — the one stat we never hardcode. */
 export const getProjectCount = cache(async (): Promise<number> => {
 	try {
 		const count = await fetchSanity<number>(QUERIES.projectCount, {}, [

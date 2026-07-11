@@ -1,12 +1,8 @@
-"use client";
-
-import { useGSAP } from "@gsap/react";
-import gsap from "gsap";
-import { useEffect, useId, useRef, useState } from "react";
 import { LogoWordmark } from "~/components/logo-wordmark";
 import { Link } from "~/components/ui/link";
-import { withMotion } from "~/libs/gsap/presets";
 import type { Settings } from "~/libs/sanity";
+import { CopyrightYear } from "./fx/copyright-year";
+import { FooterFx } from "./fx/footer-fx";
 
 const DEFAULT_TAGLINE =
 	"An independent software studio in Warsaw, building brand-led websites, platforms, and digital products with ambitious teams around the world.";
@@ -14,8 +10,8 @@ const DEFAULT_EMAIL = "contact@untabstudio.com";
 const DEFAULT_CITY = "Warsaw, Poland";
 const DEFAULT_TIMEZONE = "CET · UTC+1";
 
-// Nav routes stay in code — they map to real pages, so they can't be edited
-// away into broken links from the CMS.
+const GRAIN_FILTER_ID = "footer-grain";
+
 const studioLinks = [
 	{ label: "Home", href: "/" },
 	{ label: "Work", href: "/work" },
@@ -46,18 +42,6 @@ export function Footer({
 	studioCity,
 	timezone,
 }: FooterProps = {}) {
-	// Reading the clock during render marks the whole route dynamic under
-	// cacheComponents (next-prerender-current-time-client) — and because the
-	// footer sits in the (pages) layout, that single call knocked EVERY page
-	// out of the static prerender. Resolve the year after mount instead; the
-	// prerendered HTML shows the fallback until hydration.
-	const [year, setYear] = useState(2026);
-	useEffect(() => {
-		setYear(new Date().getFullYear());
-	}, []);
-	const footerRef = useRef<HTMLElement>(null);
-	const grainId = useId();
-
 	const email = contactEmail ?? DEFAULT_EMAIL;
 	const contactLinks: Array<{ label: string; href?: string }> = [
 		{ label: email, href: `mailto:${email}` },
@@ -66,93 +50,8 @@ export function Footer({
 		{ label: timezone ?? DEFAULT_TIMEZONE },
 	];
 
-	useGSAP(
-		() =>
-			withMotion(() => {
-				const root = footerRef.current;
-				if (!root) return;
-
-				// Curtain reveal: the whole footer body eases down into place as
-				// the footer scrolls in. Scroll-linked, so scrub + ease "none",
-				// clamped so short pages don't start mid-animation.
-				gsap.fromTo(
-					root.querySelector(".fx-inner"),
-					{ yPercent: -10 },
-					{
-						yPercent: 0,
-						ease: "none",
-						scrollTrigger: {
-							trigger: root,
-							start: "clamp(top bottom)",
-							end: "clamp(top 25%)",
-							scrub: true,
-						},
-					},
-				);
-
-				// Entrance: one timeline, one ScrollTrigger. Only reverses on
-				// scroll-up (onLeaveBack) — NOT "play reverse play reverse". The
-				// footer is the last element, so its trigger end sits past the max
-				// scroll and gets clamped there; a reverse-on-leave would fire at
-				// the page bottom and hide the footer exactly when it's in view.
-				const tl = gsap.timeline({
-					defaults: { ease: "expo.out" },
-					scrollTrigger: {
-						trigger: root,
-						start: "top 85%",
-						toggleActions: "play none none reverse",
-					},
-				});
-
-				tl.from(
-					root.querySelectorAll(".fx-logo"),
-					{ y: 24, autoAlpha: 0, duration: 0.9 },
-					0,
-				)
-					.from(
-						root.querySelectorAll(".fx-tagline-line"),
-						{ y: 28, autoAlpha: 0, duration: 0.9, stagger: 0.08 },
-						0.1,
-					)
-					.from(
-						root.querySelectorAll(".fx-col-label"),
-						{ y: 14, autoAlpha: 0, duration: 0.7, stagger: 0.06 },
-						0.15,
-					)
-					.from(
-						root.querySelectorAll(".fx-link"),
-						{ y: 10, autoAlpha: 0, duration: 0.5, stagger: 0.04 },
-						0.25,
-					)
-					.from(
-						root.querySelector(".fx-divider"),
-						{
-							scaleX: 0,
-							transformOrigin: "left center",
-							duration: 1,
-						},
-						0.35,
-					)
-					.from(
-						root.querySelectorAll(".fx-meta"),
-						{ y: 10, autoAlpha: 0, duration: 0.6, stagger: 0.06 },
-						0.45,
-					);
-			}),
-		{ scope: footerRef },
-	);
-
 	return (
-		<footer
-			ref={footerRef}
-			// Fixed dark-ink surface in both themes, so pin the foreground to the
-			// cream base token instead of the theme-flipping surface foreground.
-			className="relative isolate w-full text-surface-deep-foreground [--surface-deep-foreground:var(--light)]"
-		>
-			{/* Full-bleed dark-ink surface: spans the viewport width (like a
-			    proper footer) while the content below keeps the shared max-width
-			    rails. left-1/2 + -ml-[50vw] + w-screen resolves to the viewport
-			    edges because the footer is centered in the page container. */}
+		<FooterFx className="relative isolate w-full text-surface-deep-foreground [--surface-deep-foreground:var(--light)]">
 			<div className="pointer-events-none absolute inset-y-0 left-1/2 -z-10 -ml-[50vw] w-screen overflow-hidden bg-[var(--dark)]">
 				<svg
 					aria-hidden
@@ -160,7 +59,7 @@ export function Footer({
 					preserveAspectRatio="none"
 				>
 					<title>texture</title>
-					<filter id={grainId}>
+					<filter id={GRAIN_FILTER_ID}>
 						<feTurbulence
 							type="fractalNoise"
 							baseFrequency="0.72"
@@ -172,7 +71,11 @@ export function Footer({
 							values="0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0.45 0.45 0.45 0 0"
 						/>
 					</filter>
-					<rect width="100%" height="100%" filter={`url(#${grainId})`} />
+					<rect
+						width="100%"
+						height="100%"
+						filter={`url(#${GRAIN_FILTER_ID})`}
+					/>
 				</svg>
 			</div>
 
@@ -191,9 +94,6 @@ export function Footer({
 						</p>
 					</div>
 
-					{/* Link groups sit 2-up on phones to cut the tall single-column
-					    stack; `md:contents` dissolves this wrapper at md+ so the
-					    original 12-column placement below is unchanged. */}
 					<div className="grid grid-cols-2 gap-10 sm:gap-8 md:contents">
 						<nav
 							aria-label="Studio"
@@ -239,13 +139,13 @@ export function Footer({
 
 				<div className="mt-6 flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
 					<p className="fx-meta text-xs text-surface-deep-foreground">
-						© {year} Untab Studio. All rights reserved.
+						© <CopyrightYear /> Untab Studio. All rights reserved.
 					</p>
 					<p className="fx-meta text-xs text-surface-deep-foreground">
 						Crafted in Warsaw, Poland.
 					</p>
 				</div>
 			</div>
-		</footer>
+		</FooterFx>
 	);
 }

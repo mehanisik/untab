@@ -1,9 +1,7 @@
 export const PROJECT_IMAGE_FALLBACK = "/brand/og/og-image-dark.png";
 
-// Sanity asset filenames encode intrinsic size: <id>-<width>x<height>.<ext>
 const SANITY_DIMENSIONS = /-(\d+)x(\d+)\.[a-z0-9]+(?:\?|$)/i;
 
-/** Intrinsic width/height ratio parsed from a Sanity asset URL, if present. */
 export function sanityAspect(src: string | undefined): number | undefined {
 	if (!src) return undefined;
 	const match = src.match(SANITY_DIMENSIONS);
