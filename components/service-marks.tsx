@@ -1,18 +1,6 @@
-/* ------------------------------------------------------------------ */
-/* Abstract marks — one geometric composition per discipline. Drawn in */
-/* currentColor so they read on any surface. Shared by the services    */
-/* page capabilities and the landing page services accordion.          */
-/*                                                                     */
-/* Each mark plays on hover of a parent `group`: internal parts move   */
-/* with compositor-only transforms, gated behind motion-safe. Without  */
-/* a group parent they simply render static.                           */
-/* ------------------------------------------------------------------ */
-
 import type { ComponentType } from "react";
 import type { ServiceMark } from "~/libs/sanity";
 
-// SVG children transform in user units; fill-box keeps each part's
-// origin on itself so scales and tilts stay local.
 const PART =
 	"[transform-box:fill-box] origin-center transition-transform duration-300 ease-out";
 
@@ -80,7 +68,6 @@ export function StrategyMark() {
 		<svg viewBox="0 0 120 120" fill="none" aria-hidden className="size-full">
 			<title>Intersecting strategy vectors</title>
 			<circle cx="60" cy="60" r="38" stroke="currentColor" strokeWidth="2" />
-			{/* The needle swings like a compass finding north. */}
 			<g className="[transform-box:view-box] origin-center transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] motion-safe:group-hover:rotate-90">
 				<path d="M60 22 L60 98" stroke="currentColor" strokeWidth="2" />
 				<path d="M30 44 L90 76" stroke="currentColor" strokeWidth="2" />
@@ -135,7 +122,6 @@ export function ContentMark() {
 				stroke="currentColor"
 				strokeWidth="2"
 			/>
-			{/* Press play: the triangle leans in and fills. */}
 			<path
 				d="M52 48 L72 60 L52 72 Z"
 				stroke="currentColor"
@@ -151,7 +137,6 @@ export function SystemMark() {
 	return (
 		<svg viewBox="0 0 120 120" fill="none" aria-hidden className="size-full">
 			<title>A grid of system tokens</title>
-			{/* Tokens snap toward the grid centre, the odd one rounds off. */}
 			<rect
 				x="28"
 				y="28"
@@ -204,7 +189,6 @@ export function CloudMark() {
 				strokeWidth="2"
 				strokeLinejoin="round"
 			/>
-			{/* The upload arrow lifts into the cloud on hover. */}
 			<path
 				d="M60 76 L60 54 M51 63 L60 54 L69 63"
 				stroke="currentColor"
@@ -217,8 +201,6 @@ export function CloudMark() {
 	);
 }
 
-// Maps a CMS `mark` key to its component, so services can be data-driven while
-// the marks themselves stay in code.
 export const SERVICE_MARKS: Record<ServiceMark, ComponentType> = {
 	strategy: StrategyMark,
 	brand: BrandingMark,

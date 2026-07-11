@@ -29,9 +29,6 @@ export const RouterTransitionContext = createContext<RouterTransition>({
 	},
 });
 
-// Wipe is dead time (waiting to leave) so it's the shortest, with an
-// accelerating ease that snaps the cover shut. Reveal is the entrance, so it's
-// a touch longer with a decelerating ease for a graceful exit. Both move up.
 const WIPE_DURATION = 0.4;
 const WIPE_EASE = "power2.in";
 const REVEAL_DURATION = 0.5;
@@ -78,11 +75,6 @@ export function RouterTransitionProvider({
 				"(prefers-reduced-motion: reduce)",
 			).matches;
 
-			// The overlay ships with an inline `translateY(100%)` so it's parked
-			// off-screen before hydration. GSAP parses that computed matrix as a
-			// pixel `y`, which would silently offset every yPercent tween below
-			// (the wipe would never reach the viewport, and the reveal would end
-			// covering the page). Normalize to pure yPercent once up front.
 			gsap.set(overlayRef.current, { y: 0, yPercent: 100 });
 
 			const reveal = contextSafe(() => {
@@ -133,9 +125,6 @@ export function RouterTransitionProvider({
 			revealRef.current = reveal;
 			wipeRef.current = wipe;
 
-			// No intro animation: the overlay rests off-screen (below) and only
-			// wipes/reveals when the user clicks through to a new route.
-
 			return () => {
 				lenisRef.current?.start();
 			};
@@ -148,9 +137,6 @@ export function RouterTransitionProvider({
 			if (isAnimating.current) return;
 			if (href === pathname) return;
 
-			// Same route, different query/hash: pathname never changes, so the
-			// commit effect would never fire the reveal and the cover would get
-			// stuck. Navigate without the transition instead.
 			const targetPath = href.split(/[?#]/)[0] ?? href;
 			if (targetPath === pathname) {
 				router[method](href as Route);
@@ -166,12 +152,6 @@ export function RouterTransitionProvider({
 			pendingPathname.current = href;
 			lenisRef.current?.stop();
 
-			// Cover the screen FIRST, then navigate. Navigating before the wipe
-			// fully covers would let the new page paint under a half-covered overlay
-			// (the "see page, then animation" flash). startTransition keeps the
-			// new route's render non-urgent so it can't jank the reveal. The reveal
-			// fires from the route-commit effect once the new page mounts behind the
-			// cover, so a slow route just holds the cover until it's ready.
 			wipeRef.current?.(() => {
 				resetScroll();
 				startTransition(() => {
@@ -196,17 +176,9 @@ export function RouterTransitionProvider({
 		if (pendingPathname.current !== pathname) return;
 		pendingPathname.current = null;
 
-		// New route has committed behind the cover; slide the overlay away.
 		resetScroll();
 		revealRef.current?.();
 
-		// The new page's sections just mounted and built their ScrollTriggers
-		// while scroll was locked and layout was still settling — bottom-anchored
-		// triggers (e.g. the footer's "top 85%") end up with stale start/end
-		// positions and can stay stuck in their `.from(autoAlpha: 0)` state.
-		// Recompute every trigger's position once the layout has painted. Two
-		// rAFs so the refresh runs after the browser has committed the new
-		// layout, not mid-commit.
 		const raf = requestAnimationFrame(() => {
 			requestAnimationFrame(() => ScrollTrigger.refresh());
 		});

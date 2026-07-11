@@ -10,11 +10,6 @@ interface PageProps {
 }
 
 export async function generateStaticParams() {
-	// Cache Components requires generateStaticParams to return at least one
-	// entry. When Sanity has no posts (unseeded dataset) or is unreachable at
-	// build time (CI without real credentials), emit a placeholder slug the
-	// page resolves to notFound(), so the route still builds.
-	// Mirrors darkroomengineering/satus.
 	const fallback = [{ slug: "post-not-found" }];
 	try {
 		const posts = await getPosts();
@@ -29,7 +24,6 @@ export async function generateMetadata({
 	params,
 }: PageProps): Promise<Metadata> {
 	const { slug } = await params;
-	// stega:false — keep invisible Visual-Editing chars out of <head>.
 	const post = await getPostBySlug(slug, { stega: false });
 
 	if (!post) {

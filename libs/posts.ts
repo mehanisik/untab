@@ -2,10 +2,6 @@ import { cache } from "react";
 import { fetchSanity } from "./live";
 import { type Post, QUERIES } from "./sanity";
 
-/**
- * Fetches all blog posts, ordered by publishedAt desc.
- * Uses fetchSanity with revalidation tags for efficient caching.
- */
 export const getPosts = cache(async (): Promise<Post[]> => {
 	try {
 		const posts = await fetchSanity<Post[]>(QUERIES.posts, {}, ["post"]);
@@ -18,10 +14,6 @@ export const getPosts = cache(async (): Promise<Post[]> => {
 	return [];
 });
 
-/**
- * Fetches a single blog post by its slug.
- * Uses fetchSanity with revalidation tags for efficient caching.
- */
 export const getPostBySlug = cache(
 	async (slug: string, opts?: { stega?: boolean }): Promise<Post | null> => {
 		try {

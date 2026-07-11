@@ -5,22 +5,9 @@ export const REVEAL = {
 	duration: 0.9,
 	y: 32,
 	start: "top 80%",
-	// Bidirectional replay: reveal on enter, reverse out whenever the section
-	// leaves the viewport (scrolling either way), and replay when it re-enters.
-	// Positions map to GSAP's onEnter onLeave onEnterBack onLeaveBack — so
-	// scrolling down past a section hides it, and scrolling back up replays it.
 	toggleActions: "play reverse play reverse",
 } as const;
 
-/**
- * Wraps a GSAP setup function so it only runs when the user does NOT prefer
- * reduced motion. Returns a cleanup compatible with `useGSAP`.
- *
- * Usage:
- *   useGSAP(() => withMotion(() => {
- *     gsap.from(".x", { ... });
- *   }), { scope: ref });
- */
 type MotionCleanup = () => void;
 
 export function withMotion(

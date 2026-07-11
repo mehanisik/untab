@@ -10,7 +10,6 @@ export default defineType({
 	title: "Project",
 	type: "document",
 	icon: CaseIcon,
-	// Enables manual drag-and-drop ordering in the Studio "Projects" list.
 	orderings: [orderRankOrdering],
 	groups: [
 		{ name: "general", title: "General" },
@@ -23,7 +22,6 @@ export default defineType({
 		{ name: "seo", title: "SEO" },
 	],
 	fields: [
-		// Hidden rank field that stores the manual drag-and-drop order.
 		orderRankField({ type: "project" }),
 		defineField({
 			name: "title",

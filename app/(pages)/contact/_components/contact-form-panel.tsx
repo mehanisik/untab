@@ -17,7 +17,6 @@ import { getPostHog } from "~/libs/posthog";
 const COOLDOWN_MS = 10_000;
 const MESSAGE_MAX = 5000;
 
-// Underline fields on the coral surface, ink type throughout.
 const FIELD =
 	"w-full border-b-2 border-[var(--dark)]/35 bg-transparent px-0 py-3 text-[15px] text-[var(--dark)] outline-none transition-colors duration-200 placeholder:text-[var(--dark)]/55 focus:border-[var(--dark)] aria-[invalid=true]:border-[var(--dark)]";
 
@@ -107,7 +106,6 @@ export function ContactFormPanel() {
 		const form = e.currentTarget;
 		const formData = new FormData(form);
 
-		// Validate everything up front; focus the first field that fails.
 		const nextErrors: FieldErrors = {};
 		for (const field of Object.keys(VALIDATORS) as FieldName[]) {
 			const value = String(formData.get(field) ?? "");
@@ -139,9 +137,6 @@ export function ContactFormPanel() {
 			return;
 		}
 
-		// Conversion event — the one metric that matters for a studio site.
-		// No PII: only the (optional) project-type bucket. Fires solely if the
-		// visitor consented to analytics; otherwise getPostHog() is null.
 		getPostHog()?.capture("contact_form_submitted", {
 			project_type: projectType ?? "unspecified",
 		});
@@ -163,8 +158,6 @@ export function ContactFormPanel() {
 			ref={formRef}
 			onSubmit={handleSubmit}
 			noValidate
-			// ph-no-capture: keep name/email/message out of PostHog session
-			// replays and autocapture (PII).
 			className="ph-no-capture space-y-7"
 		>
 			<input
@@ -244,8 +237,6 @@ export function ContactFormPanel() {
 				</div>
 			</div>
 
-			{/* Project type: checkbox-styled single select feeding the action's
-			    projectType field. Optional by design. */}
 			<fieldset>
 				<legend className="mb-4 text-[11px] font-medium uppercase tracking-[0.22em] text-[var(--dark)]/60">
 					How can we help

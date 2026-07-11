@@ -26,7 +26,6 @@ export default function NotFound() {
 					0.4,
 				);
 
-				// The disc drifts slowly, the only continuous motion on the page.
 				gsap.to(root.querySelector(".nf-disc"), {
 					y: -24,
 					duration: 5,

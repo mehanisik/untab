@@ -11,11 +11,7 @@ interface EnvConfig {
 }
 
 function validateEnv(): EnvConfig {
-	// Skip validation during CI/static-analysis builds where real secrets are
-	// unavailable. The hosting platform enforces real values at deploy time.
 	if (process.env.SKIP_ENV_VALIDATION === "true") {
-		// Non-empty fallbacks so downstream clients (e.g. Sanity createClient)
-		// don't throw on construction. CI never reaches real network calls.
 		return {
 			NEXT_PUBLIC_SANITY_PROJECT_ID:
 				process.env.NEXT_PUBLIC_SANITY_PROJECT_ID ?? "ci-placeholder",
@@ -82,8 +78,6 @@ function validateEnv(): EnvConfig {
 			);
 		}
 
-		// Analytics is non-critical, so warn (don't crash the site) when the
-		// PostHog token is missing — otherwise it fails silently at init.
 		if (!process.env.NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN) {
 			console.warn(
 				"[env] NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN is not set — PostHog analytics will be disabled in production.",

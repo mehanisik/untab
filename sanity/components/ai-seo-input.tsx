@@ -14,21 +14,16 @@ interface PortableTextBlock {
 	children?: BlockChild[];
 }
 
-/**
- * Custom Sanity Input Component for the SEO object.
- * Adds a "Generate with AI" button that uses the updated Gemini 3 model.
- */
 export function AISeoInput(props: ObjectInputProps) {
 	const { onChange } = props;
 	const [loading, setLoading] = useState(false);
 	const toast = useToast();
 
-	// Extract context from the parent document
 	const title = useFormValue(["title"]) as string;
-	const excerpt = useFormValue(["excerpt"]) as string; // from post
-	const description = useFormValue(["description"]) as string; // from project general
-	const mission = useFormValue(["content", "mission"]) as string; // from project content
-	const body = useFormValue(["body"]); // from post
+	const excerpt = useFormValue(["excerpt"]) as string;
+	const description = useFormValue(["description"]) as string;
+	const mission = useFormValue(["content", "mission"]) as string;
+	const body = useFormValue(["body"]);
 
 	const handleGenerate = useCallback(async () => {
 		if (!title) {
@@ -42,7 +37,6 @@ export function AISeoInput(props: ObjectInputProps) {
 
 		setLoading(true);
 		try {
-			// Convert Portable Text body to plain text for the AI
 			let bodyText = "";
 			if (Array.isArray(body)) {
 				bodyText = (body as PortableTextBlock[])
@@ -57,8 +51,6 @@ export function AISeoInput(props: ObjectInputProps) {
 				body: bodyText,
 			});
 
-			// Patch the object fields
-			// Note: These paths are relative to the object root
 			onChange([
 				set(result.seoTitle, ["title"]),
 				set(result.seoDescription, ["description"]),
@@ -107,7 +99,6 @@ export function AISeoInput(props: ObjectInputProps) {
 				</Stack>
 			</Card>
 
-			{/* Render the actual form fields */}
 			{props.renderDefault(props)}
 		</Stack>
 	);

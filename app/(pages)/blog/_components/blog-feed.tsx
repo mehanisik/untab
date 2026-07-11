@@ -72,7 +72,6 @@ export function BlogFeed({ posts }: BlogFeedProps) {
 			className="w-full bg-background py-16 sm:py-20 md:py-24"
 		>
 			<div className="container px-6 md:px-12 lg:px-24">
-				{/* Intro */}
 				<div className="feed-intro mb-12 max-w-2xl md:mb-16">
 					<p className="text-[11px] font-medium uppercase tracking-[0.28em] text-foreground/50">
 						The Latest
@@ -83,7 +82,6 @@ export function BlogFeed({ posts }: BlogFeedProps) {
 					</p>
 				</div>
 
-				{/* Category filters */}
 				{categories.length > 0 ? (
 					<div className="mb-10 md:mb-14">
 						<p className="mb-3 text-[10px] font-medium uppercase tracking-[0.3em] text-foreground/40">
@@ -110,7 +108,6 @@ export function BlogFeed({ posts }: BlogFeedProps) {
 					</div>
 				) : null}
 
-				{/* Post grid */}
 				<ul className="post-grid grid grid-cols-1 gap-x-6 gap-y-12 sm:grid-cols-2 md:gap-y-14 lg:grid-cols-3 lg:gap-x-8">
 					{visible.map((post, i) => (
 						<li key={post._id} className="grid-card">
@@ -123,11 +120,10 @@ export function BlogFeed({ posts }: BlogFeedProps) {
 	);
 }
 
-// Poster-family accents as utility classes so styling stays in Tailwind.
 const ACCENTS = [
-	{ chip: "bg-[#6E56FF] text-white", dot: "bg-[#6E56FF]" }, // purple
-	{ chip: "bg-[#F2FF5C] text-[var(--dark)]", dot: "bg-[#F2FF5C]" }, // lime
-	{ chip: "bg-[#FF6B4A] text-white", dot: "bg-[#FF6B4A]" }, // coral
+	{ chip: "bg-[#6E56FF] text-white", dot: "bg-[#6E56FF]" },
+	{ chip: "bg-[#F2FF5C] text-[var(--dark)]", dot: "bg-[#F2FF5C]" },
+	{ chip: "bg-[#FF6B4A] text-white", dot: "bg-[#FF6B4A]" },
 ] as const;
 
 function PostCard({
@@ -162,7 +158,6 @@ function PostCard({
 			className="group block"
 			title={post.title}
 		>
-			{/* Cover */}
 			<div className="relative aspect-[5/6] overflow-hidden rounded-xl bg-foreground/[0.04]">
 				{post.mainImage ? (
 					<Image
@@ -178,7 +173,6 @@ function PostCard({
 				)}
 			</div>
 
-			{/* Title + arrow */}
 			<div className="mt-4 flex items-start justify-between gap-3 sm:mt-5">
 				<h3 className="min-w-0 line-clamp-2 text-pretty break-words text-[clamp(1.05rem,1.4vw,1.5rem)] font-semibold leading-snug tracking-[-0.02em] text-foreground">
 					{post.title}
@@ -191,10 +185,8 @@ function PostCard({
 				</span>
 			</div>
 
-			{/* Divider */}
 			<div className="mt-3 border-t border-foreground/15 sm:mt-4" />
 
-			{/* Meta */}
 			<div className="mt-3 flex items-center justify-between gap-3 text-[12px] leading-tight text-foreground/55 sm:text-[13px]">
 				<span className="flex min-w-0 flex-1 items-center gap-2">
 					<span

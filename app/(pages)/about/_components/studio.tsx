@@ -5,7 +5,6 @@ import gsap from "gsap";
 import Image from "next/image";
 import { useRef } from "react";
 
-// Bundled brand collage, used when the CMS `brandImage` is unset.
 const FALLBACK_IMAGE = "/brand/about/brand-collage.webp";
 
 export function Studio({ image }: { image?: string }) {

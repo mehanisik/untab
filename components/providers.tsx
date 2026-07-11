@@ -8,8 +8,6 @@ import { Lenis } from "~/components/lenis-provider";
 import { ThemeProvider } from "~/components/theme-provider";
 
 if (typeof window !== "undefined") {
-	// Register useGSAP so tree-shaking keeps the hook in production builds, per
-	// the @gsap/react docs. ScrollTrigger is the one plugin used app-wide.
 	gsap.registerPlugin(useGSAP, ScrollTrigger);
 }
 

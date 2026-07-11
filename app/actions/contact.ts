@@ -34,9 +34,6 @@ const ALLOWED_PROJECT_TYPES = new Set<string>(PROJECT_TYPES);
 
 const MIN_SUBMIT_TIME_MS = 2000;
 
-// Local backstop rate limit so abuse protection never depends solely on
-// Arcjet availability (its block fails open by design). Per-instance
-// memory resets on cold starts, which is fine for a backstop.
 const RATE_WINDOW_MS = 60_000;
 const RATE_MAX_PER_WINDOW = 8;
 const recentSends: number[] = [];
@@ -95,13 +92,6 @@ export async function sendContactEmail(formData: FormData) {
 			requested: 5,
 			sensitiveInfoValue: rawMessage || "",
 		});
-
-		if (process.env.NODE_ENV === "development") {
-			console.log("✦ Arcjet Decision:", decision.conclusion);
-			if (decision.isDenied()) {
-				console.log("✦ Arcjet Denied Reason:", decision.reason);
-			}
-		}
 
 		if (decision.isDenied()) {
 			if (decision.reason.isRateLimit()) {
@@ -170,8 +160,6 @@ export async function sendContactEmail(formData: FormData) {
 		return { error: "Name must be at least 2 characters long." };
 	}
 
-	// Hard format gate, independent of Arcjet: this address becomes replyTo
-	// and the confirmation recipient, so it must be a plausible email.
 	if (!isValidEmail(email)) {
 		return { error: "Please provide a valid email address." };
 	}
@@ -195,9 +183,6 @@ export async function sendContactEmail(formData: FormData) {
 	}
 
 	try {
-		// Company/phone are optional, so fold them into the message body (the
-		// email template renders it with `whitespace-pre-wrap`, preserving the
-		// newlines) rather than widening the email template's props.
 		const detailLines = [
 			company ? `Company: ${company}` : null,
 			phone ? `Phone: ${phone}` : null,
@@ -232,9 +217,6 @@ export async function sendContactEmail(formData: FormData) {
 			};
 		}
 
-		// Confirmation receipt to the sender. Deliberately does not echo the
-		// message body, so the form cannot be used to relay content to third
-		// parties. A failure here never fails the submission.
 		try {
 			await resend.emails.send({
 				from: SENDER_EMAIL,

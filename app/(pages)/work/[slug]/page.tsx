@@ -10,11 +10,6 @@ interface PageProps {
 }
 
 export async function generateStaticParams() {
-	// Cache Components requires generateStaticParams to return at least one
-	// entry. When Sanity has no projects (unseeded dataset) or is unreachable at
-	// build time (CI without real credentials), emit a placeholder slug the page
-	// resolves to notFound(), so the route still builds.
-	// Mirrors darkroomengineering/satus.
 	const fallback = [{ slug: "project-not-found" }];
 	try {
 		const projects = await getProjects();
@@ -29,7 +24,6 @@ export async function generateMetadata({
 	params,
 }: PageProps): Promise<Metadata> {
 	const { slug } = await params;
-	// stega:false — keep invisible Visual-Editing chars out of <head>.
 	const study = await getProjectBySlug(slug, { stega: false });
 	if (!study) return generatePageMetadata({ title: "Case study" });
 	const cover = study.cardImage ?? study.image;

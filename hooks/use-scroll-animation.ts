@@ -16,9 +16,6 @@ export function useFadeInOnScroll<T extends HTMLElement = HTMLDivElement>(
 			withMotion(() => {
 				const el = elementRef.current;
 				if (!el) return;
-				// fromTo (not from) so the resting visible state is explicit. With a
-				// ScrollTrigger `from` tween, a refresh can briefly record the live
-				// (end) state and flash visible content before snapping hidden.
 				gsap.fromTo(
 					el,
 					{ y: REVEAL.y, opacity: 0 },

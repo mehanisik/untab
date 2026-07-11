@@ -2,11 +2,6 @@ import { cache } from "react";
 import { fetchSanity } from "./live";
 import { type Homepage, QUERIES } from "./sanity";
 
-/**
- * Grounded defaults mirroring the shipped homepage copy. Used when the
- * `homepage` singleton is absent or the fetch fails. Presentation-only values
- * (poster colours/rotation) live in the components, not here.
- */
 export const HOMEPAGE_FALLBACK: Homepage = {
 	intro: {
 		eyebrow: "Who are we?",
@@ -93,11 +88,6 @@ export const HOMEPAGE_FALLBACK: Homepage = {
 	},
 };
 
-/**
- * Fetches the homepage singleton, falling back to the grounded copy so the
- * page always renders. Section components keep their own per-prop defaults as
- * a second safety net.
- */
 export const getHomepage = cache(async (): Promise<Homepage> => {
 	try {
 		const homepage = await fetchSanity<Homepage | null>(QUERIES.homepage, {}, [

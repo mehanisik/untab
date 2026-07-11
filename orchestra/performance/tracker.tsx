@@ -15,11 +15,10 @@ export function PerformanceTracker() {
 	useEffect(() => {
 		if (process.env.NODE_ENV !== "development") return;
 
-		// Simple Web Vitals tracking
 		const observer = new PerformanceObserver((list) => {
 			for (const entry of list.getEntries()) {
 				const name = entry.name;
-				const value = entry.startTime; // Simplified for this demo
+				const value = entry.startTime;
 
 				let rating: Metric["rating"] = "good";
 				if (value > 2500) rating = "poor";
