@@ -43,5 +43,7 @@ export async function getSettings() {
     "logo": logo.asset->url,
     "heroVideo": heroVideo.asset->url
   }`,
+		{},
+		["settings"],
 	);
 }
