@@ -6,6 +6,7 @@ let loading: Promise<PostHog> | null = null;
 export function loadPostHog(): Promise<PostHog> | null {
 	if (instance) return Promise.resolve(instance);
 	if (loading) return loading;
+	if (process.env.NODE_ENV === "development") return null;
 
 	const token = process.env.NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN;
 	if (!token) return null;
