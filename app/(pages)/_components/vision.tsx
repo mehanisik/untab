@@ -1,10 +1,6 @@
-"use client";
-
-import { useGSAP } from "@gsap/react";
-import gsap from "gsap";
-import { Fragment, useRef } from "react";
+import { Fragment } from "react";
 import { Link } from "~/components/ui/link";
-import { withMotion } from "~/libs/gsap/presets";
+import { VisionFx } from "./fx/vision-fx";
 
 interface VisionProps {
 	kicker?: string;
@@ -13,7 +9,6 @@ interface VisionProps {
 	heading?: string;
 }
 
-/** Dashed concentric arcs sweeping up from the bottom-right of the section. */
 function VisionArcs() {
 	return (
 		<svg
@@ -47,78 +42,10 @@ export function Vision({
 	linkText = "Let's talk",
 	heading = "about your vision.",
 }: VisionProps) {
-	const sectionRef = useRef<HTMLElement>(null);
 	const words = description.split(" ");
 
-	useGSAP(
-		() =>
-			withMotion(() => {
-				const root = sectionRef.current;
-				if (!root) return;
-
-				// Entrance: one timeline, one ScrollTrigger; reverses out when
-				// scrolling back above the section.
-				const tl = gsap.timeline({
-					defaults: { ease: "expo.out" },
-					scrollTrigger: {
-						trigger: root,
-						start: "top 70%",
-						toggleActions: "play reverse play reverse",
-					},
-				});
-
-				tl.from(
-					root.querySelector(".vision-kicker"),
-					{ y: 16, autoAlpha: 0, duration: 0.6 },
-					0,
-				)
-					.from(
-						root.querySelectorAll(".vision-word"),
-						{ yPercent: 115, duration: 0.8, stagger: 0.018 },
-						0.05,
-					)
-					.from(
-						root.querySelectorAll(".vision-line"),
-						{ yPercent: 115, duration: 1, stagger: 0.14 },
-						0.3,
-					)
-					.fromTo(
-						root.querySelector(".vision-underline"),
-						{ scaleX: 0 },
-						{ scaleX: 1, duration: 0.9, ease: "power3.inOut" },
-						0.8,
-					);
-
-				// Ambience: the arcs drift with scroll — scrub is scroll-linked
-				// (ease: "none"), kept on its own top-level tween per the docs.
-				gsap.fromTo(
-					root.querySelector(".vision-arcs"),
-					{ y: 90, rotate: 2 },
-					{
-						y: -50,
-						rotate: 0,
-						ease: "none",
-						scrollTrigger: {
-							trigger: root,
-							start: "clamp(top bottom)",
-							end: "clamp(bottom top)",
-							scrub: true,
-						},
-					},
-				);
-			}),
-		{ scope: sectionRef },
-	);
-
 	return (
-		<section
-			ref={sectionRef}
-			className="relative isolate"
-			aria-label="Start a conversation"
-		>
-			{/* Full-bleed muted surface: spans the viewport while content keeps the
-			    shared max-width rails. Resolves to the viewport edges because the
-			    section is centered in the page container. */}
+		<VisionFx className="relative isolate" aria-label="Start a conversation">
 			<div className="pointer-events-none absolute inset-y-0 left-1/2 -z-10 -ml-[50vw] w-screen bg-muted" />
 
 			<VisionArcs />
@@ -158,6 +85,6 @@ export function Vision({
 					</span>
 				</h2>
 			</div>
-		</section>
+		</VisionFx>
 	);
 }

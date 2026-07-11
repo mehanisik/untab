@@ -18,12 +18,6 @@ interface HeroProps {
 const PARALLAX_X = 14;
 const PARALLAX_Y = 10;
 
-// Masonry wall on a 5-column × 12-row grid. Each tile spans a VARYING number of
-// rows (3–5) so column heights stagger like a deuxhuithuit poster wall instead
-// of a uniform mosaic. Every column packs top-to-bottom (rows 1→13, bleeding one
-// past the bottom edge). The center cell (col 3, rows 5–8) is reserved: the hero
-// video settles there and stays the centerpiece. Cells are ordered by distance
-// from the center so the scroll stagger blooms outward.
 const TILE_CELLS = [
 	{ col: 3, rowStart: 1, span: 4 },
 	{ col: 3, rowStart: 9, span: 5 },
@@ -41,19 +35,12 @@ const TILE_CELLS = [
 	{ col: 5, rowStart: 9, span: 5 },
 ] as const;
 
-// Tile rendition: ~280px rendered width at 2x retina, 5:6 portrait like the
-// grid cells. Sanity's image CDN crops server-side (focal point or entropy),
-// so each poster arrives already framed for the portrait tile instead of being
-// blindly object-cover cropped, and nobody downloads a 4000px original.
 const TILE_W = 640;
 const TILE_H = 760;
 
 function tileSrc(src: string, hotspot?: { x: number; y: number }): string {
 	if (!src.includes("cdn.sanity.io")) return src;
 	const sep = src.includes("?") ? "&" : "?";
-	// Honour the focal point an editor set in Sanity Studio; otherwise let the
-	// CDN pick the most detailed region instead of a blind centre crop, so a
-	// landscape cover keeps its subject when squeezed into a 5:6 portrait tile.
 	const crop = hotspot
 		? `crop=focalpoint&fp-x=${hotspot.x}&fp-y=${hotspot.y}`
 		: "crop=entropy";
@@ -68,15 +55,9 @@ interface TileImage {
 const isUsable = (src: string | undefined): src is string =>
 	Boolean(src) && !src?.endsWith("placeholder.png");
 
-// The hero is a poster wall, so it wants portrait art that fills a 5:6 tile
-// without a brutal crop. The Poster Series project is exactly that — a set of
-// purpose-made posters — so its cover + gallery feed the wall directly. We
-// fall back to one cover per project (deduped) and finally to seeded picsum
-// mocks so the mosaic always renders even before the CMS has real imagery.
 function collectPool(projects: Project[]): TileImage[] {
 	const posterProject =
 		projects.find((p) => /poster/i.test(p.title)) ??
-		// No dedicated poster set — use whichever project actually has gallery art.
 		projects.find((p) => (p.gallery?.length ?? 0) > 0);
 
 	if (posterProject) {
@@ -87,8 +68,6 @@ function collectPool(projects: Project[]): TileImage[] {
 				hotspot: posterProject.imageHotspot,
 			});
 		}
-		// Gallery shots come back as plain URLs (no hotspot); these posters are
-		// already portrait, so an entropy crop barely trims them.
 		for (const src of posterProject.gallery ?? []) {
 			if (isUsable(src)) pool.push({ src });
 		}
@@ -119,18 +98,8 @@ function collectTileImages(projects: Project[] | undefined): string[] {
 }
 
 export function Hero({ videoUrl = "/hero.mp4", projects }: HeroProps) {
-	// The video's poster IS the LCP element, but browsers fetch poster images
-	// at low priority — on throttled mobile it queued ~3.5s behind JS chunks.
-	// Preloading it at high priority moves the LCP paint next to FCP.
 	preload("/hero-poster.webp", { as: "image", fetchPriority: "high" });
 
-	// `autoplay` makes the browser pull the whole ~1.3MB video the moment the
-	// element appears, and that download lands in the LCP critical chain on
-	// slow connections (it also dominates Lighthouse's mobile simulation).
-	// Attach the src only after `window.load`: the preloaded poster fills the
-	// stage instantly and the intro overlay covers the first moments anyway,
-	// so the later start is invisible - the video simply fades from poster to
-	// motion once the page is settled.
 	const [videoSrc, setVideoSrc] = useState<string | null>(null);
 	useEffect(() => {
 		const attach = () => setVideoSrc(videoUrl);
@@ -162,26 +131,14 @@ export function Hero({ videoUrl = "/hero.mp4", projects }: HeroProps) {
 				const stage = root.querySelector<HTMLElement>(".hero-stage");
 				if (!(frame && float && bob && stage)) return;
 
-				// The resting DOM is already visible (no inline hiding), so a
-				// JS/animation failure degrades to static text rather than a blank
-				// hero. useGSAP applies these `from` start states before paint.
 				const intro = gsap.timeline({
 					defaults: { ease: "expo.out", duration: 0.9 },
 				});
-				// The fade-in `from` hides the poster (the LCP element) until
-				// hydration + tween completes - on a throttled phone that pushes
-				// LCP past 3.5s. Mobile gets no scroll scrub either, so keep the
-				// entrance flourish desktop-only and let the poster paint straight
-				// from the server HTML on phones.
 				const isDesktop = window.matchMedia("(min-width: 768px)").matches;
 				if (isDesktop) {
 					intro.from(float, { autoAlpha: 0, scale: 0.96, duration: 1.1 }, 0);
 				}
 
-				// The bob lives on its own wrapper so it never shares a transform
-				// with the scroll scrub, which exclusively owns .hero-float. A
-				// shared `y` would let the onEnter reset overwrite the scrub's
-				// landing tween and drop the card out of its grid slot.
 				const idleFloat = gsap.to(bob, {
 					y: 6,
 					duration: 3.4,
@@ -235,17 +192,11 @@ export function Hero({ videoUrl = "/hero.mp4", projects }: HeroProps) {
 				const tiles = root.querySelectorAll<HTMLElement>(".hero-tile");
 				if (!(grid && centerCell && tiles.length)) return cleanupListeners;
 
-				// Untransformed center of a grid cell in hero coordinates. Built on
-				// offset* (which ignores transforms) so invalidateOnRefresh can safely
-				// re-measure mid-animation on resize.
 				const cellCenter = (el: HTMLElement) => ({
 					x: grid.offsetLeft + el.offsetLeft + el.offsetWidth / 2,
 					y: grid.offsetTop + el.offsetTop + el.offsetHeight / 2,
 				});
 
-				// Untransformed center of the poster. The frame flex-centers the
-				// float inside its padded box, so this stays constant even while
-				// the width/height tween below is mid-flight on a refresh.
 				const floatCenter = () => ({
 					x: frame.offsetLeft + float.offsetLeft + float.offsetWidth / 2,
 					y: frame.offsetTop + float.offsetTop + float.offsetHeight / 2,
@@ -283,9 +234,6 @@ export function Hero({ videoUrl = "/hero.mp4", projects }: HeroProps) {
 							},
 						},
 					})
-					// The big poster shrinks into its reserved slot and STAYS the
-					// centerpiece of the wall. Width/height (not scale) so the rounded
-					// corners never smear under a non-uniform transform.
 					.to(
 						float,
 						{
@@ -298,7 +246,6 @@ export function Hero({ videoUrl = "/hero.mp4", projects }: HeroProps) {
 						},
 						0,
 					)
-					// Tiles bloom outward from behind the poster into the wall.
 					.fromTo(
 						tiles,
 						{
@@ -340,14 +287,10 @@ export function Hero({ videoUrl = "/hero.mp4", projects }: HeroProps) {
 			ref={containerRef}
 			className="home-hero relative w-full overflow-hidden bg-background h-dvh"
 		>
-			{/* The hero is visual (poster wall + video), so the page's top-level
-			    heading is screen-reader-only for SEO/a11y. */}
 			<h1 className="sr-only">
 				Untab Studio — software studio in Warsaw building brand-led websites,
 				platforms, and digital products
 			</h1>
-			{/* Poster-wall mosaic: hidden at rest, bloomed open by the scroll scrub.
-			    Bleeds past the top/bottom edges like an endless wall of work. */}
 			<div
 				aria-hidden
 				className="hero-grid pointer-events-none absolute inset-x-0 -inset-y-10 z-15 hidden gap-3 px-6 md:grid md:px-12 grid-cols-5 grid-rows-12 lg:gap-4 lg:px-24"
@@ -382,9 +325,6 @@ export function Hero({ videoUrl = "/hero.mp4", projects }: HeroProps) {
 				/>
 			</div>
 
-			{/* One big video poster aligned with the site container (the same
-			    container + px rails as every other section). On scroll it
-			    shrinks into the reserved center cell of the mosaic. */}
 			<div className="hero-frame absolute inset-0 z-20 pointer-events-none pt-[calc(var(--site-header-height,3.875rem)+0.75rem)] pb-4 md:pb-6">
 				<div className="container flex size-full items-center justify-center px-6 md:px-12 lg:px-24">
 					<div className="hero-float relative size-full will-change-transform">

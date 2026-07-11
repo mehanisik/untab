@@ -1,17 +1,12 @@
-"use client";
-
-import { useId } from "react";
-import { useFadeInOnScroll } from "~/hooks/use-scroll-animation";
 import type { HomepageFeatureItem } from "~/libs/sanity";
 import { cn } from "~/libs/utils";
+import { FeaturesFx } from "./fx/features-fx";
 
 interface FeaturesProps {
 	title?: string;
 	features?: HomepageFeatureItem[];
 }
 
-// Presentation only — poster colour + tilt, applied by card index. Kept in
-// code (per "data > presentation"); the CMS supplies the editorial content.
 const POSTER_STYLES = [
 	{ bg: "#f15c7e", rotate: -1.4 },
 	{ bg: "#7c8df0", rotate: 1.2 },
@@ -55,8 +50,8 @@ const DEFAULT_FEATURES: HomepageFeatureItem[] = [
 ];
 
 function Poster({ meta, index }: { meta: HomepageFeatureItem; index: number }) {
-	const dotsId = useId();
-	const grainId = useId();
+	const dotsId = `poster-dots-${index}`;
+	const grainId = `poster-grain-${index}`;
 	const style = POSTER_STYLES[index % POSTER_STYLES.length];
 
 	return (
@@ -138,10 +133,8 @@ function PosterCard({
 	feature: HomepageFeatureItem;
 	index: number;
 }) {
-	const ref = useFadeInOnScroll<HTMLDivElement>({ delay: index * 0.06 });
-
 	return (
-		<div ref={ref} className="group flex flex-col">
+		<div className="features-card group flex flex-col">
 			<Poster meta={feature} index={index} />
 
 			<div className="mt-5">
@@ -160,15 +153,10 @@ export function Features({
 	title = "How we work",
 	features = DEFAULT_FEATURES,
 }: FeaturesProps) {
-	const headingRef = useFadeInOnScroll<HTMLHeadingElement>({ delay: 0 });
-
 	return (
-		<section className="relative bg-background py-24 md:py-32 lg:py-40">
+		<FeaturesFx className="relative bg-background py-24 md:py-32 lg:py-40">
 			<div className="container px-6 md:px-12 lg:px-24">
-				<h2
-					ref={headingRef}
-					className="mb-12 flex items-baseline gap-3 font-medium text-foreground leading-none tracking-[-0.03em] text-[clamp(2rem,5vw,4rem)] md:mb-16"
-				>
+				<h2 className="features-heading mb-12 flex items-baseline gap-3 font-medium text-foreground leading-none tracking-[-0.03em] text-[clamp(2rem,5vw,4rem)] md:mb-16">
 					{title}
 					<span className="font-mono text-[11px] tracking-[0.2em] text-foreground/40 tabular-nums">
 						({String(features.length).padStart(2, "0")})
@@ -181,6 +169,6 @@ export function Features({
 					))}
 				</div>
 			</div>
-		</section>
+		</FeaturesFx>
 	);
 }
